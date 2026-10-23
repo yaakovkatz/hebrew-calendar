@@ -1,0 +1,39 @@
+{
+  "name": "luach-yehudi",
+  "version": "1.0.0",
+  "main": "index.ts",
+  "dependencies": {
+    "@hebcal/core": "^6.14.6",
+    "expo": "~58.0.17",
+    "expo-dev-client": "~58.0.14",
+    "expo-localization": "~58.0.5",
+    "expo-status-bar": "~58.0.4",
+    "react": "19.3.0",
+    "react-native": "0.88.0"
+  },
+  "devDependencies": {
+    "@types/jest": "^30.0.0",
+    "@types/react": "~19.3.0",
+    "jest": "^30.5.2",
+    "jest-expo": "^58.0.12",
+    "typescript": "~6.0.3"
+  },
+  "scripts": {
+    "start": "expo start",
+    "android": "expo start --android",
+    "ios": "expo start --ios",
+    "web": "expo start --web",
+    "test": "jest",
+    "typecheck": "tsc --noEmit"
+  },
+  "private": true,
+  "jest": {
+    "preset": "jest-expo",
+    "transformIgnorePatterns": [
+      "node_modules/(?!((jest-)?react-native|@react-native(-community)?)|expo(nent)?|@expo(nent)?/.*|@expo-google-fonts/.*|react-navigation|@react-navigation/.*|@sentry/react-native|native-base|react-native-svg|@hebcal/.*|temporal-polyfill|temporal-utils|quick-lru)"
+    ],
+    "moduleNameMapper": {
+      "^@hebcal/core$": "<rootDir>/node_modules/@hebcal/core/dist/esm/index.js"
+    }
+  }
+}
