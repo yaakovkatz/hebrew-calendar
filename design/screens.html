@@ -102,7 +102,7 @@ figcaption{font-size:13px;color:var(--muted)}
 
 <section><h2>המסכים הראשיים</h2><p>חודש ויום, בבהיר ובכהה</p><div class="row" id="main"></div></section>
 <section><h2>אירועים</h2><p>פרטי יום, המשפחה, תאריך חדש</p><div class="row" id="ev"></div></section>
-<section><h2>ניווט <span style="font-size:14px;color:var(--red);font-family:var(--sans)">לבחירה</span></h2><p>איך עוברים בין לוח, משפחה, תזכורות והגדרות</p><div class="row" id="nav"></div></section>
+<section><h2>ניווט</h2><p>נבחרה אפשרות 2: פס עם אייקונים דקים</p><div class="row" id="nav"></div></section>
 <section><h2>תזכורות</h2><p>תזכורת חד-פעמית עם שעה, למשל תור לרופא</p><div class="row" id="rem"></div></section>
 <section><h2>פתיחה והגדרות</h2><p>מסך פתיחה, מיקום, הגדרות</p><div class="row" id="set"></div></section>
 <section><h2>מחוץ לאפליקציה</h2><p>מסך נעילה, ווידג'טים, התראות</p><div class="row" id="out"></div></section>
@@ -191,9 +191,7 @@ const barText=`<div style="position:absolute;bottom:0;left:0;right:0;display:fle
 const barIcon=`<div style="position:absolute;bottom:0;left:0;right:0;display:flex;justify-content:space-around;border-top:1px solid var(--l1);padding:8px 0 14px;font-family:var(--sans);font-size:10px">${TABS.map((t,i)=>`<span style="text-align:center;color:${i==0?'var(--i)':'var(--m)'}"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" style="display:block;margin:0 auto 2px" aria-hidden="true"><path d="${ICONS[i]}"/></svg>${t}</span>`).join('')}</div>`;
 const topLinks=`<div class="s" style="display:flex;justify-content:space-between;padding:8px 20px 0;font-size:12px;color:var(--m)"><span>משפחה · תזכורות</span><span>הגדרות</span></div>`;
 document.getElementById('nav').innerHTML=
-  fig('1 · פס מילים למטה (מומלץ)',navMonth('',barText))+
-  fig('2 · פס עם אייקונים דקים',navMonth('',barIcon))+
-  fig('3 · קישורים קטנים למעלה',navMonth(topLinks,''));
+  fig('פס עם אייקונים דקים ✓',navMonth('',barIcon));
 
 document.getElementById('rem').innerHTML=
   fig('תזכורת חדשה',phone('L',`<div class="pad" style="padding-top:22px"><div class="s" style="display:flex;justify-content:space-between;font-size:13px"><span class="mu">ביטול</span><span style="color:var(--r)">שמירה</span></div>
