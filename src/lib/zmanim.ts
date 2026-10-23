@@ -58,6 +58,29 @@ export function nextShabbatTime(instant: Date, city: City, start: HDate): Shabba
   return null;
 }
 
+/**
+ * Candle lighting and havdalah for the coming Shabbat or Yom Tov.
+ * Once candles are lit, only havdalah is left.
+ */
+export function upcomingShabbatTimes(instant: Date, city: City, start: HDate): { candles: Date | null; havdalah: Date | null } {
+  const events = HebrewCalendar.calendar({
+    start,
+    end: start.add(7, 'd'),
+    location: toLocation(city),
+    candlelighting: true,
+    candleLightingMins: city.candleLightingMins,
+    il: true,
+  });
+  let candles: Date | null = null;
+  for (const ev of events) {
+    const t = ev instanceof CandleLightingEvent || ev instanceof HavdalahEvent ? ev.eventTime : null;
+    if (!t) continue;
+    if (ev instanceof CandleLightingEvent && t.getTime() > instant.getTime() && !candles) candles = t;
+    if (ev instanceof HavdalahEvent && t.getTime() > instant.getTime()) return { candles, havdalah: t };
+  }
+  return { candles, havdalah: null };
+}
+
 /** 'בעוד 6 דק׳' or 'בעוד 6:40 שע׳' */
 export function formatCountdown(from: Date, to: Date): string {
   const totalMin = Math.max(0, Math.round((to.getTime() - from.getTime()) / 60_000));

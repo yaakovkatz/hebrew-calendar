@@ -12,11 +12,13 @@ type Props = {
   /** delta +1 = next month, -1 = previous */
   onShift: (delta: 1 | -1) => void;
   onSelectDay: (hd: HDate) => void;
+  /** Shown under the parsha, e.g. 'הדלקת נרות 17:08 · מוצאי שבת 18:20' */
+  shabbatNote?: string | null;
 };
 
 const SWIPE_MIN = 50;
 
-export function MonthView({ year, month, today, il, onShift, onSelectDay }: Props) {
+export function MonthView({ year, month, today, il, onShift, onSelectDay, shabbatNote }: Props) {
   const palette = usePalette();
   const grid = useMemo(() => buildMonth(year, month, today, il), [year, month, today, il]);
 
@@ -63,6 +65,7 @@ export function MonthView({ year, month, today, il, onShift, onSelectDay }: Prop
         <View style={styles.footer}>
           <Text style={[styles.footerLabel, { color: palette.muted }]}>פרשת השבוע</Text>
           <Text style={[styles.footerParsha, { color: palette.ink }]}>{parsha}</Text>
+          {shabbatNote ? <Text style={[styles.footerNote, { color: palette.inkSoft }]}>{shabbatNote}</Text> : null}
         </View>
       ) : null}
     </View>
@@ -126,4 +129,5 @@ const styles = StyleSheet.create({
   footer: { alignItems: 'center', paddingTop: 18 },
   footerLabel: { fontFamily: fonts.sans, fontSize: 12 },
   footerParsha: { fontFamily: fonts.serif, fontSize: 28, lineHeight: 34 },
+  footerNote: { fontFamily: fonts.serif, fontSize: 14, marginTop: 2 },
 });

@@ -1,6 +1,6 @@
 import { HDate, months } from '@hebcal/core';
 import { CITIES } from '../cities';
-import { dayZmanim, formatCountdown, nextShabbatTime, nextZman, sunProgress } from '../zmanim';
+import { dayZmanim, formatCountdown, nextShabbatTime, nextZman, sunProgress, upcomingShabbatTimes } from '../zmanim';
 
 const jerusalem = CITIES.find((c) => c.id === 'jerusalem')!;
 const fridayMorning = new Date('2026-10-23T07:28:00Z'); // 10:28 in Jerusalem
@@ -46,6 +46,20 @@ describe('nextShabbatTime', () => {
     const t = nextShabbatTime(shabbatAfternoon, jerusalem, friday.next())!;
     expect(t.kind).toBe('havdalah');
     expect(t.time.getTime()).toBeGreaterThan(shabbatAfternoon.getTime());
+  });
+});
+
+describe('upcomingShabbatTimes', () => {
+  it('has both candles and havdalah on Friday morning, havdalah after candles', () => {
+    const t = upcomingShabbatTimes(fridayMorning, jerusalem, friday);
+    expect(t.candles).not.toBeNull();
+    expect(t.havdalah!.getTime()).toBeGreaterThan(t.candles!.getTime());
+  });
+
+  it('has only havdalah once Shabbat has started', () => {
+    const t = upcomingShabbatTimes(shabbatAfternoon, jerusalem, friday.next());
+    expect(t.candles).toBeNull();
+    expect(t.havdalah).not.toBeNull();
   });
 });
 

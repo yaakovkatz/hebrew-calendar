@@ -4,9 +4,11 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { DayView } from '@/components/DayView';
 import { MonthView } from '@/components/MonthView';
 import { CITIES } from '@/lib/cities';
-import { hebrewDateAt } from '@/lib/hebrewDay';
+import { civilNoon, formatTime, hebrewDateAt } from '@/lib/hebrewDay';
 import { shiftMonth } from '@/lib/month';
 import { useNow } from '@/lib/useNow';
+import { upcomingShabbatTimes } from '@/lib/zmanim';
+import { HDate } from '@hebcal/core';
 import { fonts, usePalette } from '@/theme/tokens';
 
 // Until onboarding and settings exist, the city is Jerusalem and holidays follow Israel.
@@ -23,6 +25,14 @@ export function CalendarScreen() {
   const [mode, setMode] = useState<Mode>('month');
   const [shown, setShown] = useState({ year: today.getFullYear(), month: today.getMonth() });
   const onCurrentMonth = shown.year === today.getFullYear() && shown.month === today.getMonth();
+
+  const times = upcomingShabbatTimes(now, city, new HDate(civilNoon(now, city.tzid)));
+  const shabbatNote = [
+    times.candles ? `הדלקת נרות ${formatTime(times.candles, city.tzid)}` : null,
+    times.havdalah ? `מוצאי שבת ${formatTime(times.havdalah, city.tzid)}` : null,
+  ]
+    .filter(Boolean)
+    .join(' · ');
 
   return (
     <ScrollView style={{ backgroundColor: palette.paper }} contentContainerStyle={{ paddingTop: insets.top + 8, paddingBottom: 24 }}>
@@ -51,6 +61,7 @@ export function CalendarScreen() {
             today={today}
             il={IL}
             onShift={(delta) => setShown((s) => shiftMonth(s.year, s.month, delta))}
+            shabbatNote={onCurrentMonth ? shabbatNote : null}
             onSelectDay={(hd) => {
               if (hd.abs() === today.abs()) setMode('day');
             }}
