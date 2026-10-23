@@ -102,6 +102,7 @@ figcaption{font-size:13px;color:var(--muted)}
 
 <section><h2>המסכים הראשיים</h2><p>חודש ויום, בבהיר ובכהה</p><div class="row" id="main"></div></section>
 <section><h2>אירועים</h2><p>פרטי יום, המשפחה, תאריך חדש</p><div class="row" id="ev"></div></section>
+<section><h2>תזכורות <span style="font-size:14px;color:var(--red);font-family:var(--sans)">טיוטה לאישור</span></h2><p>תזכורת חד-פעמית עם שעה, למשל תור לרופא</p><div class="row" id="rem"></div></section>
 <section><h2>פתיחה והגדרות</h2><p>מסך פתיחה, מיקום, הגדרות</p><div class="row" id="set"></div></section>
 <section><h2>מחוץ לאפליקציה</h2><p>מסך נעילה, ווידג'טים, התראות</p><div class="row" id="out"></div></section>
 <section><h2>לוח קיר להדפסה</h2><p>הגדרות, תצוגה מקדימה והעמוד המודפס</p><div class="row" id="prn"></div></section>
@@ -177,6 +178,27 @@ document.getElementById('ev').innerHTML=
    <div class="s" style="font-size:13px;margin-top:10px"><div class="r"><span>אחרי השקיעה</span><span style="width:30px;height:18px;border-radius:9px;background:#DDD3C1;position:relative"><span style="position:absolute;top:2px;right:2px;width:14px;height:14px;border-radius:7px;background:#fff"></span></span></div>
    <div class="r n"><span>תזכורת</span><span>ערב לפני ›</span></div></div>
    <div class="mu" style="position:absolute;bottom:24px;left:22px;right:22px;text-align:center;font-size:12px">השנה ביום ראשון, 10 בינואר</div></div>`));
+
+document.getElementById('rem').innerHTML=
+  fig('תזכורת חדשה',phone('L',`<div class="pad" style="padding-top:22px"><div class="s" style="display:flex;justify-content:space-between;font-size:13px"><span class="mu">ביטול</span><span style="color:var(--r)">שמירה</span></div>
+   <div class="big" style="margin-top:16px">תזכורת</div><div class="mu" style="font-size:11.5px">יום הולדת · נישואין · אחר</div>
+   <div class="lb">מה</div><div style="font-size:18px;padding-bottom:5px;border-bottom:1px solid var(--l1)">רופא שיניים</div>
+   <div class="lb">תאריך עברי</div><div style="font-size:18px;padding-bottom:5px;border-bottom:1px solid var(--l1)">י׳ בניסן תשפ״ז</div>
+   <div class="s" style="font-size:11px;color:var(--r);margin-top:5px">השנה י׳ בניסן יוצא בשבת</div>
+   <div class="s" style="font-size:13px;margin-top:6px">${fam('שעה','10:30 ›')}${fam('חוזר','פעם אחת ›')}<div class="r n"><span>התראה</span><span>שעה לפני ›</span></div></div>
+   <div class="mu" style="position:absolute;bottom:24px;left:22px;right:22px;text-align:center;font-size:12px">שבת, 17 באפריל 2027</div></div>`))+
+  fig('בפרטי היום',phone('L',`<div style="height:100%;background:#E9E1D2"></div>
+   <div style="position:absolute;bottom:0;left:0;right:0;background:var(--b);border-radius:22px 22px 0 0;padding:12px 24px 26px">
+   <div style="width:34px;height:3px;background:var(--l1);border-radius:2px;margin:0 auto 20px"></div>
+   <div class="mu" style="font-size:11.5px">יום שלישי · 27 באוקטובר</div><div class="big" style="font-size:32px">ט״ז בחשוון</div>
+   <div class="r" style="margin-top:10px;border-bottom:1px solid var(--l1)"><span style="font-size:15px">רופא שיניים</span><span style="font-size:13px;color:var(--i)">10:30</span></div>
+   <div class="s" style="margin-top:6px">${fam('<span class="mu">הנץ החמה</span>','06:10')}${fam('<span class="mu">שקיעה</span>','16:55')}<div class="r n"><span class="mu">צאת הכוכבים</span><span>17:13</span></div></div>
+   <div class="mu" style="text-align:center;margin-top:14px;font-size:12px">כל הזמנים ›</div></div>`))+
+  fig('תזכורות',phone('L',`<div class="pad"><div class="mu" style="font-size:11px">התזכורת הבאה</div>
+   <div style="font-size:40px;line-height:1.05;margin-top:4px">בעוד 4 ימים</div><div style="font-size:16px;margin-top:4px">רופא שיניים</div>
+   <div class="mu" style="font-size:11px">ט״ז בחשוון · יום שלישי · 10:30</div><div style="height:1px;background:var(--l1);margin:22px 0 2px"></div>
+   ${fam('חידוש דרכון','כ׳ כסלו')}${fam('אסיפת הורים','ג׳ טבת · 19:00')}<div class="r n"><span>ביקור אצל סבתא</span><span>כל שנה · ט״ו בשבט</span></div>
+   <div class="s" style="position:absolute;bottom:22px;left:0;right:0;text-align:center;font-size:13px;color:var(--r)">+ תזכורת חדשה</div></div>`));
 
 document.getElementById('set').innerHTML=
   fig('פתיחה',phone('L',`<div class="pad" style="text-align:center"><div class="mu" style="font-size:11px;letter-spacing:2px;margin-top:80px">תשפ״ז</div>
