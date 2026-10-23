@@ -102,6 +102,7 @@ figcaption{font-size:13px;color:var(--muted)}
 
 <section><h2>המסכים הראשיים</h2><p>חודש ויום, בבהיר ובכהה</p><div class="row" id="main"></div></section>
 <section><h2>אירועים</h2><p>פרטי יום, המשפחה, תאריך חדש</p><div class="row" id="ev"></div></section>
+<section><h2>זמני שבת והבא בתור</h2><p>נבחר עיצוב 1: שני זמנים גדולים, והבא בתור מתחת</p><div class="row" id="foot"></div></section>
 <section><h2>ניווט</h2><p>נבחרה אפשרות 2: פס עם אייקונים דקים</p><div class="row" id="nav"></div></section>
 <section><h2>תזכורות</h2><p>תזכורת חד-פעמית עם שעה, למשל תור לרופא</p><div class="row" id="rem"></div></section>
 <section><h2>פתיחה והגדרות</h2><p>מסך פתיחה, מיקום, הגדרות</p><div class="row" id="set"></div></section>
@@ -192,6 +193,25 @@ const barIcon=`<div style="position:absolute;bottom:0;left:0;right:0;display:fle
 const topLinks=`<div class="s" style="display:flex;justify-content:space-between;padding:8px 20px 0;font-size:12px;color:var(--m)"><span>משפחה · תזכורות</span><span>הגדרות</span></div>`;
 document.getElementById('nav').innerHTML=
   fig('פס עם אייקונים דקים ✓',navMonth('',barIcon));
+
+function footMonth(foot){return phone('L',sb('15:37')+tg('m')+`
+  <div style="text-align:center;padding:8px 0 10px"><div style="font-size:30px;line-height:1.1">חשוון</div></div>
+  <div class="g wd">${DAYS.map((d,i)=>`<span style="${i==6?'color:var(--r)':''}">${d}</span>`).join('')}</div>${orn}
+  <div class="g">${cells(12)}</div>
+  <div style="text-align:center;padding:12px 18px 0"><div class="mu" style="font-size:10.5px">פרשת השבוע</div><div style="font-size:24px;line-height:1.2">לך־לך</div></div>${foot}`+barIcon,'height:640px')}
+const nextEv=`<div style="margin:14px 22px 0;padding-top:10px;border-top:1px solid var(--l2);display:flex;justify-content:space-between;align-items:baseline">
+  <div><div class="mu" style="font-size:10px">הבא בתור</div><div style="font-size:15px">יום ההולדת של אמא</div></div>
+  <div style="text-align:left"><div style="font-size:15px;color:var(--sun)">13 ימים</div><div class="mu" style="font-size:10px">כ״ה בחשוון</div></div></div>`;
+const footA=`<div style="display:flex;justify-content:center;margin-top:10px">
+  <div style="text-align:center;padding:0 18px"><div class="mu" style="font-size:10px">הדלקת נרות</div><div style="font-size:24px;line-height:1.1;color:var(--r)">17:18</div></div>
+  <div style="width:1px;background:var(--l1)"></div>
+  <div style="text-align:center;padding:0 18px"><div class="mu" style="font-size:10px">מוצאי שבת</div><div style="font-size:24px;line-height:1.1">18:34</div></div></div>`+nextEv;
+const lead=(a,b,c)=>`<div style="display:flex;align-items:baseline;gap:6px;font-size:15px"><span>${a}</span><span style="flex:1;border-bottom:1px dotted var(--l1);transform:translateY(-4px)"></span><span style="${c?'color:var(--r)':''}">${b}</span></div>`;
+const footB=`<div style="margin:10px 40px 0">${lead('הדלקת נרות','17:18',1)}${lead('מוצאי שבת','18:34')}</div>`+nextEv;
+const footC=`<div style="margin:10px 22px 0;background:var(--t);border-radius:12px;padding:9px 14px;display:flex;justify-content:space-between;align-items:center">
+  <span style="font-size:14px">🕯 הדלקת נרות <span style="color:var(--r)">17:18</span></span><span class="mu" style="font-size:11px">מוצ״ש 18:34</span></div>`+nextEv;
+document.getElementById('foot').innerHTML=
+  fig('שני זמנים גדולים ✓',footMonth(footA));
 
 document.getElementById('rem').innerHTML=
   fig('תזכורת חדשה',phone('L',`<div class="pad" style="padding-top:22px"><div class="s" style="display:flex;justify-content:space-between;font-size:13px"><span class="mu">ביטול</span><span style="color:var(--r)">שמירה</span></div>

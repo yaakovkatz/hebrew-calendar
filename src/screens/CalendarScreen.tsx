@@ -17,7 +17,7 @@ const IL = true;
 
 type Mode = 'month' | 'day';
 
-export function CalendarScreen() {
+export function CalendarScreen({ onOpenFamily }: { onOpenFamily: () => void }) {
   const palette = usePalette();
   const insets = useSafeAreaInsets();
   const now = useNow();
@@ -27,12 +27,7 @@ export function CalendarScreen() {
   const onCurrentMonth = shown.year === today.getFullYear() && shown.month === today.getMonth();
 
   const times = upcomingShabbatTimes(now, city, new HDate(civilNoon(now, city.tzid)));
-  const shabbatNote = [
-    times.candles ? `הדלקת נרות ${formatTime(times.candles, city.tzid)}` : null,
-    times.havdalah ? `מוצאי שבת ${formatTime(times.havdalah, city.tzid)}` : null,
-  ]
-    .filter(Boolean)
-    .join(' · ');
+  const fmt = (d: Date | null) => (d ? formatTime(d, city.tzid) : null);
 
   return (
     <ScrollView style={{ backgroundColor: palette.paper }} contentContainerStyle={{ paddingTop: insets.top + 8, paddingBottom: 24 }}>
@@ -61,7 +56,11 @@ export function CalendarScreen() {
             today={today}
             il={IL}
             onShift={(delta) => setShown((s) => shiftMonth(s.year, s.month, delta))}
-            shabbatNote={onCurrentMonth ? shabbatNote : null}
+            candles={onCurrentMonth ? fmt(times.candles) : undefined}
+            havdalah={onCurrentMonth ? fmt(times.havdalah) : undefined}
+            // Family dates arrive with the family screen; until then the row invites adding one.
+            nextEvent={null}
+            onAddEvent={onOpenFamily}
             onSelectDay={(hd) => {
               if (hd.abs() === today.abs()) setMode('day');
             }}

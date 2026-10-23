@@ -12,13 +12,17 @@ type Props = {
   /** delta +1 = next month, -1 = previous */
   onShift: (delta: 1 | -1) => void;
   onSelectDay: (hd: HDate) => void;
-  /** Shown under the parsha, e.g. 'הדלקת נרות 17:08 · מוצאי שבת 18:20' */
-  shabbatNote?: string | null;
+  /** 'HH:MM' strings for the coming Shabbat; null hides them (e.g. on other months). */
+  candles?: string | null;
+  havdalah?: string | null;
+  /** The next family date, or null to show the invitation to add one. */
+  nextEvent?: { title: string; when: string; date: string } | null;
+  onAddEvent?: () => void;
 };
 
 const SWIPE_MIN = 50;
 
-export function MonthView({ year, month, today, il, onShift, onSelectDay, shabbatNote }: Props) {
+export function MonthView({ year, month, today, il, onShift, onSelectDay, candles, havdalah, nextEvent, onAddEvent }: Props) {
   const palette = usePalette();
   const grid = useMemo(() => buildMonth(year, month, today, il), [year, month, today, il]);
 
@@ -65,9 +69,47 @@ export function MonthView({ year, month, today, il, onShift, onSelectDay, shabba
         <View style={styles.footer}>
           <Text style={[styles.footerLabel, { color: palette.muted }]}>פרשת השבוע</Text>
           <Text style={[styles.footerParsha, { color: palette.ink }]}>{parsha}</Text>
-          {shabbatNote ? <Text style={[styles.footerNote, { color: palette.inkSoft }]}>{shabbatNote}</Text> : null}
         </View>
       ) : null}
+
+      {candles || havdalah ? (
+        <View style={styles.times}>
+          {candles ? <TimeBlock label="הדלקת נרות" time={candles} color={palette.red} palette={palette} /> : null}
+          {candles && havdalah ? <View style={[styles.timesRule, { backgroundColor: palette.line }]} /> : null}
+          {havdalah ? <TimeBlock label="מוצאי שבת" time={havdalah} color={palette.ink} palette={palette} /> : null}
+        </View>
+      ) : null}
+
+      {candles !== undefined ? (
+        <Pressable
+          disabled={!!nextEvent}
+          onPress={onAddEvent}
+          accessibilityRole={nextEvent ? 'text' : 'button'}
+          style={[styles.next, { borderTopColor: palette.lineSoft }]}
+        >
+          <View>
+            <Text style={[styles.nextLabel, { color: palette.muted }]}>הבא בתור</Text>
+            <Text style={[styles.nextTitle, { color: nextEvent ? palette.ink : palette.red }]}>
+              {nextEvent ? nextEvent.title : 'הוספת יום הולדת ראשון ›'}
+            </Text>
+          </View>
+          {nextEvent ? (
+            <View style={styles.alignEnd}>
+              <Text style={[styles.nextTitle, { color: palette.sun }]}>{nextEvent.when}</Text>
+              <Text style={[styles.nextLabel, { color: palette.muted }]}>{nextEvent.date}</Text>
+            </View>
+          ) : null}
+        </Pressable>
+      ) : null}
+    </View>
+  );
+}
+
+function TimeBlock({ label, time, color, palette }: { label: string; time: string; color: string; palette: Palette }) {
+  return (
+    <View style={styles.timeBlock}>
+      <Text style={[styles.nextLabel, { color: palette.muted }]}>{label}</Text>
+      <Text style={[styles.timeValue, { color }]}>{time}</Text>
     </View>
   );
 }
@@ -129,5 +171,20 @@ const styles = StyleSheet.create({
   footer: { alignItems: 'center', paddingTop: 18 },
   footerLabel: { fontFamily: fonts.sans, fontSize: 12 },
   footerParsha: { fontFamily: fonts.serif, fontSize: 28, lineHeight: 34 },
-  footerNote: { fontFamily: fonts.serif, fontSize: 14, marginTop: 2 },
+  times: { flexDirection: 'row', justifyContent: 'center', marginTop: 12 },
+  timeBlock: { alignItems: 'center', paddingHorizontal: 22 },
+  timesRule: { width: 1 },
+  timeValue: { fontFamily: fonts.serif, fontSize: 28, lineHeight: 34 },
+  next: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'flex-end',
+    marginHorizontal: 24,
+    marginTop: 16,
+    paddingTop: 12,
+    borderTopWidth: 1,
+  },
+  nextLabel: { fontFamily: fonts.sans, fontSize: 11 },
+  nextTitle: { fontFamily: fonts.serif, fontSize: 17 },
+  alignEnd: { alignItems: 'flex-end' },
 });

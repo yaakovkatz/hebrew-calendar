@@ -7,10 +7,10 @@ import { TabBar, type TabId } from '@/components/TabBar';
 import { CalendarScreen } from '@/screens/CalendarScreen';
 import { usePalette } from '@/theme/tokens';
 
-function Screen({ tab }: { tab: TabId }) {
+function Screen({ tab, onSelect }: { tab: TabId; onSelect: (id: TabId) => void }) {
   switch (tab) {
     case 'calendar':
-      return <CalendarScreen />;
+      return <CalendarScreen onOpenFamily={() => onSelect('family')} />;
     case 'family':
       return <ComingSoon title="משפחה" note="בקרוב, בהמשך שלב 1" />;
     case 'reminders':
@@ -28,7 +28,7 @@ export default function App() {
     <SafeAreaProvider>
       <View style={{ flex: 1, backgroundColor: palette.paper }}>
         <View style={{ flex: 1 }}>
-          <Screen tab={tab} />
+          <Screen tab={tab} onSelect={setTab} />
         </View>
         <TabBar active={tab} onSelect={setTab} />
       </View>
