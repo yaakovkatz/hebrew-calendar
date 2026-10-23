@@ -5,7 +5,7 @@
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
-    "userInterfaceStyle": "light",
+    "userInterfaceStyle": "automatic",
     "ios": {
       "supportsTablet": true
     },
@@ -30,7 +30,18 @@
           "forcesRTL": true
         }
       ],
-      "expo-dev-client"
+      "expo-dev-client",
+      [
+        "expo-font",
+        {
+          "fonts": [
+            "node_modules/@expo-google-fonts/frank-ruhl-libre/400Regular/FrankRuhlLibre_400Regular.ttf",
+            "node_modules/@expo-google-fonts/frank-ruhl-libre/500Medium/FrankRuhlLibre_500Medium.ttf",
+            "node_modules/@expo-google-fonts/heebo/400Regular/Heebo_400Regular.ttf",
+            "node_modules/@expo-google-fonts/heebo/500Medium/Heebo_500Medium.ttf"
+          ]
+        }
+      ]
     ],
     "scheme": "luachyehudi"
   }

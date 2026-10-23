@@ -21,7 +21,7 @@ export function civilDateIn(instant: Date, tzid: string): { year: number; month:
 }
 
 /** A local Date at noon for that civil date; HDate and Zmanim only read its y/m/d. */
-function civilNoon(instant: Date, tzid: string): Date {
+export function civilNoon(instant: Date, tzid: string): Date {
   const { year, month, day } = civilDateIn(instant, tzid);
   return new Date(year, month - 1, day, 12);
 }
