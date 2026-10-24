@@ -25,31 +25,33 @@ function Screen({ tab, onAddEvent }: { tab: TabId; onAddEvent: () => void }) {
   }
 }
 
-export default function App() {
+// App state lives below SQLiteProvider: its memo ignores `children`, so state held
+// above it would never reach the screens.
+function Main() {
   const palette = usePalette();
   const scheme = useColorScheme();
   const [tab, setTab] = useState<TabId>('calendar');
   const [adding, setAdding] = useState(false);
   return (
+    <View style={{ flex: 1, backgroundColor: palette.paper }}>
+      <View style={{ flex: 1 }}>
+        <Screen tab={tab} onAddEvent={() => setAdding(true)} />
+      </View>
+      <TabBar active={tab} onSelect={setTab} />
+      {adding ? <AddEventScreen onClose={() => setAdding(false)} /> : null}
+      <StatusBar style={scheme === 'dark' ? 'light' : 'dark'} />
+    </View>
+  );
+}
+
+export default function App() {
+  return (
     <SafeAreaProvider>
       <SQLiteProvider databaseName={DATABASE_NAME} onInit={migrateDbIfNeeded}>
         <EventsProvider>
-          <View style={{ flex: 1, backgroundColor: palette.paper }}>
-            <View style={{ flex: 1 }}>
-              <Screen tab={tab} onAddEvent={() => setAdding(true)} />
-            </View>
-            <TabBar active={tab} onSelect={setTab} />
-            {adding ? (
-              <AddEventScreen
-                onClose={() => {
-                  setAdding(false);
-                }}
-              />
-            ) : null}
-          </View>
+          <Main />
         </EventsProvider>
       </SQLiteProvider>
-      <StatusBar style={scheme === 'dark' ? 'light' : 'dark'} />
     </SafeAreaProvider>
   );
 }
