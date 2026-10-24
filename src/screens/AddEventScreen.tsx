@@ -15,7 +15,15 @@ import {
   hebrewYearOptions,
   type Option,
 } from '@/lib/datePicking';
-import { headline, hebrewFromGregorian, nextOccurrence, TYPE_LABEL, type EventType, type ReminderTime } from '@/lib/events';
+import {
+  headline,
+  hebrewFromGregorian,
+  nextOccurrence,
+  TYPE_LABEL,
+  type EventType,
+  type FamilyEvent,
+  type ReminderTime,
+} from '@/lib/events';
 import { hebrewDateAt } from '@/lib/hebrewDay';
 import { fonts, usePalette } from '@/theme/tokens';
 
@@ -36,20 +44,30 @@ const NAME_FIELD: Record<EventType, { label: string; placeholder: string; hint: 
 type Sheet = null | 'hDay' | 'hMonth' | 'hYear' | 'gDay' | 'gMonth' | 'gYear' | 'reminder';
 
 /** Approved design: type as the big title, name, Hebrew date (or Gregorian + after sunset), reminder. */
-export function AddEventScreen({ onClose }: { onClose: () => void }) {
+export function AddEventScreen({ onClose, initial }: { onClose: () => void; initial?: FamilyEvent }) {
   const palette = usePalette();
   const insets = useSafeAreaInsets();
-  const { add } = useEvents();
+  const { add, update } = useEvents();
   const today = hebrewDateAt(new Date(), city);
   const now = new Date();
 
-  const [type, setType] = useState<EventType>('birthday');
-  const [title, setTitle] = useState('');
-  const [byGregorian, setByGregorian] = useState(false);
-  const [h, setH] = useState({ day: today.getDate(), month: today.getMonth(), year: today.getFullYear() });
-  const [g, setG] = useState({ day: now.getDate(), month: now.getMonth() + 1, year: now.getFullYear() });
-  const [afterSunset, setAfterSunset] = useState(false);
-  const [reminder, setReminder] = useState<ReminderTime>('evening');
+  // Editing starts from the saved event; a Gregorian entry reopens in Gregorian mode.
+  const savedGreg = initial?.gregDate ? initial.gregDate.split('-').map(Number) : null;
+  const [type, setType] = useState<EventType>(initial?.type ?? 'birthday');
+  const [title, setTitle] = useState(initial?.title ?? '');
+  const [byGregorian, setByGregorian] = useState(!!savedGreg);
+  const [h, setH] = useState(
+    initial
+      ? { day: initial.hDay, month: initial.hMonth, year: initial.hYear }
+      : { day: today.getDate(), month: today.getMonth(), year: today.getFullYear() },
+  );
+  const [g, setG] = useState(
+    savedGreg
+      ? { year: savedGreg[0], month: savedGreg[1], day: savedGreg[2] }
+      : { day: now.getDate(), month: now.getMonth() + 1, year: now.getFullYear() },
+  );
+  const [afterSunset, setAfterSunset] = useState(initial?.afterSunset ?? false);
+  const [reminder, setReminder] = useState<ReminderTime>(initial?.reminder ?? 'evening');
   const [sheet, setSheet] = useState<Sheet>(null);
   const [error, setError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
@@ -86,17 +104,19 @@ export function AddEventScreen({ onClose }: { onClose: () => void }) {
       return;
     }
     setSaving(true);
+    const fields = {
+      type,
+      title: title.trim(),
+      hDay: hebrew.day,
+      hMonth: hebrew.month,
+      hYear: hebrew.year,
+      afterSunset: byGregorian && afterSunset,
+      gregDate: byGregorian ? `${g.year}-${String(g.month).padStart(2, '0')}-${String(g.day).padStart(2, '0')}` : null,
+      reminder,
+    };
     try {
-      await add({
-        type,
-        title: title.trim(),
-        hDay: hebrew.day,
-        hMonth: hebrew.month,
-        hYear: hebrew.year,
-        afterSunset: byGregorian && afterSunset,
-        gregDate: byGregorian ? `${g.year}-${String(g.month).padStart(2, '0')}-${String(g.day).padStart(2, '0')}` : null,
-        reminder,
-      });
+      if (initial) await update({ ...fields, id: initial.id });
+      else await add(fields);
       onClose();
     } catch {
       setError('לא הצלחנו לשמור. נסו שוב.');
@@ -130,13 +150,10 @@ export function AddEventScreen({ onClose }: { onClose: () => void }) {
         <Pressable onPress={onClose} accessibilityRole="button" hitSlop={12}>
           <Text style={[styles.topText, { color: palette.muted }]}>ביטול</Text>
         </Pressable>
-        <Pressable onPress={save} disabled={saving} accessibilityRole="button" hitSlop={12}>
-          <Text style={[styles.topText, { color: palette.red }]}>שמירה</Text>
-        </Pressable>
       </View>
 
-      <ScrollView contentContainerStyle={styles.body} keyboardShouldPersistTaps="handled">
-        <Text style={[styles.big, { color: palette.ink }]}>אירוע חדש</Text>
+      <ScrollView style={{ flex: 1 }} contentContainerStyle={styles.body} keyboardShouldPersistTaps="handled">
+        <Text style={[styles.big, { color: palette.ink }]}>{initial ? 'עריכת אירוע' : 'אירוע חדש'}</Text>
         <View style={[styles.segment, { borderColor: palette.line }]}>
           {TYPES.map((t) => {
             const on = t === type;
@@ -213,6 +230,17 @@ export function AddEventScreen({ onClose }: { onClose: () => void }) {
         <Text style={[styles.small, styles.footer, { color: palette.muted }]}>השנה: {thisYear}</Text>
       </ScrollView>
 
+      <View style={[styles.saveBar, { paddingBottom: insets.bottom + 16 }]}>
+        <Pressable
+          onPress={save}
+          disabled={saving}
+          accessibilityRole="button"
+          style={[styles.saveButton, { backgroundColor: palette.ink, opacity: saving ? 0.6 : 1 }]}
+        >
+          <Text style={[styles.saveText, { color: palette.paper }]}>שמירה</Text>
+        </Pressable>
+      </View>
+
       {open ? (
         <OptionSheet visible title={open.title} options={open.options} selected={open.selected} onSelect={open.onSelect} onClose={() => setSheet(null)} />
       ) : null}
@@ -223,6 +251,9 @@ export function AddEventScreen({ onClose }: { onClose: () => void }) {
 const styles = StyleSheet.create({
   screen: { position: 'absolute', top: 0, right: 0, bottom: 0, left: 0 },
   topBar: { flexDirection: 'row', justifyContent: 'space-between', paddingHorizontal: 24 },
+  saveBar: { paddingHorizontal: 24, paddingTop: 8 },
+  saveButton: { alignItems: 'center', paddingVertical: 14, borderRadius: 26 },
+  saveText: { fontFamily: fonts.sans, fontSize: 16 },
   topText: { fontFamily: fonts.sans, fontSize: 15 },
   body: { paddingHorizontal: 24, paddingBottom: 40 },
   big: { fontFamily: fonts.serif, fontSize: 36, lineHeight: 44, marginTop: 18 },

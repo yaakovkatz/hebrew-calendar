@@ -4,6 +4,7 @@ import {
   headline,
   hebrewFromGregorian,
   nextOccurrence,
+  originalDateLabel,
   shortHebrewDate,
   upcoming,
   whenLabel,
@@ -108,6 +109,12 @@ describe('labels', () => {
     const [anniv] = upcoming([ev({ type: 'anniversary', title: 'ההורים', hYear: 5749 })], today);
     expect(headline(anniv.event)).toBe('יום הנישואין של ההורים');
     expect(yearsLabel(anniv)).toBe('שנה 38');
+  });
+
+  it('names the original date without gender', () => {
+    expect(originalDateLabel('birthday')).toBe('תאריך לידה');
+    expect(originalDateLabel('anniversary')).toBe('תאריך החתונה');
+    expect(originalDateLabel('other')).toBe('התאריך');
   });
 
   it('formats a short Hebrew date with geresh and gershayim', () => {

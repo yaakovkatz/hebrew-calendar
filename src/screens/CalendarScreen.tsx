@@ -19,7 +19,7 @@ const IL = true;
 
 type Mode = 'month' | 'day';
 
-export function CalendarScreen({ onAddEvent }: { onAddEvent: () => void }) {
+export function CalendarScreen({ onAddEvent, onOpenEvent }: { onAddEvent: () => void; onOpenEvent: (id: number) => void }) {
   const { events } = useEvents();
   const palette = usePalette();
   const insets = useSafeAreaInsets();
@@ -70,6 +70,7 @@ export function CalendarScreen({ onAddEvent }: { onAddEvent: () => void }) {
             candles={onCurrentMonth ? fmt(times.candles) : undefined}
             havdalah={onCurrentMonth ? fmt(times.havdalah) : undefined}
             nextEvent={nextEvent}
+            onOpenNext={first ? () => onOpenEvent(first.event.id) : undefined}
             events={events}
             onAddEvent={onAddEvent}
             onSelectDay={(hd) => {

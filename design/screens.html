@@ -102,6 +102,7 @@ figcaption{font-size:13px;color:var(--muted)}
 
 <section><h2>המסכים הראשיים</h2><p>חודש ויום, בבהיר ובכהה</p><div class="row" id="main"></div></section>
 <section><h2>אירועים</h2><p>פרטי יום, המשפחה, תאריך חדש</p><div class="row" id="ev"></div></section>
+<section><h2>פרטי אירוע ועריכה</h2><p>רשימה ברורה יותר, מסך פרטים בלחיצה, ושמירה בכפתור גדול למטה</p><div class="row" id="det"></div></section>
 <section><h2>הוספת אירוע, גרסה 2</h2><p>סוג גלוי, "של מי" ברור, ותצוגה של איך זה ייראה. ובלוח: נקודה כתומה ביום של אירוע</p><div class="row" id="add2"></div></section>
 <section><h2>זמני שבת והבא בתור</h2><p>נבחר עיצוב 1: שני זמנים גדולים, והבא בתור מתחת</p><div class="row" id="foot"></div></section>
 <section><h2>ניווט</h2><p>נבחרה אפשרות 2: פס עם אייקונים דקים</p><div class="row" id="nav"></div></section>
@@ -224,6 +225,29 @@ const addForm=(on,label,val,ph,preview)=>phone('L',`<div class="pad" style="padd
   <div style="display:flex;gap:14px;font-size:19px"><span style="border-bottom:1px solid var(--l1);padding-bottom:4px">ב׳</span><span style="border-bottom:1px solid var(--l1);padding-bottom:4px">בשבט</span><span style="border-bottom:1px solid var(--l1);padding-bottom:4px">תשע״ח</span></div>
   <div class="s" style="font-size:13px;margin-top:12px"><div class="r n"><span>תזכורת</span><span>בערב שבו היום מתחיל ›</span></div></div></div>`);
 const dotCells=()=>{let s='';for(let i=0;i<14;i++){const greg=i<=20?11+i:i-20,sat=i%7==6,ev=i==25-14||i==5;s+=`<div class="c" style="${i==0?'opacity:.3;':''}${sat?'color:var(--r);':''}${i==12?'background:var(--t);':''}"><i>${greg}</i>${H[i]}${ev?'<span style="display:block;width:5px;height:5px;border-radius:3px;background:var(--sun);margin:3px auto 0"></span>':''}</div>`}return s};
+const lrow=(t,d,w)=>`<div class="r"><span style="font-size:15px">${t}</span><span style="text-align:left;line-height:1.3"><span style="display:block;color:var(--i)">${d}</span>${w}</span></div>`;
+document.getElementById('det').innerHTML=
+  fig('הרשימה',phone('L',`<div class="pad"><div class="mu" style="font-size:11px">הבא בתור</div>
+   <div style="font-size:40px;line-height:1.05;margin-top:4px">13 ימים</div><div style="font-size:16px;margin-top:4px">יום ההולדת של אמא</div>
+   <div class="mu" style="font-size:11px">כ״ה בחשוון · יום חמישי · יום הולדת 64</div><div style="height:1px;background:var(--l1);margin:20px 0 2px"></div>
+   ${lrow('יום ההולדת של סבא','ג׳ כסלו','בעוד 21 ימים')}${lrow('יום הנישואין של ההורים','י״ח טבת','בעוד 66 ימים')}${lrow('יום ההולדת של נועה','ב׳ שבט','בעוד 79 ימים')}
+   <div class="s" style="position:absolute;bottom:22px;left:0;right:0;text-align:center;font-size:13px;color:var(--r)">+ תאריך חדש</div></div>`))+
+  fig('פרטי אירוע',phone('L',`<div class="pad" style="padding-top:24px"><div class="mu s" style="font-size:13px">‹ אירועים</div>
+   <div class="mu" style="font-size:11px;margin-top:18px">יום הולדת</div>
+   <div style="font-size:28px;line-height:1.15">יום ההולדת של נועה</div>
+   <div style="font-size:40px;line-height:1.05;margin-top:14px;color:var(--sun)">79 ימים</div>
+   <div class="mu" style="font-size:11px">יום הולדת 9</div>
+   <div style="height:1px;background:var(--l1);margin:18px 0 2px"></div>
+   ${fam('השנה','ב׳ בשבט · יום ראשון')}${fam('בלועזי','10 בינואר 2027')}${fam('נולדה','ב׳ בשבט תשע״ח')}<div class="r n"><span>תזכורת</span><span>בערב שבו היום מתחיל</span></div>
+   <div style="position:absolute;bottom:22px;left:22px;right:22px;display:flex;gap:10px;font-family:var(--sans);font-size:13px;text-align:center">
+   <span style="flex:1;border:1px solid var(--l1);border-radius:22px;padding:10px 0;color:var(--r)">מחיקה</span><span style="flex:2;background:var(--i);color:var(--b);border-radius:22px;padding:10px 0">עריכה</span></div></div>`))+
+  fig('עריכה / הוספה: שמירה למטה',phone('L',`<div class="pad" style="padding-top:22px"><div class="s mu" style="font-size:13px">ביטול</div>
+   <div class="big" style="margin-top:14px">עריכת אירוע</div>${seg(['יום הולדת','נישואין','אחר'],0)}
+   <div class="lb">של מי?</div><div style="font-size:19px;padding-bottom:5px;border-bottom:1px solid var(--l1)">נועה</div>
+   <div class="s" style="font-size:11.5px;color:var(--sun);margin-top:6px">יופיע: יום ההולדת של נועה</div>
+   <div class="lb">תאריך עברי</div><div style="display:flex;gap:14px;font-size:19px"><span style="border-bottom:1px solid var(--l1)">ב׳</span><span style="border-bottom:1px solid var(--l1)">בשבט</span><span style="border-bottom:1px solid var(--l1)">תשע״ח</span></div>
+   <div class="btn">שמירה</div></div>`));
+
 document.getElementById('add2').innerHTML=
   fig('יום הולדת',addForm(0,'של מי?','נועה','','יופיע: יום ההולדת של נועה'))+
   fig('אחר',addForm(2,'שם האירוע','','למשל: בר מצווה של דוד','יופיע כמו שכתבת'))+

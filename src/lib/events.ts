@@ -88,6 +88,19 @@ export function yearsLabel(item: Upcoming): string | null {
   return null;
 }
 
+export const REMINDER_LABEL: Record<ReminderTime, string> = {
+  evening: 'בערב שבו היום מתחיל',
+  morning: 'בבוקר',
+  week: 'שבוע לפני',
+};
+
+/** Row label for the original date on the details screen; gender-neutral. */
+export function originalDateLabel(type: EventType): string {
+  if (type === 'birthday') return 'תאריך לידה';
+  if (type === 'anniversary') return 'תאריך החתונה';
+  return 'התאריך';
+}
+
 /** 'כ״ה חשוון' */
 export function shortHebrewDate(hd: HDate): string {
   const day = dayLetters(hd.getDate());

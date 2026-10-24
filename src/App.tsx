@@ -6,18 +6,21 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { ComingSoon } from '@/components/ComingSoon';
 import { TabBar, type TabId } from '@/components/TabBar';
 import { DATABASE_NAME, migrateDbIfNeeded } from '@/data/db';
-import { EventsProvider } from '@/data/useEvents';
+import { EventsProvider, useEvents } from '@/data/useEvents';
 import { AddEventScreen } from '@/screens/AddEventScreen';
 import { CalendarScreen } from '@/screens/CalendarScreen';
+import { EventDetailsScreen } from '@/screens/EventDetailsScreen';
 import { EventsScreen } from '@/screens/EventsScreen';
 import { usePalette } from '@/theme/tokens';
 
-function Screen({ tab, onAddEvent }: { tab: TabId; onAddEvent: () => void }) {
+type ScreenProps = { tab: TabId; onAddEvent: () => void; onOpenEvent: (id: number) => void };
+
+function Screen({ tab, onAddEvent, onOpenEvent }: ScreenProps) {
   switch (tab) {
     case 'calendar':
-      return <CalendarScreen onAddEvent={onAddEvent} />;
+      return <CalendarScreen onAddEvent={onAddEvent} onOpenEvent={onOpenEvent} />;
     case 'family':
-      return <EventsScreen onAdd={onAddEvent} />;
+      return <EventsScreen onAdd={onAddEvent} onOpen={onOpenEvent} />;
     case 'reminders':
       return <ComingSoon title="תזכורות" note="בקרוב, בהמשך שלב 1" />;
     case 'settings':
@@ -30,15 +33,23 @@ function Screen({ tab, onAddEvent }: { tab: TabId; onAddEvent: () => void }) {
 function Main() {
   const palette = usePalette();
   const scheme = useColorScheme();
+  const { events } = useEvents();
   const [tab, setTab] = useState<TabId>('calendar');
   const [adding, setAdding] = useState(false);
+  const [openId, setOpenId] = useState<number | null>(null);
+  const [editing, setEditing] = useState(false);
+  const editingEvent = editing ? events.find((e) => e.id === openId) : undefined;
   return (
     <View style={{ flex: 1, backgroundColor: palette.paper }}>
       <View style={{ flex: 1 }}>
-        <Screen tab={tab} onAddEvent={() => setAdding(true)} />
+        <Screen tab={tab} onAddEvent={() => setAdding(true)} onOpenEvent={setOpenId} />
       </View>
       <TabBar active={tab} onSelect={setTab} />
+      {openId !== null ? (
+        <EventDetailsScreen eventId={openId} onBack={() => setOpenId(null)} onEdit={() => setEditing(true)} />
+      ) : null}
       {adding ? <AddEventScreen onClose={() => setAdding(false)} /> : null}
+      {editingEvent ? <AddEventScreen initial={editingEvent} onClose={() => setEditing(false)} /> : null}
       <StatusBar style={scheme === 'dark' ? 'light' : 'dark'} />
     </View>
   );

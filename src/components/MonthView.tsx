@@ -19,6 +19,7 @@ type Props = {
   /** The next family date, or null to show the invitation to add one. */
   nextEvent?: { title: string; when: string; date: string } | null;
   onAddEvent?: () => void;
+  onOpenNext?: () => void;
   /** Family dates to mark with an orange dot (setting "הצגת אירועים בלוח", on by default). */
   events?: FamilyEvent[];
   showEvents?: boolean;
@@ -37,6 +38,7 @@ export function MonthView({
   havdalah,
   nextEvent,
   onAddEvent,
+  onOpenNext,
   events = [],
   showEvents = true,
 }: Props) {
@@ -109,9 +111,8 @@ export function MonthView({
 
       {candles !== undefined ? (
         <Pressable
-          disabled={!!nextEvent}
-          onPress={onAddEvent}
-          accessibilityRole={nextEvent ? 'text' : 'button'}
+          onPress={nextEvent ? onOpenNext : onAddEvent}
+          accessibilityRole="button"
           style={[styles.next, { borderTopColor: palette.lineSoft }]}
         >
           <View>

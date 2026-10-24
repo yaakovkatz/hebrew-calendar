@@ -74,6 +74,14 @@ export async function addEvent(db: SQLiteDatabase, ev: NewEvent): Promise<number
   return result.lastInsertRowId;
 }
 
+export async function updateEvent(db: SQLiteDatabase, ev: FamilyEvent): Promise<void> {
+  await db.runAsync(
+    `UPDATE events SET type = ?, title = ?, h_day = ?, h_month = ?, h_year = ?, after_sunset = ?, greg_date = ?, reminder = ?
+     WHERE id = ?`,
+    [ev.type, ev.title, ev.hDay, ev.hMonth, ev.hYear, ev.afterSunset ? 1 : 0, ev.gregDate, ev.reminder, ev.id],
+  );
+}
+
 export async function deleteEvent(db: SQLiteDatabase, id: number): Promise<void> {
   await db.runAsync('DELETE FROM events WHERE id = ?', [id]);
 }

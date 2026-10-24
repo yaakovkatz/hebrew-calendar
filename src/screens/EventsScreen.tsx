@@ -1,8 +1,8 @@
-import { Alert, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useEvents } from '@/data/useEvents';
 import { CITIES } from '@/lib/cities';
-import { headline, shortHebrewDate, upcoming, yearsLabel, type Upcoming } from '@/lib/events';
+import { headline, shortHebrewDate, upcoming, whenLabel, yearsLabel } from '@/lib/events';
 import { hebrewDateAt } from '@/lib/hebrewDay';
 import { WEEKDAYS } from '@/lib/month';
 import { useNow } from '@/lib/useNow';
@@ -17,41 +17,42 @@ function bigWhen(days: number): string {
 }
 
 /** Approved design: the next date in large type, then a plain list. */
-export function EventsScreen({ onAdd }: { onAdd: () => void }) {
+export function EventsScreen({ onAdd, onOpen }: { onAdd: () => void; onOpen: (id: number) => void }) {
   const palette = usePalette();
   const insets = useSafeAreaInsets();
   const now = useNow();
-  const { events, loaded, remove } = useEvents();
+  const { events, loaded } = useEvents();
   const list = upcoming(events, hebrewDateAt(now, city));
   const [next, ...rest] = list;
-
-  const confirmDelete = (item: Upcoming) =>
-    Alert.alert(`למחוק את ${headline(item.event)}?`, undefined, [
-      { text: 'ביטול', style: 'cancel' },
-      { text: 'מחיקה', style: 'destructive', onPress: () => remove(item.event.id) },
-    ]);
 
   return (
     <View style={{ flex: 1 }}>
       <ScrollView contentContainerStyle={[styles.wrap, { paddingTop: insets.top + 36 }]}>
         {!loaded ? null : next ? (
           <>
+            <Pressable onPress={() => onOpen(next.event.id)} accessibilityRole="button">
             <Text style={[styles.small, { color: palette.muted }]}>הבא בתור</Text>
             <Text style={[styles.big, { color: palette.ink }]}>{bigWhen(next.daysUntil)}</Text>
             <Text style={[styles.headline, { color: palette.ink }]}>{headline(next.event)}</Text>
             <Text style={[styles.small, { color: palette.muted }]}>
               {[shortHebrewDate(next.date), `יום ${WEEKDAYS[next.date.getDay()]}`, yearsLabel(next)].filter(Boolean).join(' · ')}
             </Text>
+            </Pressable>
             <View style={[styles.divider, { backgroundColor: palette.line }]} />
             {rest.map((item) => (
               <Pressable
                 key={item.event.id}
-                onLongPress={() => confirmDelete(item)}
-                accessibilityHint="לחיצה ארוכה למחיקה"
+                onPress={() => onOpen(item.event.id)}
+                accessibilityRole="button"
                 style={[styles.row, { borderBottomColor: palette.lineSoft }]}
               >
-                <Text style={[styles.rowTitle, { color: palette.ink }]}>{item.event.title}</Text>
-                <Text style={[styles.rowDate, { color: palette.muted }]}>{shortHebrewDate(item.date)}</Text>
+                <Text style={[styles.rowTitle, { color: palette.ink }]} numberOfLines={1}>
+                  {headline(item.event)}
+                </Text>
+                <View style={styles.rowEnd}>
+                  <Text style={[styles.rowDate, { color: palette.ink }]}>{shortHebrewDate(item.date)}</Text>
+                  <Text style={[styles.rowWhen, { color: palette.muted }]}>{whenLabel(item.daysUntil)}</Text>
+                </View>
               </Pressable>
             ))}
           </>
@@ -80,8 +81,10 @@ const styles = StyleSheet.create({
   empty: { fontFamily: fonts.sans, fontSize: 14, lineHeight: 22, marginTop: 8 },
   divider: { height: 1, marginTop: 24, marginBottom: 4 },
   row: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'baseline', paddingVertical: 13, borderBottomWidth: 1 },
-  rowTitle: { fontFamily: fonts.serif, fontSize: 17 },
+  rowTitle: { flex: 1, fontFamily: fonts.serif, fontSize: 17 },
+  rowEnd: { alignItems: 'flex-end', marginStart: 12 },
   rowDate: { fontFamily: fonts.sans, fontSize: 13 },
+  rowWhen: { fontFamily: fonts.sans, fontSize: 11 },
   add: { alignItems: 'center', paddingVertical: 16 },
   addText: { fontFamily: fonts.sans, fontSize: 15 },
 });
