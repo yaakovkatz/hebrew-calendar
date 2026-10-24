@@ -70,6 +70,7 @@ export function CalendarScreen({ onAddEvent }: { onAddEvent: () => void }) {
             candles={onCurrentMonth ? fmt(times.candles) : undefined}
             havdalah={onCurrentMonth ? fmt(times.havdalah) : undefined}
             nextEvent={nextEvent}
+            events={events}
             onAddEvent={onAddEvent}
             onSelectDay={(hd) => {
               if (hd.abs() === today.abs()) setMode('day');

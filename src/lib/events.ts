@@ -56,6 +56,16 @@ export function upcoming(events: FamilyEvent[], today: HDate): Upcoming[] {
     .sort((a, b) => a.daysUntil - b.daysUntil || a.event.title.localeCompare(b.event.title, 'he'));
 }
 
+/** Day numbers (HDate.abs) between start and end, inclusive, that have at least one event. */
+export function eventDaysInRange(events: FamilyEvent[], start: HDate, end: HDate): Set<number> {
+  const days = new Set<number>();
+  for (const event of events) {
+    const occ = nextOccurrence(event, start);
+    if (occ.abs() <= end.abs()) days.add(occ.abs());
+  }
+  return days;
+}
+
 /** 'היום', 'מחר' or 'בעוד 13 ימים' */
 export function whenLabel(daysUntil: number): string {
   if (daysUntil === 0) return 'היום';

@@ -102,6 +102,7 @@ figcaption{font-size:13px;color:var(--muted)}
 
 <section><h2>המסכים הראשיים</h2><p>חודש ויום, בבהיר ובכהה</p><div class="row" id="main"></div></section>
 <section><h2>אירועים</h2><p>פרטי יום, המשפחה, תאריך חדש</p><div class="row" id="ev"></div></section>
+<section><h2>הוספת אירוע, גרסה 2</h2><p>סוג גלוי, "של מי" ברור, ותצוגה של איך זה ייראה. ובלוח: נקודה כתומה ביום של אירוע</p><div class="row" id="add2"></div></section>
 <section><h2>זמני שבת והבא בתור</h2><p>נבחר עיצוב 1: שני זמנים גדולים, והבא בתור מתחת</p><div class="row" id="foot"></div></section>
 <section><h2>ניווט</h2><p>נבחרה אפשרות 2: פס עם אייקונים דקים</p><div class="row" id="nav"></div></section>
 <section><h2>תזכורות</h2><p>תזכורת חד-פעמית עם שעה, למשל תור לרופא</p><div class="row" id="rem"></div></section>
@@ -212,6 +213,23 @@ const footC=`<div style="margin:10px 22px 0;background:var(--t);border-radius:12
   <span style="font-size:14px">🕯 הדלקת נרות <span style="color:var(--r)">17:18</span></span><span class="mu" style="font-size:11px">מוצ״ש 18:34</span></div>`+nextEv;
 document.getElementById('foot').innerHTML=
   fig('שני זמנים גדולים ✓',footMonth(footA));
+
+const seg=(items,on)=>`<div class="s" style="display:flex;border:1px solid var(--l1);border-radius:16px;padding:2px;font-size:12px;text-align:center;margin-top:14px">${items.map((t,i)=>`<span style="flex:1;padding:6px 0;border-radius:14px;${i==on?'background:var(--i);color:var(--b)':'color:var(--m)'}">${t}</span>`).join('')}</div>`;
+const addForm=(on,label,val,ph,preview)=>phone('L',`<div class="pad" style="padding-top:22px"><div class="s" style="display:flex;justify-content:space-between;font-size:13px"><span class="mu">ביטול</span><span style="color:var(--r)">שמירה</span></div>
+  <div class="big" style="margin-top:14px">אירוע חדש</div>
+  ${seg(['יום הולדת','נישואין','אחר'],on)}
+  <div class="lb">${label}</div><div style="font-size:19px;padding-bottom:5px;border-bottom:1px solid var(--l1);${val?'':'color:var(--m)'}">${val||ph}</div>
+  <div class="s" style="font-size:11.5px;color:var(--sun);margin-top:6px">${preview}</div>
+  <div class="lb" style="display:flex;justify-content:space-between"><span>תאריך עברי</span><span style="color:var(--r)">לפי תאריך לועזי</span></div>
+  <div style="display:flex;gap:14px;font-size:19px"><span style="border-bottom:1px solid var(--l1);padding-bottom:4px">ב׳</span><span style="border-bottom:1px solid var(--l1);padding-bottom:4px">בשבט</span><span style="border-bottom:1px solid var(--l1);padding-bottom:4px">תשע״ח</span></div>
+  <div class="s" style="font-size:13px;margin-top:12px"><div class="r n"><span>תזכורת</span><span>בערב שבו היום מתחיל ›</span></div></div></div>`);
+const dotCells=()=>{let s='';for(let i=0;i<14;i++){const greg=i<=20?11+i:i-20,sat=i%7==6,ev=i==25-14||i==5;s+=`<div class="c" style="${i==0?'opacity:.3;':''}${sat?'color:var(--r);':''}${i==12?'background:var(--t);':''}"><i>${greg}</i>${H[i]}${ev?'<span style="display:block;width:5px;height:5px;border-radius:3px;background:var(--sun);margin:3px auto 0"></span>':''}</div>`}return s};
+document.getElementById('add2').innerHTML=
+  fig('יום הולדת',addForm(0,'של מי?','נועה','','יופיע: יום ההולדת של נועה'))+
+  fig('אחר',addForm(2,'שם האירוע','','למשל: בר מצווה של דוד','יופיע כמו שכתבת'))+
+  fig('בלוח: נקודה כתומה',phone('L',sb('10:28')+`<div style="text-align:center;padding:16px 0 10px;font-size:30px">חשוון</div>
+   <div class="g wd">${DAYS.map((d,i)=>`<span style="${i==6?'color:var(--r)':''}">${d}</span>`).join('')}</div>${orn}<div class="g">${dotCells()}</div>
+   <div class="mu" style="text-align:center;font-size:11px;margin-top:14px">נקודה כתומה = יום של אירוע. לחיצה על היום מראה מה יש בו</div>`));
 
 document.getElementById('rem').innerHTML=
   fig('תזכורת חדשה',phone('L',`<div class="pad" style="padding-top:22px"><div class="s" style="display:flex;justify-content:space-between;font-size:13px"><span class="mu">ביטול</span><span style="color:var(--r)">שמירה</span></div>

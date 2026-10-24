@@ -15,7 +15,7 @@ import {
   hebrewYearOptions,
   type Option,
 } from '@/lib/datePicking';
-import { hebrewFromGregorian, nextOccurrence, TYPE_LABEL, type EventType, type ReminderTime } from '@/lib/events';
+import { headline, hebrewFromGregorian, nextOccurrence, TYPE_LABEL, type EventType, type ReminderTime } from '@/lib/events';
 import { hebrewDateAt } from '@/lib/hebrewDay';
 import { fonts, usePalette } from '@/theme/tokens';
 
@@ -26,6 +26,12 @@ const REMINDERS: { value: ReminderTime; label: string }[] = [
   { value: 'morning', label: 'בבוקר' },
   { value: 'week', label: 'שבוע לפני' },
 ];
+
+const NAME_FIELD: Record<EventType, { label: string; placeholder: string; hint: string }> = {
+  birthday: { label: 'של מי?', placeholder: 'נועה', hint: 'רק השם. יופיע: יום ההולדת של …' },
+  anniversary: { label: 'של מי?', placeholder: 'ההורים', hint: 'רק השם. יופיע: יום הנישואין של …' },
+  other: { label: 'שם האירוע', placeholder: 'בר מצווה של דוד', hint: 'יופיע כמו שכתבת' },
+};
 
 type Sheet = null | 'hDay' | 'hMonth' | 'hYear' | 'gDay' | 'gMonth' | 'gYear' | 'reminder';
 
@@ -76,7 +82,7 @@ export function AddEventScreen({ onClose }: { onClose: () => void }) {
 
   const save = async () => {
     if (!title.trim()) {
-      setError('צריך שם, למשל "אמא" או "נועה"');
+      setError(type === 'other' ? 'צריך שם לאירוע' : 'צריך לכתוב של מי, למשל "נועה"');
       return;
     }
     setSaving(true);
@@ -130,28 +136,46 @@ export function AddEventScreen({ onClose }: { onClose: () => void }) {
       </View>
 
       <ScrollView contentContainerStyle={styles.body} keyboardShouldPersistTaps="handled">
-        <Text style={[styles.big, { color: palette.ink }]}>{TYPE_LABEL[type]}</Text>
-        <View style={styles.types}>
-          {TYPES.filter((t) => t !== type).map((t, i) => (
-            <Pressable key={t} onPress={() => setType(t)} hitSlop={8}>
-              <Text style={[styles.small, { color: palette.muted }]}>{i > 0 ? ' · ' : ''}{TYPE_LABEL[t]}</Text>
-            </Pressable>
-          ))}
+        <Text style={[styles.big, { color: palette.ink }]}>אירוע חדש</Text>
+        <View style={[styles.segment, { borderColor: palette.line }]}>
+          {TYPES.map((t) => {
+            const on = t === type;
+            return (
+              <Pressable
+                key={t}
+                onPress={() => setType(t)}
+                accessibilityRole="button"
+                accessibilityState={{ selected: on }}
+                style={[styles.segmentItem, on && { backgroundColor: palette.ink }]}
+              >
+                <Text style={[styles.segmentText, { color: on ? palette.paper : palette.muted }]}>{TYPE_LABEL[t]}</Text>
+              </Pressable>
+            );
+          })}
         </View>
 
-        <Text style={[styles.label, { color: palette.muted }]}>{type === 'anniversary' ? 'של מי' : 'שם'}</Text>
+        <Text style={[styles.label, { color: palette.muted }]}>{NAME_FIELD[type].label}</Text>
         <TextInput
           value={title}
           onChangeText={(t) => {
             setTitle(t);
             if (error) setError(null);
           }}
-          placeholder={type === 'anniversary' ? 'ההורים' : 'נועה'}
+          placeholder={NAME_FIELD[type].placeholder}
           placeholderTextColor={palette.muted}
           style={[styles.input, { color: palette.ink, borderBottomColor: error ? palette.red : palette.line }]}
           textAlign="right"
+          returnKeyType="done"
         />
-        {error ? <Text style={[styles.error, { color: palette.red }]}>{error}</Text> : null}
+        {error ? (
+          <Text style={[styles.error, { color: palette.red }]}>{error}</Text>
+        ) : (
+          <Text style={[styles.preview, { color: palette.sun }]}>
+            {title.trim()
+              ? `יופיע: ${headline({ id: 0, type, title: title.trim(), hDay: 1, hMonth: 1, hYear: 1, afterSunset: false, gregDate: null, reminder })}`
+              : NAME_FIELD[type].hint}
+          </Text>
+        )}
 
         <View style={styles.labelRow}>
           <Text style={[styles.label, { color: palette.muted }]}>{byGregorian ? 'תאריך לועזי' : 'תאריך עברי'}</Text>
@@ -202,7 +226,10 @@ const styles = StyleSheet.create({
   topText: { fontFamily: fonts.sans, fontSize: 15 },
   body: { paddingHorizontal: 24, paddingBottom: 40 },
   big: { fontFamily: fonts.serif, fontSize: 36, lineHeight: 44, marginTop: 18 },
-  types: { flexDirection: 'row' },
+  segment: { flexDirection: 'row', borderWidth: 1, borderRadius: 18, padding: 2, marginTop: 14 },
+  segmentItem: { flex: 1, alignItems: 'center', paddingVertical: 7, borderRadius: 16 },
+  segmentText: { fontFamily: fonts.sans, fontSize: 13 },
+  preview: { fontFamily: fonts.sans, fontSize: 12, marginTop: 6 },
   small: { fontFamily: fonts.sans, fontSize: 13 },
   label: { fontFamily: fonts.sans, fontSize: 12, marginTop: 22, marginBottom: 4 },
   labelRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'baseline' },

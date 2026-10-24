@@ -1,5 +1,6 @@
 import { HDate, months } from '@hebcal/core';
 import {
+  eventDaysInRange,
   headline,
   hebrewFromGregorian,
   nextOccurrence,
@@ -67,6 +68,29 @@ describe('upcoming', () => {
     expect(list.map((u) => u.event.title)).toEqual(['אמא', 'נועה', 'ראש השנה']);
     expect(list[0].daysUntil).toBe(13);
     expect(list[0].years).toBe(64);
+  });
+});
+
+describe('eventDaysInRange', () => {
+  const start = new HDate(1, months.CHESHVAN, 5787);
+  const end = new HDate(30, months.CHESHVAN, 5787);
+
+  it('marks each day that has an event, once even with two events', () => {
+    const days = eventDaysInRange(
+      [ev({ id: 1 }), ev({ id: 2, title: 'אבא' }), ev({ id: 3, hDay: 3, hMonth: months.KISLEV })],
+      start,
+      end,
+    );
+    expect([...days]).toEqual([new HDate(25, months.CHESHVAN, 5787).abs()]);
+  });
+
+  it('finds an event across the year boundary', () => {
+    const days = eventDaysInRange(
+      [ev({ hDay: 2, hMonth: months.TISHREI })],
+      new HDate(25, months.ELUL, 5787),
+      new HDate(5, months.TISHREI, 5788),
+    );
+    expect(days.has(new HDate(2, months.TISHREI, 5788).abs())).toBe(true);
   });
 });
 

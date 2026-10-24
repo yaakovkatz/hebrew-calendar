@@ -1,6 +1,7 @@
 import { useMemo, useRef } from 'react';
 import { PanResponder, Pressable, StyleSheet, Text, View } from 'react-native';
 import type { HDate } from '@hebcal/core';
+import { eventDaysInRange, type FamilyEvent } from '@/lib/events';
 import { buildMonth, WEEKDAYS, type MonthCell } from '@/lib/month';
 import { fonts, usePalette, type Palette } from '@/theme/tokens';
 
@@ -18,13 +19,33 @@ type Props = {
   /** The next family date, or null to show the invitation to add one. */
   nextEvent?: { title: string; when: string; date: string } | null;
   onAddEvent?: () => void;
+  /** Family dates to mark with an orange dot (setting "הצגת אירועים בלוח", on by default). */
+  events?: FamilyEvent[];
+  showEvents?: boolean;
 };
 
 const SWIPE_MIN = 50;
 
-export function MonthView({ year, month, today, il, onShift, onSelectDay, candles, havdalah, nextEvent, onAddEvent }: Props) {
+export function MonthView({
+  year,
+  month,
+  today,
+  il,
+  onShift,
+  onSelectDay,
+  candles,
+  havdalah,
+  nextEvent,
+  onAddEvent,
+  events = [],
+  showEvents = true,
+}: Props) {
   const palette = usePalette();
   const grid = useMemo(() => buildMonth(year, month, today, il), [year, month, today, il]);
+  const eventDays = useMemo(
+    () => (showEvents ? eventDaysInRange(events, grid.cells[0].hd, grid.cells[grid.cells.length - 1].hd) : new Set<number>()),
+    [events, grid, showEvents],
+  );
 
   const onShiftRef = useRef(onShift);
   onShiftRef.current = onShift;
@@ -61,7 +82,13 @@ export function MonthView({ year, month, today, il, onShift, onSelectDay, candle
 
       <View style={styles.grid}>
         {grid.cells.map((cell) => (
-          <Cell key={cell.hd.abs()} cell={cell} palette={palette} onPress={() => onSelectDay(cell.hd)} />
+          <Cell
+            key={cell.hd.abs()}
+            cell={cell}
+            hasEvent={eventDays.has(cell.hd.abs())}
+            palette={palette}
+            onPress={() => onSelectDay(cell.hd)}
+          />
         ))}
       </View>
 
@@ -124,10 +151,12 @@ function Ornament({ palette }: { palette: Palette }) {
   );
 }
 
-function Cell({ cell, palette, onPress }: { cell: MonthCell; palette: Palette; onPress: () => void }) {
+function Cell({ cell, hasEvent, palette, onPress }: { cell: MonthCell; hasEvent: boolean; palette: Palette; onPress: () => void }) {
   const color = cell.isShabbat ? palette.red : palette.ink;
   const note = cell.isShabbat ? cell.parsha : null;
   const hasHoliday = cell.holidays.length > 0;
+  // One dot per day at most: orange for a family date, otherwise grey for a holiday.
+  const dot = hasEvent ? palette.sun : hasHoliday ? palette.muted : null;
   return (
     <Pressable
       onPress={onPress}
@@ -145,9 +174,8 @@ function Cell({ cell, palette, onPress }: { cell: MonthCell; palette: Palette; o
         <Text numberOfLines={1} style={[styles.note, { color }]}>
           {note}
         </Text>
-      ) : hasHoliday ? (
-        <View style={[styles.dot, { backgroundColor: palette.muted }]} />
       ) : null}
+      {dot && (!note || hasEvent) ? <View style={[styles.dot, { backgroundColor: dot }]} /> : null}
     </Pressable>
   );
 }
