@@ -12,7 +12,7 @@ function Screen({ tab, onSelect }: { tab: TabId; onSelect: (id: TabId) => void }
     case 'calendar':
       return <CalendarScreen onOpenFamily={() => onSelect('family')} />;
     case 'family':
-      return <ComingSoon title="משפחה" note="בקרוב, בהמשך שלב 1" />;
+      return <ComingSoon title="אירועים" note="בקרוב, בהמשך שלב 1" />;
     case 'reminders':
       return <ComingSoon title="תזכורות" note="בקרוב, בהמשך שלב 1" />;
     case 'settings':

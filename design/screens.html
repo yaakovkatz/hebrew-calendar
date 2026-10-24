@@ -186,7 +186,7 @@ function navMonth(top,bar){return phone('L',sb('10:28')+top+tg('m')+`
   <div style="font-size:34px;line-height:1.1">חשוון</div></div>
   <div class="g wd">${DAYS.map((d,i)=>`<span style="${i==6?'color:var(--r)':''}">${d}</span>`).join('')}</div>${orn}
   <div class="g">${cells(12)}</div>${bar}`)}
-const TABS=['לוח','משפחה','תזכורות','הגדרות'];
+const TABS=['לוח','אירועים','תזכורות','הגדרות'];
 const ICONS=['M4 6h16v14H4zM4 10h16M9 3v4M15 3v4','M8 11a3 3 0 1 0 0-6 3 3 0 0 0 0 6zM16 11a3 3 0 1 0 0-6 3 3 0 0 0 0 6zM2 20c0-3 3-5 6-5s6 2 6 5M14 15c3 0 8 1 8 5','M12 22a2 2 0 0 0 2-2h-4a2 2 0 0 0 2 2zM18 16V11a6 6 0 0 0-12 0v5l-2 2h16z','M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6zM19 12l2-1-2-4-2 1-2-1V5h-4v2l-2 1-2-1-2 4 2 1v0l-2 1 2 4 2-1 2 1v2h4v-2l2-1 2 1 2-4z'];
 const barText=`<div style="position:absolute;bottom:0;left:0;right:0;display:flex;justify-content:space-around;border-top:1px solid var(--l1);padding:12px 0 18px;font-family:var(--sans);font-size:12px">${TABS.map((t,i)=>`<span style="text-align:center;color:${i==0?'var(--i)':'var(--m)'}">${t}${i==0?'<span style="display:block;width:4px;height:4px;border-radius:2px;background:var(--r);margin:4px auto 0"></span>':''}</span>`).join('')}</div>`;
 const barIcon=`<div style="position:absolute;bottom:0;left:0;right:0;display:flex;justify-content:space-around;border-top:1px solid var(--l1);padding:8px 0 14px;font-family:var(--sans);font-size:10px">${TABS.map((t,i)=>`<span style="text-align:center;color:${i==0?'var(--i)':'var(--m)'}"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" style="display:block;margin:0 auto 2px" aria-hidden="true"><path d="${ICONS[i]}"/></svg>${t}</span>`).join('')}</div>`;

@@ -9,7 +9,7 @@ export const TABS: { id: TabId; title: string; icon: string }[] = [
   { id: 'calendar', title: 'לוח', icon: 'M4 6h16v14H4zM4 10h16M9 3v4M15 3v4' },
   {
     id: 'family',
-    title: 'משפחה',
+    title: 'אירועים',
     icon: 'M8 11a3 3 0 1 0 0-6 3 3 0 0 0 0 6zM16 11a3 3 0 1 0 0-6 3 3 0 0 0 0 6zM2 20c0-3 3-5 6-5s6 2 6 5M14 15c3 0 8 1 8 5',
   },
   { id: 'reminders', title: 'תזכורות', icon: 'M12 22a2 2 0 0 0 2-2h-4a2 2 0 0 0 2 2zM18 16V11a6 6 0 0 0-12 0v5l-2 2h16z' },
