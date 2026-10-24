@@ -3,7 +3,9 @@ import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { DayView } from '@/components/DayView';
 import { MonthView } from '@/components/MonthView';
+import { useEvents } from '@/data/useEvents';
 import { CITIES } from '@/lib/cities';
+import { headline, shortHebrewDate, upcoming } from '@/lib/events';
 import { civilNoon, formatTime, hebrewDateAt } from '@/lib/hebrewDay';
 import { shiftMonth } from '@/lib/month';
 import { useNow } from '@/lib/useNow';
@@ -17,7 +19,8 @@ const IL = true;
 
 type Mode = 'month' | 'day';
 
-export function CalendarScreen({ onOpenFamily }: { onOpenFamily: () => void }) {
+export function CalendarScreen({ onAddEvent }: { onAddEvent: () => void }) {
+  const { events } = useEvents();
   const palette = usePalette();
   const insets = useSafeAreaInsets();
   const now = useNow();
@@ -28,6 +31,14 @@ export function CalendarScreen({ onOpenFamily }: { onOpenFamily: () => void }) {
 
   const times = upcomingShabbatTimes(now, city, new HDate(civilNoon(now, city.tzid)));
   const fmt = (d: Date | null) => (d ? formatTime(d, city.tzid) : null);
+  const [first] = upcoming(events, today);
+  const nextEvent = first
+    ? {
+        title: headline(first.event),
+        when: first.daysUntil === 0 ? 'היום' : first.daysUntil === 1 ? 'מחר' : `${first.daysUntil} ימים`,
+        date: shortHebrewDate(first.date),
+      }
+    : null;
 
   return (
     <ScrollView style={{ backgroundColor: palette.paper }} contentContainerStyle={{ paddingTop: insets.top + 8, paddingBottom: 24 }}>
@@ -58,9 +69,8 @@ export function CalendarScreen({ onOpenFamily }: { onOpenFamily: () => void }) {
             onShift={(delta) => setShown((s) => shiftMonth(s.year, s.month, delta))}
             candles={onCurrentMonth ? fmt(times.candles) : undefined}
             havdalah={onCurrentMonth ? fmt(times.havdalah) : undefined}
-            // Family dates arrive with the family screen; until then the row invites adding one.
-            nextEvent={null}
-            onAddEvent={onOpenFamily}
+            nextEvent={nextEvent}
+            onAddEvent={onAddEvent}
             onSelectDay={(hd) => {
               if (hd.abs() === today.abs()) setMode('day');
             }}

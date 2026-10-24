@@ -41,7 +41,8 @@
             "node_modules/@expo-google-fonts/heebo/500Medium/Heebo_500Medium.ttf"
           ]
         }
-      ]
+      ],
+      "expo-sqlite"
     ],
     "scheme": "luachyehudi"
   }
