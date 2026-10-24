@@ -10,6 +10,7 @@ import {
   shortHebrewDate,
   TYPE_LABEL,
   upcoming,
+  whenLabel,
   yearsLabel,
 } from '@/lib/events';
 import { hebrewDateAt } from '@/lib/hebrewDay';
@@ -18,12 +19,6 @@ import { useNow } from '@/lib/useNow';
 import { fonts, usePalette } from '@/theme/tokens';
 
 const city = CITIES[0];
-
-function bigWhen(days: number): string {
-  if (days === 0) return 'היום';
-  if (days === 1) return 'מחר';
-  return `${days} ימים`;
-}
 
 type Props = { eventId: number; onBack: () => void; onEdit: () => void };
 
@@ -71,7 +66,7 @@ export function EventDetailsScreen({ eventId, onBack, onEdit }: Props) {
       <ScrollView contentContainerStyle={styles.body}>
         <Text style={[styles.small, { color: palette.muted }]}>{TYPE_LABEL[event.type]}</Text>
         <Text style={[styles.title, { color: palette.ink }]}>{headline(event)}</Text>
-        <Text style={[styles.big, { color: palette.sun }]}>{bigWhen(item.daysUntil)}</Text>
+        <Text style={[styles.when, { color: palette.sun }]}>{whenLabel(item.daysUntil)}</Text>
         {yearsLabel(item) ? <Text style={[styles.small, { color: palette.muted }]}>{yearsLabel(item)}</Text> : null}
 
         <View style={[styles.divider, { backgroundColor: palette.line }]} />
@@ -101,8 +96,9 @@ const styles = StyleSheet.create({
   backText: { fontFamily: fonts.sans, fontSize: 15 },
   body: { paddingHorizontal: 24, paddingTop: 22, paddingBottom: 24 },
   small: { fontFamily: fonts.sans, fontSize: 12 },
-  title: { fontFamily: fonts.serif, fontSize: 30, lineHeight: 38 },
-  big: { fontFamily: fonts.serif, fontSize: 46, lineHeight: 54, marginTop: 14 },
+  // The event's name is the headline; the countdown sits under it, smaller.
+  title: { fontFamily: fonts.serif, fontSize: 40, lineHeight: 48 },
+  when: { fontFamily: fonts.serif, fontSize: 22, lineHeight: 28, marginTop: 6 },
   divider: { height: 1, marginTop: 20, marginBottom: 2 },
   row: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'baseline', gap: 12, paddingVertical: 12 },
   rowLabel: { fontFamily: fonts.serif, fontSize: 16 },

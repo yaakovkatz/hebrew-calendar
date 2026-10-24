@@ -10,12 +10,6 @@ import { fonts, usePalette } from '@/theme/tokens';
 
 const city = CITIES[0];
 
-function bigWhen(days: number): string {
-  if (days === 0) return 'היום';
-  if (days === 1) return 'מחר';
-  return `${days} ימים`;
-}
-
 /** Approved design: the next date in large type, then a plain list. */
 export function EventsScreen({ onAdd, onOpen }: { onAdd: () => void; onOpen: (id: number) => void }) {
   const palette = usePalette();
@@ -32,8 +26,8 @@ export function EventsScreen({ onAdd, onOpen }: { onAdd: () => void; onOpen: (id
           <>
             <Pressable onPress={() => onOpen(next.event.id)} accessibilityRole="button">
             <Text style={[styles.small, { color: palette.muted }]}>הבא בתור</Text>
-            <Text style={[styles.big, { color: palette.ink }]}>{bigWhen(next.daysUntil)}</Text>
-            <Text style={[styles.headline, { color: palette.ink }]}>{headline(next.event)}</Text>
+            <Text style={[styles.big, { color: palette.ink }]}>{headline(next.event)}</Text>
+            <Text style={[styles.headline, { color: palette.sun }]}>{whenLabel(next.daysUntil)}</Text>
             <Text style={[styles.small, { color: palette.muted }]}>
               {[shortHebrewDate(next.date), `יום ${WEEKDAYS[next.date.getDay()]}`, yearsLabel(next)].filter(Boolean).join(' · ')}
             </Text>
@@ -75,8 +69,9 @@ export function EventsScreen({ onAdd, onOpen }: { onAdd: () => void; onOpen: (id
 const styles = StyleSheet.create({
   wrap: { paddingHorizontal: 24, paddingBottom: 24 },
   small: { fontFamily: fonts.sans, fontSize: 12 },
-  big: { fontFamily: fonts.serif, fontSize: 48, lineHeight: 56, marginTop: 2 },
-  headline: { fontFamily: fonts.serif, fontSize: 19, marginTop: 2 },
+  // The event's name is the headline; the countdown sits under it, smaller.
+  big: { fontFamily: fonts.serif, fontSize: 38, lineHeight: 46, marginTop: 2 },
+  headline: { fontFamily: fonts.serif, fontSize: 20, marginTop: 4 },
   title: { fontFamily: fonts.serif, fontSize: 34 },
   empty: { fontFamily: fonts.sans, fontSize: 14, lineHeight: 22, marginTop: 8 },
   divider: { height: 1, marginTop: 24, marginBottom: 4 },
