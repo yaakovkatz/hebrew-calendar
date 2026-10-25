@@ -1,6 +1,6 @@
 <title>לוח יהודי – לאישור</title>
 <meta name="claude:viewport-fit-sides" content="cover">
-<style>section{display:none}section:has(#contact){display:block}.sum,.rule{display:none}</style>
+<style>section{display:none}section:has(#fix1){display:block}.sum,.rule{display:none}</style>
 
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Frank+Ruhl+Libre:wght@400;500&family=Heebo:wght@400;500&display=swap">
 <style>
@@ -70,7 +70,7 @@ figcaption{font-size:13px;color:var(--muted)}
 <div class="wrap">
 <header>
   <h1>לוח יהודי <span style="color:var(--muted);font-weight:400">– לוח עברי</span></h1>
-  <p>יצירת קשר: טופס בתוך האפליקציה.</p>
+  <p>סבב תיקונים 1: מוקאפים לאישור.</p>
 </header>
 
 <div class="sum">
@@ -105,6 +105,7 @@ figcaption{font-size:13px;color:var(--muted)}
 <section><h2>המסכים הראשיים</h2><p>חודש ויום, בבהיר ובכהה</p><div class="row" id="main"></div></section>
 <section><h2>אירועים</h2><p>פרטי יום, המשפחה, תאריך חדש</p><div class="row" id="ev"></div></section>
 <section><h2>אייקון <span style="font-size:14px;color:var(--red);font-family:var(--sans)">לבחירה, סבב 8</span></h2><p>הסגנון שלך: הדף עצמו הוא האייקון, בלי רקע נוסף. על מסך הבית בעיגול ובריבוע מעוגל, עם השם מתחת</p><div class="row" id="icons"></div></section>
+<section><h2>סבב תיקונים 1 <span style="font-size:14px;color:var(--red);font-family:var(--sans)">לאישור</span></h2><p>אירועים ותזכורות מאוחדים, שעה ידנית, מתי להזכיר, לשונית זמנים, הדפסת חודש ותמונות לווידג׳טים</p><div class="row" id="fix1"></div></section>
 <section><h2>יצירת קשר <span style="font-size:14px;color:var(--red);font-family:var(--sans)">לאישור</span></h2><p>טופס בתוך האפליקציה. הכתובת לשליחה תתווסף כשהמייל של החברה יהיה מוכן</p><div class="row" id="contact"></div></section>
 <section><h2>מסך טעינה</h2><p>אושר: שם האפליקציה על נייר, בבהיר ובכהה</p><div class="row" id="splash"></div></section>
 <section><h2>אודות</h2><p>נכנסים מההגדרות. כולל רישיונות, שחובה להציג</p><div class="row" id="about"></div></section>
@@ -288,6 +289,54 @@ const splashScreen=(cls)=>phone(cls,`<div style="height:100%;display:flex;flex-d
   <div style="font-size:44px;line-height:1.1">לוח יהודי</div>
   <div style="display:flex;align-items:center;gap:8px;color:var(--r);margin-top:10px;width:120px"><span style="flex:1;height:1px;background:var(--l1)"></span>✦<span style="flex:1;height:1px;background:var(--l1)"></span></div></div>`);
 document.getElementById('splash').innerHTML=fig('בהיר',splashScreen('L'))+fig('כהה',splashScreen('D'));
+{
+const seg=(items,on)=>`<div class="s" style="display:flex;border:1px solid var(--l1);border-radius:16px;padding:2px;font-size:12px;text-align:center;margin-top:12px">${items.map((t,i)=>`<span style="flex:1;padding:6px 0;border-radius:14px;${i==on?'background:var(--i);color:var(--b)':'color:var(--m)'}">${t}</span>`).join('')}</div>`;
+const lrow=(t,d,w)=>`<div class="r"><span style="font-size:15px">${t}</span><span style="text-align:left;line-height:1.3"><span style="display:block;color:var(--i)">${d}</span>${w}</span></div>`;
+const chk=(t,on)=>`<div class="r"><span>${t}</span><span style="color:var(--i);font-size:13px">${on?'✓':''}</span></div>`;
+const chip=(t,on)=>`<span class="s" style="display:inline-block;border:1px solid var(--l1);border-radius:14px;padding:3px 9px;font-size:11px;margin:0 0 5px 4px;${on?'background:var(--i);color:var(--b);border-color:var(--i)':'color:var(--i2)'}">${t}</span>`;
+const tabsBar=on=>{const T=[['לוח','M4 6h16v14H4zM4 10h16M9 3v4M15 3v4'],['זמנים','M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18zM12 7v5l3 2'],['אירועים','M8 11a3 3 0 1 0 0-6 3 3 0 0 0 0 6zM16 11a3 3 0 1 0 0-6 3 3 0 0 0 0 6zM2 20c0-3 3-5 6-5s6 2 6 5M14 15c3 0 8 1 8 5'],['הגדרות','M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6zM19 12l2-1-2-4-2 1-2-1V5h-4v2l-2 1-2-1-2 4 2 1-2 1 2 4 2-1 2 1v2h4v-2l2-1 2 1 2-4z']];
+ return `<div style="position:absolute;bottom:0;left:0;right:0;display:flex;justify-content:space-around;border-top:1px solid var(--l1);padding:7px 0 12px;font-family:var(--sans);font-size:9.5px;background:var(--b)">${T.map(([t,d],i)=>`<span style="text-align:center;color:${i==on?'var(--i)':'var(--m)'}"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" style="display:block;margin:0 auto 1px" aria-hidden="true"><path d="${d}"/></svg>${t}</span>`).join('')}</div>`};
+const Z=[['הדלקת נרות','16:11','r'],['עלות השחר','04:47'],['משיכיר','05:06'],['הנץ החמה','05:58'],['סוף ק״ש מג״א','08:16'],['סוף ק״ש גר״א','08:52'],['סוף תפילה מג״א','09:28','n'],['סוף תפילה גר״א','09:52'],['חצות','11:47'],['מנחה גדולה','12:17'],['מנחה קטנה','14:58'],['פלג המנחה','16:05'],['שקיעה','16:51'],['צאת הכוכבים','17:09'],['צאת ר״ת','18:03'],['חצות הלילה','23:47']];
+document.getElementById('fix1').innerHTML=
+ fig('1 · תזכורת חדשה (מאוחד)',phone('L',`<div class="pad" style="padding-top:20px"><div class="s mu" style="font-size:12.5px">ביטול</div>
+   <div class="big" style="font-size:26px;margin-top:8px">אירוע חדש</div>${seg(['יום הולדת','נישואין','תזכורת'],2)}
+   <div class="lb" style="margin-top:12px">מה</div><div style="font-size:17px;padding-bottom:4px;border-bottom:1px solid var(--l1)">רופא שיניים</div>
+   <div class="lb" style="margin-top:12px">תאריך עברי</div><div style="display:flex;gap:12px;font-size:17px"><span style="border-bottom:1px solid var(--l1)">ט״ז</span><span style="border-bottom:1px solid var(--l1)">בחשוון</span><span style="border-bottom:1px solid var(--l1)">תשפ״ז</span></div>
+   <div class="lb" style="margin-top:12px">שעה</div><div style="font-size:22px;padding-bottom:3px;border-bottom:1.5px solid var(--i);width:70px">10:30</div>
+   <div style="margin-top:7px">${chip('08:00')}${chip('12:00')}${chip('18:00')}${chip('20:00')}${chip('כל היום')}</div>
+   <div class="s" style="font-size:12.5px;margin-top:2px">${fam('חוזר','פעם אחת ›')}<div class="r n"><span>מתי להזכיר</span><span>15 דק׳ לפני ›</span></div></div>
+   <div class="btn" style="bottom:18px">שמירה</div></div>`,'height:560px'))+
+ fig('2 · מתי להזכיר, עם "אחר…"',phone('L',`<div style="height:100%;background:#E9E1D2"></div>
+   <div style="position:absolute;bottom:0;left:0;right:0;background:var(--b);border-radius:22px 22px 0 0;padding:10px 22px 22px">
+   <div style="width:34px;height:3px;background:var(--l1);border-radius:2px;margin:0 auto 14px"></div><div class="mu" style="font-size:11px">מתי להזכיר</div>
+   ${['בזמן','5 דק׳ לפני','15 דק׳ לפני','שעה לפני','בבוקר','יום לפני'].map((t,i)=>`<div class="r" style="${i==2?'background:var(--t);margin:0 -8px;padding-left:8px;padding-right:8px;':''}"><span style="font-size:15px">${t}</span><span>${i==2?'✓':''}</span></div>`).join('')}
+   <div style="padding:10px 0 0"><div style="font-size:15px">אחר…</div>
+   <div style="display:flex;align-items:center;gap:10px;margin-top:8px"><span style="font-size:20px;border-bottom:1.5px solid var(--i);width:44px;text-align:center">1</span>
+   <div class="s" style="display:flex;flex:1;border:1px solid var(--l1);border-radius:14px;padding:2px;font-size:11px;text-align:center"><span style="flex:1;padding:4px 0;border-radius:12px;background:var(--i);color:var(--b)">דקות</span><span style="flex:1;padding:4px 0;color:var(--m)">שעות</span><span style="flex:1;padding:4px 0;color:var(--m)">ימים</span></div>
+   <span class="s mu" style="font-size:12px">לפני</span></div></div></div>`,'height:560px'))+
+ fig('3 · אירועים, רשימה אחת',phone('L',`<div class="pad"><div class="mu" style="font-size:11px">הבא בתור</div>
+   <div style="font-size:28px;line-height:1.15;margin-top:2px">רופא שיניים</div><div style="font-size:15px;color:var(--sun)">מחר · 10:30</div>
+   <div class="mu" style="font-size:11px">ט״ז בחשוון · יום שלישי</div><div style="height:1px;background:var(--l1);margin:18px 0 2px"></div>
+   ${lrow('יום ההולדת של אמא','כ״ה חשוון','בעוד 10 ימים')}${lrow('אסיפת הורים','ג׳ כסלו · 19:00','בעוד 18 ימים')}${lrow('יום הנישואין של ההורים','י״ח טבת','בעוד 63 ימים')}
+   <div class="s" style="position:absolute;bottom:62px;left:0;right:0;text-align:center;font-size:13px;color:var(--r)">+ חדש</div></div>${tabsBar(2)}`,'height:560px'))+
+ fig('4 · לשונית זמנים',phone('L',`<div class="pad" style="padding-top:22px"><div style="display:flex;justify-content:space-between;align-items:center"><span class="mu s" style="font-size:18px">‹</span>
+   <div style="text-align:center"><div style="font-size:24px;line-height:1.1">ט״ו בחשוון</div><div class="mu" style="font-size:10.5px">יום שני · 26 באוקטובר · ירושלים</div></div><span class="mu s" style="font-size:18px">›</span></div>
+   <div style="height:1px;background:var(--l1);margin:10px 0 0"></div>
+   <div class="s">${Z.slice(1).map(([l,t,k])=>`<div style="display:flex;justify-content:space-between;padding:4.6px 0;border-bottom:1px solid var(--l2);font-size:12px;${k=='n'?'color:var(--sun);font-weight:500':''}"><span>${l}</span><span>${t}</span></div>`).join('')}</div>
+   <div style="display:flex;justify-content:space-between;align-items:baseline;margin-top:8px"><span class="mu" style="font-size:10.5px">דף יומי</span><span style="font-size:14px">פסחים ע״ה</span></div></div>${tabsBar(1)}`,'height:640px'))+
+ fig('5 · הדפסה: חודש אחד',phone('L',`<div class="pad"><div class="big">לוח קיר</div><div class="mu" style="font-size:11.5px;margin-top:3px">להדפסה או לתלייה במטבח</div>
+   <div class="lb">מה להדפיס</div><div class="s" style="display:flex;border:1px solid var(--l1);border-radius:14px;padding:2px;font-size:11.5px;text-align:center"><span style="flex:1;padding:5px 0;color:var(--m)">כל השנה</span><span style="flex:1;padding:5px 0;border-radius:12px;background:var(--i);color:var(--b)">חודש אחד</span></div>
+   ${fam('חודש','אלול תשפ״ז ›')}
+   <div class="lb">פרטים</div>${fam('כותרת','משפחת כהן ›')}<div class="r n"><span>גודל</span><span>A4 ›</span></div>
+   <div class="lb">מה יודפס</div>${chk('חגים ומועדים',1)}${chk('פרשת השבוע',1)}<div class="r n"><span>ימי המשפחה</span><span style="color:var(--i);font-size:13px">✓</span></div>
+   <div class="btn">יצירת PDF · עמוד אחד</div></div>`))+
+ fig('6 · ווידג׳טים: תמונה לדוגמה ברשימה',phone('',`<div style="padding:26px 12px 0;color:#fff;font-family:var(--sans)"><div style="font-size:15px;margin-bottom:10px">ווידג׳טים</div>
+   <div style="background:#2A2E2A;border-radius:16px;padding:12px">
+   <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px">${iconTileM('X1',26,'s')}<span style="font-size:13px">לוח יהודי</span><span style="margin-right:auto;font-size:11px;opacity:.7">4 ווידג׳טים</span></div>
+   <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+   ${[['תאריך עברי','<div style="font-family:Frank Ruhl Libre,serif;font-size:22px;line-height:1">ט״ו</div><div style="font-size:9px">חשוון</div>'],['הבא בתור','<div style="font-size:8px;color:#9A8B73">מחר</div><div style="font-family:Frank Ruhl Libre,serif;font-size:11px">רופא שיניים</div>'],['זמנים ושבת','<div style="font-size:8px;color:#9A8B73">הזמן הבא</div><div style="font-family:Frank Ruhl Libre,serif;font-size:13px">שקיעה 16:51</div>'],['החודש','<div style="font-family:Frank Ruhl Libre,serif;font-size:11px">חשוון</div><div style="font-size:7px;letter-spacing:2px;color:#9A8B73">א ב ג ד ה ו ז</div>']].map(([t,inner])=>`<div><div style="background:#F6F0E4;color:#2B2118;border-radius:12px;height:64px;display:flex;flex-direction:column;align-items:center;justify-content:center">${inner}</div><div style="font-size:10px;text-align:center;margin-top:3px;opacity:.85">${t}</div></div>`).join('')}
+   </div></div><div style="font-size:10.5px;opacity:.7;margin-top:10px;line-height:1.5">היום ברשימה יש רק שמות. כאן כל ווידג׳ט מוצג כמו שייראה על המסך.</div></div>`,'background:#3B3F3A'));
+}
 document.getElementById('contact').innerHTML=
   fig('יצירת קשר',phone('L',`<div class="pad" style="padding-top:24px"><div class="mu s" style="font-size:13px">‹ אודות</div>
    <div class="big" style="font-size:28px;margin-top:16px">יצירת קשר</div>
