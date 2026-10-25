@@ -1,8 +1,9 @@
 import type { SQLiteDatabase } from 'expo-sqlite';
 import type { EventType, FamilyEvent, ReminderTime } from '@/lib/events';
+import type { AlertTime, Reminder, RepeatKind } from '@/lib/reminders';
 
 export const DATABASE_NAME = 'luach.db';
-const DATABASE_VERSION = 1;
+const DATABASE_VERSION = 2;
 
 /** Runs once when the app opens; each step upgrades one schema version (PLAN.md). */
 export async function migrateDbIfNeeded(db: SQLiteDatabase): Promise<void> {
@@ -27,6 +28,23 @@ export async function migrateDbIfNeeded(db: SQLiteDatabase): Promise<void> {
       );
     `);
     version = 1;
+  }
+
+  if (version === 1) {
+    await db.execAsync(`
+      CREATE TABLE reminders (
+        id INTEGER PRIMARY KEY NOT NULL,
+        title TEXT NOT NULL,
+        h_day INTEGER NOT NULL,
+        h_month INTEGER NOT NULL,
+        h_year INTEGER NOT NULL,
+        time TEXT,
+        repeat TEXT NOT NULL DEFAULT 'once',
+        alert TEXT NOT NULL DEFAULT 'hour',
+        created_at TEXT NOT NULL DEFAULT (datetime('now'))
+      );
+    `);
+    version = 2;
   }
 
   await db.execAsync(`PRAGMA user_version = ${DATABASE_VERSION}`);
@@ -84,4 +102,58 @@ export async function updateEvent(db: SQLiteDatabase, ev: FamilyEvent): Promise<
 
 export async function deleteEvent(db: SQLiteDatabase, id: number): Promise<void> {
   await db.runAsync('DELETE FROM events WHERE id = ?', [id]);
+}
+
+type ReminderRow = {
+  id: number;
+  title: string;
+  h_day: number;
+  h_month: number;
+  h_year: number;
+  time: string | null;
+  repeat: string;
+  alert: string;
+  created_at: string;
+};
+
+function reminderFromRow(row: ReminderRow): Reminder {
+  return {
+    id: row.id,
+    title: row.title,
+    hDay: row.h_day,
+    hMonth: row.h_month,
+    hYear: row.h_year,
+    time: row.time,
+    repeat: row.repeat as RepeatKind,
+    alert: row.alert as AlertTime,
+    createdAt: row.created_at,
+  };
+}
+
+export async function listReminders(db: SQLiteDatabase): Promise<Reminder[]> {
+  const rows = await db.getAllAsync<ReminderRow>('SELECT * FROM reminders');
+  return rows.map(reminderFromRow);
+}
+
+export type NewReminder = Omit<Reminder, 'id' | 'createdAt'>;
+
+export async function addReminder(db: SQLiteDatabase, r: NewReminder): Promise<number> {
+  const result = await db.runAsync(
+    `INSERT INTO reminders (title, h_day, h_month, h_year, time, repeat, alert)
+     VALUES (?, ?, ?, ?, ?, ?, ?)`,
+    [r.title, r.hDay, r.hMonth, r.hYear, r.time, r.repeat, r.alert],
+  );
+  return result.lastInsertRowId;
+}
+
+export async function updateReminder(db: SQLiteDatabase, r: NewReminder & { id: number }): Promise<void> {
+  await db.runAsync(
+    `UPDATE reminders SET title = ?, h_day = ?, h_month = ?, h_year = ?, time = ?, repeat = ?, alert = ?
+     WHERE id = ?`,
+    [r.title, r.hDay, r.hMonth, r.hYear, r.time, r.repeat, r.alert, r.id],
+  );
+}
+
+export async function deleteReminder(db: SQLiteDatabase, id: number): Promise<void> {
+  await db.runAsync('DELETE FROM reminders WHERE id = ?', [id]);
 }
