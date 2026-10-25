@@ -63,7 +63,62 @@
           "color": "#A32D2D"
         }
       ],
-      "expo-asset"
+      "expo-asset",
+      [
+        "react-native-android-widget",
+        {
+          "fonts": [
+            "./node_modules/@expo-google-fonts/frank-ruhl-libre/400Regular/FrankRuhlLibre_400Regular.ttf",
+            "./node_modules/@expo-google-fonts/heebo/400Regular/Heebo_400Regular.ttf"
+          ],
+          "widgets": [
+            {
+              "name": "HebrewDate",
+              "label": "תאריך עברי",
+              "description": "התאריך העברי של היום, מתחלף בשקיעה",
+              "minWidth": "110dp",
+              "minHeight": "110dp",
+              "targetCellWidth": 2,
+              "targetCellHeight": 2,
+              "resizeMode": "horizontal|vertical",
+              "updatePeriodMillis": 1800000
+            },
+            {
+              "name": "NextUp",
+              "label": "הבא בתור",
+              "description": "האירוע המשפחתי או התזכורת הקרובים",
+              "minWidth": "110dp",
+              "minHeight": "110dp",
+              "targetCellWidth": 2,
+              "targetCellHeight": 2,
+              "resizeMode": "horizontal|vertical",
+              "updatePeriodMillis": 1800000
+            },
+            {
+              "name": "ZmanimShabbat",
+              "label": "זמנים ושבת",
+              "description": "הזמן הבא, הדלקת נרות וצאת השבת",
+              "minWidth": "250dp",
+              "minHeight": "110dp",
+              "targetCellWidth": 4,
+              "targetCellHeight": 2,
+              "resizeMode": "horizontal|vertical",
+              "updatePeriodMillis": 1800000
+            },
+            {
+              "name": "Month",
+              "label": "החודש",
+              "description": "החודש העברי, עם היום ושבתות",
+              "minWidth": "250dp",
+              "minHeight": "250dp",
+              "targetCellWidth": 4,
+              "targetCellHeight": 4,
+              "resizeMode": "horizontal|vertical",
+              "updatePeriodMillis": 1800000
+            }
+          ]
+        }
+      ]
     ],
     "scheme": "luachyehudi"
   }
