@@ -11,10 +11,9 @@
     },
     "android": {
       "adaptiveIcon": {
-        "backgroundColor": "#F6F0E4",
         "foregroundImage": "./assets/android-icon-foreground.png",
         "backgroundImage": "./assets/android-icon-background.png",
-        "monochromeImage": "./assets/android-icon-monochrome.png"
+        "backgroundColor": "#FBFAF3"
       },
       "predictiveBackGestureEnabled": false,
       "package": "io.github.yaakovkatz.luachyehudi"
@@ -42,7 +41,20 @@
           ]
         }
       ],
-      "expo-sqlite"
+      "expo-sqlite",
+      [
+        "expo-splash-screen",
+        {
+          "image": "./assets/splash-light.png",
+          "imageWidth": 320,
+          "resizeMode": "contain",
+          "backgroundColor": "#F6F0E4",
+          "dark": {
+            "image": "./assets/splash-dark.png",
+            "backgroundColor": "#17140F"
+          }
+        }
+      ]
     ],
     "scheme": "luachyehudi"
   }
