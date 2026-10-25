@@ -16,6 +16,7 @@ describe('settings defaults and parsing', () => {
       showEventsInCalendar: true,
       onboarded: false,
       openOn: 'month',
+      notifyAsked: false,
     });
   });
 
@@ -29,8 +30,8 @@ describe('settings defaults and parsing', () => {
   });
 
   it('keeps valid fields and replaces invalid ones', () => {
-    const s = sanitizeSettings({ cityId: 'haifa', il: false, showEventsInCalendar: 'yes', onboarded: true, openOn: 'week' });
-    expect(s).toEqual({ cityId: 'haifa', il: false, showEventsInCalendar: true, onboarded: true, openOn: 'month' });
+    const s = sanitizeSettings({ cityId: 'haifa', il: false, showEventsInCalendar: 'yes', onboarded: true, openOn: 'week', notifyAsked: 1 });
+    expect(s).toEqual({ cityId: 'haifa', il: false, showEventsInCalendar: true, onboarded: true, openOn: 'month', notifyAsked: false });
   });
 
   it('falls back to Jerusalem for an unknown city', () => {
@@ -41,8 +42,13 @@ describe('settings defaults and parsing', () => {
   });
 
   it('round-trips through serialize and parse', () => {
-    const s = { cityId: 'eilat', il: false, showEventsInCalendar: false, onboarded: true, openOn: 'day' as const };
+    const s = { cityId: 'eilat', il: false, showEventsInCalendar: false, onboarded: true, openOn: 'day' as const, notifyAsked: true };
     expect(parseSettings(serializeSettings(s))).toEqual(s);
+  });
+
+  it('reads settings saved before notifyAsked existed', () => {
+    const old = JSON.stringify({ cityId: 'haifa', il: true, showEventsInCalendar: true, onboarded: true, openOn: 'day' });
+    expect(parseSettings(old)).toEqual({ cityId: 'haifa', il: true, showEventsInCalendar: true, onboarded: true, openOn: 'day', notifyAsked: false });
   });
 
   it('formats candle lighting', () => {

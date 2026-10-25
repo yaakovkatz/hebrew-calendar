@@ -16,7 +16,10 @@
         "backgroundColor": "#FBFAF3"
       },
       "predictiveBackGestureEnabled": false,
-      "package": "io.github.yaakovkatz.luachyehudi"
+      "package": "io.github.yaakovkatz.luachyehudi",
+      "permissions": [
+        "android.permission.USE_EXACT_ALARM"
+      ]
     },
     "web": {
       "favicon": "./assets/favicon.png"
@@ -62,7 +65,8 @@
         {
           "color": "#A32D2D"
         }
-      ]
+      ],
+      "react-native-notify-kit"
     ],
     "scheme": "luachyehudi"
   }

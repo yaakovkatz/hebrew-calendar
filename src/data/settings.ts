@@ -9,6 +9,8 @@ export type Settings = {
   showEventsInCalendar: boolean;
   onboarded: boolean;
   openOn: OpenOn;
+  /** "להזכיר לך?" was shown once (PLAN.md: ask after the first event, not on launch). */
+  notifyAsked: boolean;
 };
 
 /** One JSON value in expo-sqlite/kv-store. Change the key only together with a migration. */
@@ -20,6 +22,7 @@ export const DEFAULT_SETTINGS: Settings = {
   showEventsInCalendar: true,
   onboarded: false,
   openOn: 'month',
+  notifyAsked: false,
 };
 
 /** Keeps only valid fields; anything missing, broken or unknown gets its default. */
@@ -32,6 +35,7 @@ export function sanitizeSettings(value: unknown): Settings {
     showEventsInCalendar: bool(v.showEventsInCalendar, DEFAULT_SETTINGS.showEventsInCalendar),
     onboarded: bool(v.onboarded, DEFAULT_SETTINGS.onboarded),
     openOn: v.openOn === 'month' || v.openOn === 'day' ? v.openOn : DEFAULT_SETTINGS.openOn,
+    notifyAsked: bool(v.notifyAsked, DEFAULT_SETTINGS.notifyAsked),
   };
 }
 
