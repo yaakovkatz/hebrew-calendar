@@ -62,7 +62,8 @@
         {
           "color": "#A32D2D"
         }
-      ]
+      ],
+      "expo-asset"
     ],
     "scheme": "luachyehudi"
   }

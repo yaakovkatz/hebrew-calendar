@@ -1,25 +1,14 @@
-import { Image } from 'react-native';
+import { Asset } from 'expo-asset';
+import { File } from 'expo-file-system';
 import { FrankRuhlLibre_400Regular } from '@expo-google-fonts/frank-ruhl-libre/400Regular';
 import { Heebo_400Regular } from '@expo-google-fonts/heebo/400Regular';
 import type { PrintFonts } from './printCalendar';
 
-// expo-file-system and expo-asset are not direct dependencies, so the TTF bytes are
-// read with fetch + FileReader from the bundled asset's URI. When that is not possible
-// (for example a release build where the URI is a resource name) the PDF falls back
-// to system Hebrew fonts. TODO: switch to expo-asset + expo-file-system once installed.
-async function readBase64(asset: number): Promise<string> {
-  const uri = Image.resolveAssetSource(asset)?.uri;
-  if (!uri) throw new Error('no font uri');
-  const res = await fetch(uri);
-  if (!res.ok) throw new Error('font fetch failed');
-  const blob = await res.blob();
-  const dataUrl = await new Promise<string>((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onload = () => resolve(String(reader.result));
-    reader.onerror = () => reject(reader.error);
-    reader.readAsDataURL(blob);
-  });
-  const b64 = dataUrl.slice(dataUrl.indexOf(',') + 1);
+/** The bundled TTF as base64, copied to local storage first so it also works in release builds. */
+async function readBase64(module: number): Promise<string> {
+  const asset = await Asset.fromModule(module).downloadAsync();
+  if (!asset.localUri) throw new Error('font not available');
+  const b64 = await new File(asset.localUri).base64();
   if (!b64) throw new Error('empty font');
   return b64;
 }
