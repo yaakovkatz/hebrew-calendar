@@ -1,7 +1,7 @@
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useReminders } from '@/data/useReminders';
-import { CITIES } from '@/lib/cities';
+import { useSettings } from '@/data/useSettings';
 import { shortHebrewDate } from '@/lib/events';
 import { hebrewDateAt } from '@/lib/hebrewDay';
 import { WEEKDAYS } from '@/lib/month';
@@ -9,11 +9,11 @@ import { reminderRowLabel, reminderWhen, sortedReminders } from '@/lib/reminders
 import { useNow } from '@/lib/useNow';
 import { fonts, usePalette } from '@/theme/tokens';
 
-const city = CITIES[0];
 
 /** Approved design (as events): the next reminder's title big, countdown small in orange, then a plain list. */
 export function RemindersScreen({ onAdd, onOpen }: { onAdd: () => void; onOpen: (id: number) => void }) {
   const palette = usePalette();
+  const { city } = useSettings();
   const insets = useSafeAreaInsets();
   const now = useNow();
   const { reminders, loaded } = useReminders();

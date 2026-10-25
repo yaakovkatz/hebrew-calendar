@@ -5,6 +5,7 @@ import { gematriya, type HDate } from '@hebcal/core';
 import type { City } from '@/lib/cities';
 import { headline, nextOccurrence, type FamilyEvent } from '@/lib/events';
 import { formatTime } from '@/lib/hebrewDay';
+import { remindersOn, timeLabel, type Reminder } from '@/lib/reminders';
 import { hebrewMonthName, WEEKDAYS } from '@/lib/month';
 import { dayZmanim } from '@/lib/zmanim';
 import { fonts, usePalette } from '@/theme/tokens';
@@ -13,15 +14,17 @@ type Props = {
   day: HDate | null;
   holidays: string[];
   events: FamilyEvent[];
+  reminders: Reminder[];
   city: City;
   onClose: () => void;
   onOpenEvent: (id: number) => void;
+  onOpenReminder: (id: number) => void;
 };
 
 const SHORT = ['הנץ החמה', 'שקיעה', 'צאת הכוכבים'];
 
 /** Approved design: a bottom sheet with the date, what's on it, three zmanim and "כל הזמנים ›". */
-export function DaySheet({ day, holidays, events, city, onClose, onOpenEvent }: Props) {
+export function DaySheet({ day, holidays, events, reminders, city, onClose, onOpenEvent, onOpenReminder }: Props) {
   const palette = usePalette();
   const insets = useSafeAreaInsets();
   const [all, setAll] = useState(false);
@@ -32,6 +35,7 @@ export function DaySheet({ day, holidays, events, city, onClose, onOpenEvent }: 
   const zmanim = dayZmanim(noon, city);
   const shown = all ? zmanim : zmanim.filter((z) => SHORT.includes(z.label));
   const todays = events.filter((e) => nextOccurrence(e, day).abs() === day.abs());
+  const todaysReminders = remindersOn(reminders, day);
   const gregLine = new Intl.DateTimeFormat('he-IL', { day: 'numeric', month: 'long' }).format(greg);
 
   const close = () => {
@@ -70,6 +74,21 @@ export function DaySheet({ day, holidays, events, city, onClose, onOpenEvent }: 
             </Pressable>
           ))}
 
+          {todaysReminders.map((r) => (
+            <Pressable
+              key={`r${r.id}`}
+              onPress={() => {
+                close();
+                onOpenReminder(r.id);
+              }}
+              accessibilityRole="button"
+              style={[styles.row, { borderBottomColor: palette.line, borderBottomWidth: 1 }]}
+            >
+              <Text style={[styles.reminder, { color: palette.ink }]}>{r.title}</Text>
+              <Text style={[styles.rowValue, { color: palette.ink }]}>{timeLabel(r.time)}</Text>
+            </Pressable>
+          ))}
+
           <View style={styles.zmanim}>
             {shown.map((z, i) => (
               <View
@@ -99,6 +118,7 @@ const styles = StyleSheet.create({
   big: { fontFamily: fonts.serif, fontSize: 34, lineHeight: 42 },
   line: { fontFamily: fonts.serif, fontSize: 16, marginTop: 4 },
   zmanim: { marginTop: 16 },
+  reminder: { fontFamily: fonts.serif, fontSize: 16 },
   row: { flexDirection: 'row', justifyContent: 'space-between', paddingVertical: 11 },
   rowLabel: { fontFamily: fonts.sans, fontSize: 14 },
   rowValue: { fontFamily: fonts.sans, fontSize: 14 },

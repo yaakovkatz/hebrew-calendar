@@ -3,10 +3,10 @@ import { StatusBar } from 'expo-status-bar';
 import { SQLiteProvider } from 'expo-sqlite';
 import { useColorScheme, View } from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
-import { ComingSoon } from '@/components/ComingSoon';
 import { TabBar, type TabId } from '@/components/TabBar';
 import { DATABASE_NAME, migrateDbIfNeeded } from '@/data/db';
 import { EventsProvider, useEvents } from '@/data/useEvents';
+import { RemindersProvider, useReminders } from '@/data/useReminders';
 import { SettingsProvider, useSettings } from '@/data/useSettings';
 import { AboutScreen } from '@/screens/AboutScreen';
 import { AddEventScreen } from '@/screens/AddEventScreen';
@@ -16,6 +16,9 @@ import { EventDetailsScreen } from '@/screens/EventDetailsScreen';
 import { EventsScreen } from '@/screens/EventsScreen';
 import { LicensesScreen } from '@/screens/LicensesScreen';
 import { OnboardingScreen } from '@/screens/OnboardingScreen';
+import { AddReminderScreen } from '@/screens/AddReminderScreen';
+import { ReminderDetailsScreen } from '@/screens/ReminderDetailsScreen';
+import { RemindersScreen } from '@/screens/RemindersScreen';
 import { SettingsScreen } from '@/screens/SettingsScreen';
 import { usePalette } from '@/theme/tokens';
 
@@ -24,16 +27,18 @@ type ScreenProps = {
   onAddEvent: () => void;
   onOpenEvent: (id: number) => void;
   onOpenAbout: () => void;
+  onAddReminder: () => void;
+  onOpenReminder: (id: number) => void;
 };
 
-function Screen({ tab, onAddEvent, onOpenEvent, onOpenAbout }: ScreenProps) {
+function Screen({ tab, onAddEvent, onOpenEvent, onOpenAbout, onAddReminder, onOpenReminder }: ScreenProps) {
   switch (tab) {
     case 'calendar':
-      return <CalendarScreen onAddEvent={onAddEvent} onOpenEvent={onOpenEvent} />;
+      return <CalendarScreen onAddEvent={onAddEvent} onOpenEvent={onOpenEvent} onOpenReminder={onOpenReminder} />;
     case 'family':
       return <EventsScreen onAdd={onAddEvent} onOpen={onOpenEvent} />;
     case 'reminders':
-      return <ComingSoon title="תזכורות" note="בקרוב, בהמשך שלב 1" />;
+      return <RemindersScreen onAdd={onAddReminder} onOpen={onOpenReminder} />;
     case 'settings':
       return <SettingsScreen onOpenAbout={onOpenAbout} />;
   }
@@ -48,6 +53,11 @@ function Main() {
   const scheme = useColorScheme();
   const { events } = useEvents();
   const { onboarded } = useSettings();
+  const { reminders } = useReminders();
+  const [addingReminder, setAddingReminder] = useState(false);
+  const [openReminderId, setOpenReminderId] = useState<number | null>(null);
+  const [editingReminder, setEditingReminder] = useState(false);
+  const editingReminderItem = editingReminder ? reminders.find((r) => r.id === openReminderId) : undefined;
   const [tab, setTab] = useState<TabId>('calendar');
   const [adding, setAdding] = useState(false);
   const [openId, setOpenId] = useState<number | null>(null);
@@ -73,6 +83,8 @@ function Main() {
           onAddEvent={() => setAdding(true)}
           onOpenEvent={setOpenId}
           onOpenAbout={() => setOverlay('about')}
+          onAddReminder={() => setAddingReminder(true)}
+          onOpenReminder={setOpenReminderId}
         />
       </View>
       <TabBar active={tab} onSelect={setTab} />
@@ -81,6 +93,17 @@ function Main() {
       ) : null}
       {adding ? <AddEventScreen onClose={() => setAdding(false)} /> : null}
       {editingEvent ? <AddEventScreen initial={editingEvent} onClose={() => setEditing(false)} /> : null}
+      {openReminderId !== null ? (
+        <ReminderDetailsScreen
+          reminderId={openReminderId}
+          onBack={() => setOpenReminderId(null)}
+          onEdit={() => setEditingReminder(true)}
+        />
+      ) : null}
+      {addingReminder ? <AddReminderScreen onClose={() => setAddingReminder(false)} /> : null}
+      {editingReminderItem ? (
+        <AddReminderScreen initial={editingReminderItem} onClose={() => setEditingReminder(false)} />
+      ) : null}
       {/* Licenses and contact sit on top of About, so "back" returns to it. */}
       {overlay ? (
         <AboutScreen
@@ -102,7 +125,9 @@ export default function App() {
       <SQLiteProvider databaseName={DATABASE_NAME} onInit={migrateDbIfNeeded}>
         <SettingsProvider>
           <EventsProvider>
-            <Main />
+            <RemindersProvider>
+              <Main />
+            </RemindersProvider>
           </EventsProvider>
         </SettingsProvider>
       </SQLiteProvider>

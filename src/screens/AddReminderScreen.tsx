@@ -3,7 +3,7 @@ import { Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { OptionSheet } from '@/components/OptionSheet';
 import { useReminders } from '@/data/useReminders';
-import { CITIES } from '@/lib/cities';
+import { useSettings } from '@/data/useSettings';
 import { clampHebrew, hebrewDayOptions, hebrewMonthOptions, type Option } from '@/lib/datePicking';
 import { hebrewDateAt } from '@/lib/hebrewDay';
 import { yearLabel } from '@/lib/month';
@@ -22,8 +22,6 @@ import {
 } from '@/lib/reminders';
 import { fonts, usePalette } from '@/theme/tokens';
 
-const city = CITIES[0];
-const il = true; // Until the city setting exists, every city in the list is in Israel.
 const REPEATS: Option<RepeatKind>[] = [
   { value: 'once', label: REPEAT_LABEL.once },
   { value: 'yearly', label: REPEAT_LABEL.yearly },
@@ -34,6 +32,7 @@ type Sheet = null | 'hDay' | 'hMonth' | 'hYear' | 'time' | 'repeat' | 'alert';
 /** Approved design: "מה", Hebrew date, time, repeat, alert; Shabbat warning; Gregorian date at the bottom. */
 export function AddReminderScreen({ onClose, initial }: { onClose: () => void; initial?: Reminder }) {
   const palette = usePalette();
+  const { city, il } = useSettings();
   const insets = useSafeAreaInsets();
   const { add, update } = useReminders();
   const today = hebrewDateAt(new Date(), city);

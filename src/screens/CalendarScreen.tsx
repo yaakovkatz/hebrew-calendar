@@ -5,6 +5,7 @@ import { DaySheet } from '@/components/DaySheet';
 import { DayView } from '@/components/DayView';
 import { MonthView } from '@/components/MonthView';
 import { useEvents } from '@/data/useEvents';
+import { useReminders } from '@/data/useReminders';
 import { useSettings } from '@/data/useSettings';
 import { headline, shortHebrewDate, upcoming } from '@/lib/events';
 import { civilNoon, formatTime, hebrewDateAt } from '@/lib/hebrewDay';
@@ -17,8 +18,11 @@ import { fonts, usePalette } from '@/theme/tokens';
 
 type Mode = 'month' | 'day';
 
-export function CalendarScreen({ onAddEvent, onOpenEvent }: { onAddEvent: () => void; onOpenEvent: (id: number) => void }) {
+type Props = { onAddEvent: () => void; onOpenEvent: (id: number) => void; onOpenReminder: (id: number) => void };
+
+export function CalendarScreen({ onAddEvent, onOpenEvent, onOpenReminder }: Props) {
   const { events } = useEvents();
+  const { reminders } = useReminders();
   const { city, il: IL, showEventsInCalendar, openOn } = useSettings();
   const palette = usePalette();
   const insets = useSafeAreaInsets();
@@ -72,6 +76,7 @@ export function CalendarScreen({ onAddEvent, onOpenEvent }: { onAddEvent: () => 
             nextEvent={nextEvent}
             onOpenNext={first ? () => onOpenEvent(first.event.id) : undefined}
             events={events}
+            reminders={reminders}
             showEvents={showEventsInCalendar}
             onAddEvent={onAddEvent}
             onSelectDay={(hd, holidays) => setSelected({ hd, holidays })}
@@ -80,9 +85,11 @@ export function CalendarScreen({ onAddEvent, onOpenEvent }: { onAddEvent: () => 
             day={selected?.hd ?? null}
             holidays={selected?.holidays ?? []}
             events={events}
+            reminders={reminders}
             city={city}
             onClose={() => setSelected(null)}
             onOpenEvent={onOpenEvent}
+            onOpenReminder={onOpenReminder}
           />
           {!onCurrentMonth ? (
             <Pressable onPress={() => setShown({ year: today.getFullYear(), month: today.getMonth() })} style={styles.backToday}>

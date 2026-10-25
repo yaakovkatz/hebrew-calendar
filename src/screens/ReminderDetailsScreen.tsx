@@ -1,20 +1,20 @@
 import { Alert, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useReminders } from '@/data/useReminders';
-import { CITIES } from '@/lib/cities';
+import { useSettings } from '@/data/useSettings';
 import { formatHebrewFull } from '@/lib/datePicking';
 import { hebrewDateAt } from '@/lib/hebrewDay';
 import { ALERT_LABEL, gregorianLine, REPEAT_LABEL, reminderItem, reminderWhen, timeLabel } from '@/lib/reminders';
 import { useNow } from '@/lib/useNow';
 import { fonts, usePalette } from '@/theme/tokens';
 
-const city = CITIES[0];
 
 type Props = { reminderId: number; onBack: () => void; onEdit: () => void };
 
 /** Same layout as event details: title big, countdown small in orange, plain rows, edit and delete. */
 export function ReminderDetailsScreen({ reminderId, onBack, onEdit }: Props) {
   const palette = usePalette();
+  const { city } = useSettings();
   const insets = useSafeAreaInsets();
   const now = useNow();
   const { reminders, remove } = useReminders();

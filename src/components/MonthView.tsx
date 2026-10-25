@@ -2,6 +2,7 @@ import { useMemo, useRef } from 'react';
 import { PanResponder, Pressable, StyleSheet, Text, View } from 'react-native';
 import type { HDate } from '@hebcal/core';
 import { eventDaysInRange, type FamilyEvent } from '@/lib/events';
+import { reminderDaysInRange, type Reminder } from '@/lib/reminders';
 import { buildMonth, WEEKDAYS, type MonthCell } from '@/lib/month';
 import { fonts, usePalette, type Palette } from '@/theme/tokens';
 
@@ -22,6 +23,7 @@ type Props = {
   onOpenNext?: () => void;
   /** Family dates to mark with an orange dot (setting "הצגת אירועים בלוח", on by default). */
   events?: FamilyEvent[];
+  reminders?: Reminder[];
   showEvents?: boolean;
 };
 
@@ -40,13 +42,20 @@ export function MonthView({
   onAddEvent,
   onOpenNext,
   events = [],
+  reminders = [],
   showEvents = true,
 }: Props) {
   const palette = usePalette();
   const grid = useMemo(() => buildMonth(year, month, today, il), [year, month, today, il]);
   const eventDays = useMemo(
-    () => (showEvents ? eventDaysInRange(events, grid.cells[0].hd, grid.cells[grid.cells.length - 1].hd) : new Set<number>()),
-    [events, grid, showEvents],
+    () => {
+      if (!showEvents) return new Set<number>();
+      const first = grid.cells[0].hd;
+      const last = grid.cells[grid.cells.length - 1].hd;
+      // One orange dot per day, for family dates and reminders alike.
+      return new Set([...eventDaysInRange(events, first, last), ...reminderDaysInRange(reminders, first, last)]);
+    },
+    [events, reminders, grid, showEvents],
   );
 
   const onShiftRef = useRef(onShift);
