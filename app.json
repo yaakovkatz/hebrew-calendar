@@ -54,6 +54,14 @@
             "backgroundColor": "#17140F"
           }
         }
+      ],
+      "expo-sharing",
+      "expo-background-task",
+      [
+        "expo-notifications",
+        {
+          "color": "#A32D2D"
+        }
       ]
     ],
     "scheme": "luachyehudi"
