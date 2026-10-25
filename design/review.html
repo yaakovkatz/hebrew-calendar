@@ -298,8 +298,22 @@ const tabsBar=on=>{const T=[['לוח','M4 6h16v14H4zM4 10h16M9 3v4M15 3v4'],['ז
  return `<div style="position:absolute;bottom:0;left:0;right:0;display:flex;justify-content:space-around;border-top:1px solid var(--l1);padding:7px 0 12px;font-family:var(--sans);font-size:9.5px;background:var(--b)">${T.map(([t,d],i)=>`<span style="text-align:center;color:${i==on?'var(--i)':'var(--m)'}"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" style="display:block;margin:0 auto 1px" aria-hidden="true"><path d="${d}"/></svg>${t}</span>`).join('')}</div>`};
 const Z=[['הדלקת נרות','16:11','r'],['עלות השחר','04:47'],['משיכיר','05:06'],['הנץ החמה','05:58'],['סוף ק״ש מג״א','08:16'],['סוף ק״ש גר״א','08:52'],['סוף תפילה מג״א','09:28','n'],['סוף תפילה גר״א','09:52'],['חצות','11:47'],['מנחה גדולה','12:17'],['מנחה קטנה','14:58'],['פלג המנחה','16:05'],['שקיעה','16:51'],['צאת הכוכבים','17:09'],['צאת ר״ת','18:03'],['חצות הלילה','23:47']];
 document.getElementById('fix1').innerHTML=
- fig('1 · תזכורת חדשה (מאוחד)',phone('L',`<div class="pad" style="padding-top:20px"><div class="s mu" style="font-size:12.5px">ביטול</div>
-   <div class="big" style="font-size:26px;margin-top:8px">אירוע חדש</div>${seg(['יום הולדת','נישואין','תזכורת'],2)}
+ fig('1א · אירוע',phone('L',`<div class="pad" style="padding-top:20px"><div class="s mu" style="font-size:12.5px">ביטול</div>
+   <div class="big" style="font-size:26px;margin-top:8px">חדש</div>${seg(['אירוע','תזכורת'],0)}
+   <div class="s" style="font-size:13px;margin-top:10px">${fam('סוג','יום הולדת ›')}</div>
+   <div class="lb" style="margin-top:10px">של מי?</div><div style="font-size:17px;padding-bottom:4px;border-bottom:1px solid var(--l1)">נועה</div>
+   <div class="s" style="font-size:11px;color:var(--sun);margin-top:5px">יופיע: יום ההולדת של נועה · 9</div>
+   <div class="lb" style="margin-top:12px">תאריך עברי</div><div style="display:flex;gap:12px;font-size:17px"><span style="border-bottom:1px solid var(--l1)">ב׳</span><span style="border-bottom:1px solid var(--l1)">בשבט</span><span style="border-bottom:1px solid var(--l1)">תשע״ח</span></div>
+   <div class="s" style="font-size:12.5px;margin-top:8px"><div class="r n"><span>מתי להזכיר</span><span>בערב שבו היום מתחיל ›</span></div></div>
+   <div class="btn" style="bottom:18px">שמירה</div></div>`,'height:560px'))+
+ fig('1ג · רשימת הסוגים',phone('L',`<div style="height:100%;background:#E9E1D2"></div>
+   <div style="position:absolute;bottom:0;left:0;right:0;background:var(--b);border-radius:22px 22px 0 0;padding:10px 22px 26px">
+   <div style="width:34px;height:3px;background:var(--l1);border-radius:2px;margin:0 auto 14px"></div><div class="mu" style="font-size:11px">סוג האירוע</div>
+   ${[['יום הולדת','יום ההולדת של … · גיל'],['נישואין','יום הנישואין של … · שנה'],['אזכרה','האזכרה של … · שנה'],['עלייה לארץ','יום העלייה של … · שנה'],['אחר','שם חופשי, ואפשר להראות שנים']].map(([t,d],i)=>`<div class="r" style="${i==0?'background:var(--t);margin:0 -8px;padding-left:8px;padding-right:8px;':''}"><span style="font-size:15px">${t}</span><span>${d}</span></div>`).join('')}
+   <div class="mu" style="font-size:10.5px;line-height:1.5;margin-top:12px">ביום הולדת של ילד: אחרי השמירה מוצע "להוסיף גם בר/בת מצווה?", והתאריך מחושב לבד</div>
+   </div>`,'height:560px'))+
+ fig('1ב · תזכורת',phone('L',`<div class="pad" style="padding-top:20px"><div class="s mu" style="font-size:12.5px">ביטול</div>
+   <div class="big" style="font-size:26px;margin-top:8px">חדש</div>${seg(['אירוע','תזכורת'],1)}
    <div class="lb" style="margin-top:12px">מה</div><div style="font-size:17px;padding-bottom:4px;border-bottom:1px solid var(--l1)">רופא שיניים</div>
    <div class="lb" style="margin-top:12px">תאריך עברי</div><div style="display:flex;gap:12px;font-size:17px"><span style="border-bottom:1px solid var(--l1)">ט״ז</span><span style="border-bottom:1px solid var(--l1)">בחשוון</span><span style="border-bottom:1px solid var(--l1)">תשפ״ז</span></div>
    <div class="lb" style="margin-top:12px">שעה</div><div style="font-size:22px;padding-bottom:3px;border-bottom:1.5px solid var(--i);width:70px">10:30</div>
@@ -310,10 +324,9 @@ document.getElementById('fix1').innerHTML=
    <div style="position:absolute;bottom:0;left:0;right:0;background:var(--b);border-radius:22px 22px 0 0;padding:10px 22px 22px">
    <div style="width:34px;height:3px;background:var(--l1);border-radius:2px;margin:0 auto 14px"></div><div class="mu" style="font-size:11px">מתי להזכיר</div>
    ${['בזמן','5 דק׳ לפני','15 דק׳ לפני','שעה לפני','בבוקר','יום לפני'].map((t,i)=>`<div class="r" style="${i==2?'background:var(--t);margin:0 -8px;padding-left:8px;padding-right:8px;':''}"><span style="font-size:15px">${t}</span><span>${i==2?'✓':''}</span></div>`).join('')}
-   <div style="padding:10px 0 0"><div style="font-size:15px">אחר…</div>
+   <div style="padding:10px 0 0"><div style="font-size:15px">אחר: כמה זמן לפני?</div>
    <div style="display:flex;align-items:center;gap:10px;margin-top:8px"><span style="font-size:20px;border-bottom:1.5px solid var(--i);width:44px;text-align:center">1</span>
-   <div class="s" style="display:flex;flex:1;border:1px solid var(--l1);border-radius:14px;padding:2px;font-size:11px;text-align:center"><span style="flex:1;padding:4px 0;border-radius:12px;background:var(--i);color:var(--b)">דקות</span><span style="flex:1;padding:4px 0;color:var(--m)">שעות</span><span style="flex:1;padding:4px 0;color:var(--m)">ימים</span></div>
-   <span class="s mu" style="font-size:12px">לפני</span></div></div></div>`,'height:560px'))+
+   <div class="s" style="display:flex;flex:1;border:1px solid var(--l1);border-radius:14px;padding:2px;font-size:11px;text-align:center"><span style="flex:1;padding:4px 0;border-radius:12px;background:var(--i);color:var(--b)">דקות</span><span style="flex:1;padding:4px 0;color:var(--m)">שעות</span><span style="flex:1;padding:4px 0;color:var(--m)">ימים</span></div></div></div></div>`,'height:560px'))+
  fig('3 · אירועים, רשימה אחת',phone('L',`<div class="pad"><div class="mu" style="font-size:11px">הבא בתור</div>
    <div style="font-size:28px;line-height:1.15;margin-top:2px">רופא שיניים</div><div style="font-size:15px;color:var(--sun)">מחר · 10:30</div>
    <div class="mu" style="font-size:11px">ט״ז בחשוון · יום שלישי</div><div style="height:1px;background:var(--l1);margin:18px 0 2px"></div>
