@@ -20,6 +20,10 @@ import { AddReminderScreen } from '@/screens/AddReminderScreen';
 import { ReminderDetailsScreen } from '@/screens/ReminderDetailsScreen';
 import { RemindersScreen } from '@/screens/RemindersScreen';
 import { SettingsScreen } from '@/screens/SettingsScreen';
+import { BatteryHelpScreen } from '@/screens/BatteryHelpScreen';
+import { PrintScreen } from '@/screens/PrintScreen';
+import { NotifyPrompt, useNotifyPrompt } from '@/components/NotifyPrompt';
+import { useNotificationScheduler } from '@/data/useNotificationScheduler';
 import { usePalette } from '@/theme/tokens';
 
 type ScreenProps = {
@@ -27,11 +31,14 @@ type ScreenProps = {
   onAddEvent: () => void;
   onOpenEvent: (id: number) => void;
   onOpenAbout: () => void;
+  onOpenPrint: () => void;
+  onOpenBatteryHelp: () => void;
   onAddReminder: () => void;
   onOpenReminder: (id: number) => void;
 };
 
-function Screen({ tab, onAddEvent, onOpenEvent, onOpenAbout, onAddReminder, onOpenReminder }: ScreenProps) {
+function Screen(props: ScreenProps) {
+  const { tab, onAddEvent, onOpenEvent, onOpenAbout, onAddReminder, onOpenReminder } = props;
   switch (tab) {
     case 'calendar':
       return <CalendarScreen onAddEvent={onAddEvent} onOpenEvent={onOpenEvent} onOpenReminder={onOpenReminder} />;
@@ -40,11 +47,11 @@ function Screen({ tab, onAddEvent, onOpenEvent, onOpenAbout, onAddReminder, onOp
     case 'reminders':
       return <RemindersScreen onAdd={onAddReminder} onOpen={onOpenReminder} />;
     case 'settings':
-      return <SettingsScreen onOpenAbout={onOpenAbout} />;
+      return <SettingsScreen onOpenAbout={onOpenAbout} onOpenPrint={props.onOpenPrint} onOpenBatteryHelp={props.onOpenBatteryHelp} />;
   }
 }
 
-type Overlay = null | 'about' | 'licenses' | 'contact';
+type Overlay = null | 'about' | 'licenses' | 'contact' | 'print' | 'battery';
 
 // App state lives below SQLiteProvider: its memo ignores `children`, so state held
 // above it would never reach the screens.
@@ -64,6 +71,8 @@ function Main() {
   const [editing, setEditing] = useState(false);
   const [overlay, setOverlay] = useState<Overlay>(null);
   const editingEvent = editing ? events.find((e) => e.id === openId) : undefined;
+  useNotificationScheduler();
+  const prompt = useNotifyPrompt(!adding && !editing && !addingReminder && !editingReminder);
   const statusBar = <StatusBar style={scheme === 'dark' ? 'light' : 'dark'} />;
 
   if (!onboarded) {
@@ -83,6 +92,8 @@ function Main() {
           onAddEvent={() => setAdding(true)}
           onOpenEvent={setOpenId}
           onOpenAbout={() => setOverlay('about')}
+          onOpenPrint={() => setOverlay('print')}
+          onOpenBatteryHelp={() => setOverlay('battery')}
           onAddReminder={() => setAddingReminder(true)}
           onOpenReminder={setOpenReminderId}
         />
@@ -105,7 +116,7 @@ function Main() {
         <AddReminderScreen initial={editingReminderItem} onClose={() => setEditingReminder(false)} />
       ) : null}
       {/* Licenses and contact sit on top of About, so "back" returns to it. */}
-      {overlay ? (
+      {overlay === 'about' || overlay === 'licenses' || overlay === 'contact' ? (
         <AboutScreen
           onBack={() => setOverlay(null)}
           onOpenLicenses={() => setOverlay('licenses')}
@@ -114,6 +125,9 @@ function Main() {
       ) : null}
       {overlay === 'licenses' ? <LicensesScreen onBack={() => setOverlay('about')} /> : null}
       {overlay === 'contact' ? <ContactScreen onBack={() => setOverlay('about')} /> : null}
+      {overlay === 'print' ? <PrintScreen onBack={() => setOverlay(null)} /> : null}
+      {overlay === 'battery' ? <BatteryHelpScreen onBack={() => setOverlay(null)} /> : null}
+      <NotifyPrompt visible={prompt.visible} onYes={prompt.accept} onLater={prompt.dismiss} />
       {statusBar}
     </View>
   );

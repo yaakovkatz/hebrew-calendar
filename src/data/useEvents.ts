@@ -1,3 +1,4 @@
+import { refreshWidgets } from '@/widgets/refreshWidgets';
 import { createContext, createElement, useCallback, useContext, useEffect, useState, type ReactNode } from 'react';
 import { useSQLiteContext } from 'expo-sqlite';
 import type { FamilyEvent } from '@/lib/events';
@@ -32,6 +33,7 @@ export function EventsProvider({ children }: { children: ReactNode }) {
     async (ev: NewEvent) => {
       await addEvent(db, ev);
       await reload();
+      refreshWidgets();
     },
     [db, reload],
   );
@@ -40,6 +42,7 @@ export function EventsProvider({ children }: { children: ReactNode }) {
     async (ev: FamilyEvent) => {
       await updateEvent(db, ev);
       await reload();
+      refreshWidgets();
     },
     [db, reload],
   );
@@ -48,6 +51,7 @@ export function EventsProvider({ children }: { children: ReactNode }) {
     async (id: number) => {
       await deleteEvent(db, id);
       await reload();
+      refreshWidgets();
     },
     [db, reload],
   );

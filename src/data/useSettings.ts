@@ -1,3 +1,4 @@
+import { refreshWidgets } from '@/widgets/refreshWidgets';
 import { createContext, createElement, useCallback, useContext, useMemo, useRef, useState, type ReactNode } from 'react';
 import Storage from 'expo-sqlite/kv-store';
 import type { City } from '@/lib/cities';
@@ -38,7 +39,8 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
     current.current = next;
     setSettings(next);
     // Saving is best effort: the change already applies for this session.
-    Storage.setItem(SETTINGS_KEY, serializeSettings(next)).catch(() => {});
+    // Widgets read settings from storage, so refresh them once the save has landed.
+    Storage.setItem(SETTINGS_KEY, serializeSettings(next)).then(() => refreshWidgets()).catch(() => {});
   }, []);
 
   const value = useMemo<SettingsStore>(

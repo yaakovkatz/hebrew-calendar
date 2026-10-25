@@ -19,7 +19,9 @@ const OPEN_ON_OPTIONS: { value: OpenOn; label: string }[] = [
 ];
 
 /** Approved mockup "הגדרות": big title, plain rows, details behind "›". */
-export function SettingsScreen({ onOpenAbout }: { onOpenAbout: () => void }) {
+type Props = { onOpenAbout: () => void; onOpenPrint: () => void; onOpenBatteryHelp: () => void };
+
+export function SettingsScreen({ onOpenAbout, onOpenPrint, onOpenBatteryHelp }: Props) {
   const palette = usePalette();
   const insets = useSafeAreaInsets();
   const s = useSettings();
@@ -65,6 +67,8 @@ export function SettingsScreen({ onOpenAbout }: { onOpenAbout: () => void }) {
           }
         />
         <Row label="פתיחה במסך" value={`${OPEN_ON_LABEL[s.openOn]} ›`} onPress={() => setSheet('openOn')} />
+        <Row label="לוח קיר להדפסה" value="›" onPress={onOpenPrint} />
+        <Row label="התראות בזמן" value="›" onPress={onOpenBatteryHelp} />
         <Row label="אודות" value="›" onPress={onOpenAbout} last />
 
         <Text style={[styles.note, { color: palette.muted }]}>הזמנים לעיון. בשאלה הלכתית פנו&nbsp;לרב.</Text>

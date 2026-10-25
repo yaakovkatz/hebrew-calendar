@@ -1,3 +1,4 @@
+import { refreshWidgets } from '@/widgets/refreshWidgets';
 import { createContext, createElement, useCallback, useContext, useEffect, useState, type ReactNode } from 'react';
 import { useSQLiteContext } from 'expo-sqlite';
 import type { Reminder } from '@/lib/reminders';
@@ -32,6 +33,7 @@ export function RemindersProvider({ children }: { children: ReactNode }) {
     async (r: NewReminder) => {
       await addReminder(db, r);
       await reload();
+      refreshWidgets();
     },
     [db, reload],
   );
@@ -40,6 +42,7 @@ export function RemindersProvider({ children }: { children: ReactNode }) {
     async (r: NewReminder & { id: number }) => {
       await updateReminder(db, r);
       await reload();
+      refreshWidgets();
     },
     [db, reload],
   );
@@ -48,6 +51,7 @@ export function RemindersProvider({ children }: { children: ReactNode }) {
     async (id: number) => {
       await deleteReminder(db, id);
       await reload();
+      refreshWidgets();
     },
     [db, reload],
   );
