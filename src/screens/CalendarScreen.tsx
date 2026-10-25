@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { DaySheet } from '@/components/DaySheet';
 import { DayView } from '@/components/DayView';
 import { MonthView } from '@/components/MonthView';
 import { useEvents } from '@/data/useEvents';
@@ -26,6 +27,7 @@ export function CalendarScreen({ onAddEvent, onOpenEvent }: { onAddEvent: () => 
   const now = useNow();
   const today = hebrewDateAt(now, city);
   const [mode, setMode] = useState<Mode>('month');
+  const [selected, setSelected] = useState<{ hd: HDate; holidays: string[] } | null>(null);
   const [shown, setShown] = useState({ year: today.getFullYear(), month: today.getMonth() });
   const onCurrentMonth = shown.year === today.getFullYear() && shown.month === today.getMonth();
 
@@ -73,9 +75,15 @@ export function CalendarScreen({ onAddEvent, onOpenEvent }: { onAddEvent: () => 
             onOpenNext={first ? () => onOpenEvent(first.event.id) : undefined}
             events={events}
             onAddEvent={onAddEvent}
-            onSelectDay={(hd) => {
-              if (hd.abs() === today.abs()) setMode('day');
-            }}
+            onSelectDay={(hd, holidays) => setSelected({ hd, holidays })}
+          />
+          <DaySheet
+            day={selected?.hd ?? null}
+            holidays={selected?.holidays ?? []}
+            events={events}
+            city={city}
+            onClose={() => setSelected(null)}
+            onOpenEvent={onOpenEvent}
           />
           {!onCurrentMonth ? (
             <Pressable onPress={() => setShown({ year: today.getFullYear(), month: today.getMonth() })} style={styles.backToday}>

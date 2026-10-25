@@ -12,7 +12,7 @@ type Props = {
   il: boolean;
   /** delta +1 = next month, -1 = previous */
   onShift: (delta: 1 | -1) => void;
-  onSelectDay: (hd: HDate) => void;
+  onSelectDay: (hd: HDate, holidays: string[]) => void;
   /** 'HH:MM' strings for the coming Shabbat; null hides them (e.g. on other months). */
   candles?: string | null;
   havdalah?: string | null;
@@ -89,7 +89,7 @@ export function MonthView({
             cell={cell}
             hasEvent={eventDays.has(cell.hd.abs())}
             palette={palette}
-            onPress={() => onSelectDay(cell.hd)}
+            onPress={() => onSelectDay(cell.hd, cell.holidays)}
           />
         ))}
       </View>

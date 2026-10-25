@@ -42,6 +42,10 @@
     ],
     "moduleNameMapper": {
       "^@hebcal/core$": "<rootDir>/node_modules/@hebcal/core/dist/esm/index.js"
-    }
+    },
+    "testPathIgnorePatterns": [
+      "/node_modules/",
+      "/.claude/"
+    ]
   }
 }
