@@ -102,6 +102,9 @@ figcaption{font-size:13px;color:var(--muted)}
 
 <section><h2>המסכים הראשיים</h2><p>חודש ויום, בבהיר ובכהה</p><div class="row" id="main"></div></section>
 <section><h2>אירועים</h2><p>פרטי יום, המשפחה, תאריך חדש</p><div class="row" id="ev"></div></section>
+<section><h2>אייקון <span style="font-size:14px;color:var(--red);font-family:var(--sans)">לבחירה, סבב 2</span></h2><p>ארבעה כיוונים חדשים, בלי אותיות. כל אחד בגדול ועל מסך הבית</p><div class="row" id="icons"></div></section>
+<section><h2>מסך טעינה</h2><p>אושר: שם האפליקציה על נייר, בבהיר ובכהה</p><div class="row" id="splash"></div></section>
+<section><h2>אודות</h2><p>נכנסים מההגדרות. כולל רישיונות, שחובה להציג</p><div class="row" id="about"></div></section>
 <section><h2>פרטי אירוע ועריכה</h2><p>רשימה ברורה יותר, מסך פרטים בלחיצה, ושמירה בכפתור גדול למטה</p><div class="row" id="det"></div></section>
 <section><h2>הוספת אירוע, גרסה 2</h2><p>סוג גלוי, "של מי" ברור, ותצוגה של איך זה ייראה. ובלוח: נקודה כתומה ביום של אירוע</p><div class="row" id="add2"></div></section>
 <section><h2>זמני שבת והבא בתור</h2><p>נבחר עיצוב 1: שני זמנים גדולים, והבא בתור מתחת</p><div class="row" id="foot"></div></section>
@@ -225,6 +228,35 @@ const addForm=(on,label,val,ph,preview)=>phone('L',`<div class="pad" style="padd
   <div style="display:flex;gap:14px;font-size:19px"><span style="border-bottom:1px solid var(--l1);padding-bottom:4px">ב׳</span><span style="border-bottom:1px solid var(--l1);padding-bottom:4px">בשבט</span><span style="border-bottom:1px solid var(--l1);padding-bottom:4px">תשע״ח</span></div>
   <div class="s" style="font-size:13px;margin-top:12px"><div class="r n"><span>תזכורת</span><span>בערב שבו היום מתחיל ›</span></div></div></div>`);
 const dotCells=()=>{let s='';for(let i=0;i<14;i++){const greg=i<=20?11+i:i-20,sat=i%7==6,ev=i==25-14||i==5;s+=`<div class="c" style="${i==0?'opacity:.3;':''}${sat?'color:var(--r);':''}${i==12?'background:var(--t);':''}"><i>${greg}</i>${H[i]}${ev?'<span style="display:block;width:5px;height:5px;border-radius:3px;background:var(--sun);margin:3px auto 0"></span>':''}</div>`}return s};
+const ICONS3={
+ A:`<rect width="100" height="100" fill="#F6F0E4"/><text x="50" y="70" text-anchor="middle" font-family="Frank Ruhl Libre,serif" font-size="62" fill="#2B2118">ל</text><text x="50" y="88" text-anchor="middle" font-size="10" fill="#A32D2D">✦</text>`,
+ B:`<rect width="100" height="100" fill="#F6F0E4"/><rect x="0" y="0" width="100" height="24" fill="#A32D2D"/><circle cx="32" cy="12" r="3.5" fill="#F6F0E4"/><circle cx="68" cy="12" r="3.5" fill="#F6F0E4"/><text x="50" y="80" text-anchor="middle" font-family="Frank Ruhl Libre,serif" font-size="50" fill="#2B2118">א</text>`,
+ C:`<rect width="100" height="100" fill="#2B2118"/><text x="50" y="62" text-anchor="middle" font-family="Frank Ruhl Libre,serif" font-size="34" fill="#F6F0E4">לוח</text><line x1="26" y1="74" x2="44" y2="74" stroke="#E8806F" stroke-width="1.2"/><line x1="56" y1="74" x2="74" y2="74" stroke="#E8806F" stroke-width="1.2"/><text x="50" y="78" text-anchor="middle" font-size="9" fill="#E8806F">✦</text>`};
+const iconTile=(k,size,round)=>`<svg width="${size}" height="${size}" viewBox="0 0 100 100" style="border-radius:${round?'50%':'22%'};box-shadow:0 0 0 1px #0002;display:block">${ICONS3[k]}</svg>`;
+const homeRow=k=>`<div style="background:#6E7A6C;border-radius:18px;padding:14px 12px;display:flex;gap:14px;justify-content:center">${['#3b6','#c84','#47a'].map(c=>`<div style="width:46px;height:46px;border-radius:50%;background:${c};opacity:.55"></div>`).join('')}<div style="text-align:center">${iconTile(k,46,true)}<div style="font-size:9px;color:#fff;margin-top:3px;font-family:var(--sans)">לוח יהודי</div></div></div>`;
+Object.assign(ICONS3,{
+ D:`<rect width="100" height="100" fill="#F6F0E4"/><path d="M18 68 A32 32 0 0 1 82 68" fill="none" stroke="#2B2118" stroke-width="3" stroke-dasharray="4 5"/><path d="M82 68 A32 32 0 0 0 58 37" fill="none" stroke="#B5651D" stroke-width="4"/><circle cx="58" cy="37" r="7" fill="#B5651D"/><line x1="12" y1="68" x2="88" y2="68" stroke="#2B2118" stroke-width="3"/>`,
+ E:`<rect width="100" height="100" fill="#F6F0E4"/>${[0,1,2].map(r=>[0,1,2].map(c=>`<rect x="${22+c*20}" y="${24+r*20}" width="14" height="14" rx="3" fill="${r==1&&c==1?'#B5651D':'#2B2118'}" opacity="${r==1&&c==1?1:.85}"/>`).join('')).join('')}<rect x="62" y="24" width="14" height="14" rx="3" fill="#A32D2D"/>`,
+ F:`<rect width="100" height="100" fill="#2B2118"/><circle cx="50" cy="48" r="20" fill="#F6F0E4"/><circle cx="60" cy="41" r="18" fill="#2B2118"/><circle cx="70" cy="30" r="2" fill="#EF9F27"/><circle cx="30" cy="70" r="1.5" fill="#EF9F27"/><circle cx="74" cy="66" r="1.5" fill="#EF9F27"/>`,
+ G:`<rect width="100" height="100" fill="#F6F0E4"/><rect x="40" y="46" width="20" height="34" rx="3" fill="#2B2118"/><path d="M50 18 C58 30 60 36 50 42 C40 36 42 30 50 18 Z" fill="#B5651D"/><line x1="50" y1="42" x2="50" y2="46" stroke="#2B2118" stroke-width="2"/>`});
+document.getElementById('icons').innerHTML=[['D','1 · קשת השמש'],['E','2 · רשת לוח, היום בכתום'],['F','3 · ירח ליל שבת'],['G','4 · נר שבת']].map(([k,t])=>fig(t,`<div style="display:flex;flex-direction:column;gap:12px;align-items:center;width:230px">${iconTile(k,120,false)}${homeRow(k)}</div>`)).join('');
+const splashScreen=(cls)=>phone(cls,`<div style="height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center">
+  <div style="font-size:44px;line-height:1.1">לוח יהודי</div>
+  <div style="display:flex;align-items:center;gap:8px;color:var(--r);margin-top:10px;width:120px"><span style="flex:1;height:1px;background:var(--l1)"></span>✦<span style="flex:1;height:1px;background:var(--l1)"></span></div></div>`);
+document.getElementById('splash').innerHTML=fig('בהיר',splashScreen('L'))+fig('כהה',splashScreen('D'));
+document.getElementById('about').innerHTML=
+  fig('אודות',phone('L',`<div class="pad" style="padding-top:24px"><div class="mu s" style="font-size:13px">‹ הגדרות</div>
+   <div style="text-align:center;margin-top:22px">${iconTile('A',64,false).replace('display:block','display:inline-block')}
+   <div style="font-size:26px;margin-top:8px">לוח יהודי</div><div class="mu" style="font-size:11px">גרסה 1.0.0</div></div>
+   <div style="height:1px;background:var(--l1);margin:18px 0 2px"></div>
+   ${fam('קוד פתוח ב-GitHub','›')}${fam('רישיונות','›')}${fam('מדיניות פרטיות','›')}<div class="r n"><span>יצירת קשר</span><span>›</span></div>
+   <div class="mu" style="font-size:10.5px;line-height:1.6;text-align:center;margin-top:18px">הזמנים לעיון בלבד, לפי שיטת הגר״א.<br>בשאלה הלכתית פנו לרב.</div></div>`))+
+  fig('רישיונות',phone('L',`<div class="pad" style="padding-top:24px"><div class="mu s" style="font-size:13px">‹ אודות</div>
+   <div class="big" style="font-size:28px;margin-top:16px">רישיונות</div>
+   <div style="height:1px;background:var(--l1);margin:14px 0 2px"></div>
+   ${fam('לוח יהודי','GPL-3.0')}${fam('hebcal, חישובי הלוח','GPL-2.0')}${fam('Frank Ruhl Libre','OFL')}${fam('Heebo','OFL')}<div class="r n"><span>רשימת ערים, GeoNames</span><span>CC BY 4.0</span></div>
+   <div class="mu" style="font-size:10.5px;line-height:1.6;margin-top:14px">לחיצה על שורה מציגה את נוסח הרישיון המלא.</div></div>`));
+
 const lrow=(t,d,w)=>`<div class="r"><span style="font-size:15px">${t}</span><span style="text-align:left;line-height:1.3"><span style="display:block;color:var(--i)">${d}</span>${w}</span></div>`;
 document.getElementById('det').innerHTML=
   fig('הרשימה',phone('L',`<div class="pad"><div class="mu" style="font-size:11px">הבא בתור</div>
