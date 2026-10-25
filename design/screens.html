@@ -102,7 +102,7 @@ figcaption{font-size:13px;color:var(--muted)}
 
 <section><h2>המסכים הראשיים</h2><p>חודש ויום, בבהיר ובכהה</p><div class="row" id="main"></div></section>
 <section><h2>אירועים</h2><p>פרטי יום, המשפחה, תאריך חדש</p><div class="row" id="ev"></div></section>
-<section><h2>אייקון <span style="font-size:14px;color:var(--red);font-family:var(--sans)">לבחירה, סבב 7</span></h2><p>שדרוגים של "עיגול דק עם ✦": "לוח" מודגש יותר, ו"יהודי" מרווח. כל אחד בגדול ועל מסך הבית</p><div class="row" id="icons"></div></section>
+<section><h2>אייקון <span style="font-size:14px;color:var(--red);font-family:var(--sans)">לבחירה, סבב 8</span></h2><p>הסגנון שלך: הדף עצמו הוא האייקון, בלי רקע נוסף. על מסך הבית בעיגול ובריבוע מעוגל, עם השם מתחת</p><div class="row" id="icons"></div></section>
 <section><h2>מסך טעינה</h2><p>אושר: שם האפליקציה על נייר, בבהיר ובכהה</p><div class="row" id="splash"></div></section>
 <section><h2>אודות</h2><p>נכנסים מההגדרות. כולל רישיונות, שחובה להציג</p><div class="row" id="about"></div></section>
 <section><h2>פרטי אירוע ועריכה</h2><p>רשימה ברורה יותר, מסך פרטים בלחיצה, ושמירה בכפתור גדול למטה</p><div class="row" id="det"></div></section>
@@ -270,7 +270,17 @@ Object.assign(ICONS3,{
  U2:`${core('#2B2118','#F6F0E4','#EF9F27')}<circle cx="50" cy="50" r="42" fill="none" stroke="#6B5A45" stroke-width="1"/><circle cx="50" cy="50" r="37" fill="none" stroke="#4A3D2F" stroke-width="0.8"/>${dots12(39.5,'#8C8170','#EF9F27')}`,
  U3:`${core('#5E1F1F','#F6F0E4','#F0B37A')}<circle cx="50" cy="50" r="40" fill="none" stroke="#9A5A4A" stroke-width="1"/>${ticks(40,'#C9937F','#F0B37A')}`,
  U4:`${core('#2B2118','#F6F0E4','#EF9F27')}<path d="M${(50+40*Math.cos(-Math.PI/2-0.32)).toFixed(1)} ${(50+40*Math.sin(-Math.PI/2-0.32)).toFixed(1)} A40 40 0 1 0 ${(50+40*Math.cos(-Math.PI/2+0.32)).toFixed(1)} ${(50+40*Math.sin(-Math.PI/2+0.32)).toFixed(1)}" fill="none" stroke="#6B5A45" stroke-width="1"/><circle cx="50" cy="10" r="5" fill="#EF9F27"/>`});
-document.getElementById('icons').innerHTML=[['U1','1 · עיגול עם 12 שנתות'],['U2','2 · עיגול כפול עם 12 נקודות'],['U3','3 · על אדום יין'],['U4','4 · עיגול עם שמש למעלה']].map(([k,t])=>fig(t,`<div style="display:flex;flex-direction:column;gap:12px;align-items:center;width:230px">${iconTile(k,120,false)}${homeRow(k)}</div>`)).join('');
+const page=(band,body)=>`<rect width="100" height="100" fill="#F6F0E4"/><rect width="100" height="40" fill="#7A3E16"/><rect y="38" width="100" height="3" fill="#5E2E10" opacity=".5"/><rect x="25" y="9" width="8" height="18" rx="4" fill="#F6E7C8"/><rect x="67" y="9" width="8" height="18" rx="4" fill="#F6E7C8"/>${band}${body}`;
+const T=(s,y,fs,col,w=500)=>`<text x="50" y="${y}" text-anchor="middle" font-family="Frank Ruhl Libre,serif" font-weight="${w}" font-size="${fs}" fill="${col}">${s}</text>`;
+Object.assign(ICONS3,{
+ X1:page(T('לוח',33,17,'#F6E7C8'),T('יהודי',80,30,'#5E2E10')),
+ X2:page('',T('לוח',84,44,'#5E2E10')),
+ X3:page(T('לוח יהודי',33,12,'#F6E7C8'),`<text x="50" y="82" text-anchor="middle" font-size="34" fill="#A32D2D">✦</text>`),
+ X4:page(T('לוח',33,17,'#F6E7C8'),T('כ״ד',86,44,'#5E2E10'))});
+const iconTileM=(k,size,shape)=>`<svg width="${size}" height="${size}" viewBox="0 0 100 100" style="border-radius:${shape=='c'?'50%':'26%'};display:block">${ICONS3[k]}</svg>`;
+const homeRowM=k=>`<div style="background:#6E7A6C;border-radius:18px;padding:14px 12px;display:flex;gap:16px;justify-content:center;align-items:flex-start">${['c','s'].map(s=>`<div style="text-align:center">${iconTileM(k,52,s)}<div style="font-size:9px;color:#fff;margin-top:3px;font-family:var(--sans)">לוח יהודי</div></div>`).join('')}</div>`;
+document.getElementById('icons').innerHTML=[['X1','1 · "לוח" למעלה, "יהודי" בדף'],['X2','2 · רק "לוח" בגדול'],['X3','3 · "לוח יהודי" בכריכה, ✦ בדף'],['X4','4 · תאריך קבוע (לא מומלץ)']].map(([k,t])=>fig(t,`<div style="display:flex;flex-direction:column;gap:12px;align-items:center;width:230px">${iconTileM(k,120,'s')}${homeRowM(k)}</div>`)).join('');
+if(false)document.getElementById('icons').innerHTML=[['U1','1 · עיגול עם 12 שנתות'],['U2','2 · עיגול כפול עם 12 נקודות'],['U3','3 · על אדום יין'],['U4','4 · עיגול עם שמש למעלה']].map(([k,t])=>fig(t,`<div style="display:flex;flex-direction:column;gap:12px;align-items:center;width:230px">${iconTile(k,120,false)}${homeRow(k)}</div>`)).join('');
 const splashScreen=(cls)=>phone(cls,`<div style="height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center">
   <div style="font-size:44px;line-height:1.1">לוח יהודי</div>
   <div style="display:flex;align-items:center;gap:8px;color:var(--r);margin-top:10px;width:120px"><span style="flex:1;height:1px;background:var(--l1)"></span>✦<span style="flex:1;height:1px;background:var(--l1)"></span></div></div>`);
