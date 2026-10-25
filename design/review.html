@@ -1,6 +1,6 @@
 <title>לוח יהודי – לאישור</title>
 <meta name="claude:viewport-fit-sides" content="cover">
-<style>section{display:none}section:has(#icons){display:block}.sum,.rule{display:none}</style>
+<style>section{display:none}section:has(#contact){display:block}.sum,.rule{display:none}</style>
 
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Frank+Ruhl+Libre:wght@400;500&family=Heebo:wght@400;500&display=swap">
 <style>
@@ -70,7 +70,7 @@ figcaption{font-size:13px;color:var(--muted)}
 <div class="wrap">
 <header>
   <h1>לוח יהודי <span style="color:var(--muted);font-weight:400">– לוח עברי</span></h1>
-  <p>אייקון, סבב 8: הדף עצמו הוא האייקון.</p>
+  <p>יצירת קשר: טופס בתוך האפליקציה.</p>
 </header>
 
 <div class="sum">
@@ -105,6 +105,7 @@ figcaption{font-size:13px;color:var(--muted)}
 <section><h2>המסכים הראשיים</h2><p>חודש ויום, בבהיר ובכהה</p><div class="row" id="main"></div></section>
 <section><h2>אירועים</h2><p>פרטי יום, המשפחה, תאריך חדש</p><div class="row" id="ev"></div></section>
 <section><h2>אייקון <span style="font-size:14px;color:var(--red);font-family:var(--sans)">לבחירה, סבב 8</span></h2><p>הסגנון שלך: הדף עצמו הוא האייקון, בלי רקע נוסף. על מסך הבית בעיגול ובריבוע מעוגל, עם השם מתחת</p><div class="row" id="icons"></div></section>
+<section><h2>יצירת קשר <span style="font-size:14px;color:var(--red);font-family:var(--sans)">לאישור</span></h2><p>טופס בתוך האפליקציה. הכתובת לשליחה תתווסף כשהמייל של החברה יהיה מוכן</p><div class="row" id="contact"></div></section>
 <section><h2>מסך טעינה</h2><p>אושר: שם האפליקציה על נייר, בבהיר ובכהה</p><div class="row" id="splash"></div></section>
 <section><h2>אודות</h2><p>נכנסים מההגדרות. כולל רישיונות, שחובה להציג</p><div class="row" id="about"></div></section>
 <section><h2>פרטי אירוע ועריכה</h2><p>רשימה ברורה יותר, מסך פרטים בלחיצה, ושמירה בכפתור גדול למטה</p><div class="row" id="det"></div></section>
@@ -287,6 +288,19 @@ const splashScreen=(cls)=>phone(cls,`<div style="height:100%;display:flex;flex-d
   <div style="font-size:44px;line-height:1.1">לוח יהודי</div>
   <div style="display:flex;align-items:center;gap:8px;color:var(--r);margin-top:10px;width:120px"><span style="flex:1;height:1px;background:var(--l1)"></span>✦<span style="flex:1;height:1px;background:var(--l1)"></span></div></div>`);
 document.getElementById('splash').innerHTML=fig('בהיר',splashScreen('L'))+fig('כהה',splashScreen('D'));
+document.getElementById('contact').innerHTML=
+  fig('יצירת קשר',phone('L',`<div class="pad" style="padding-top:24px"><div class="mu s" style="font-size:13px">‹ אודות</div>
+   <div class="big" style="font-size:28px;margin-top:16px">יצירת קשר</div>
+   <div class="mu" style="font-size:11.5px;margin-top:4px">שאלה, תקלה או רעיון. נשמח לשמוע</div>
+   ${seg(['שאלה','תקלה','רעיון'],1)}
+   <div class="lb">מה קרה?</div>
+   <div style="font-size:15px;line-height:1.5;min-height:70px;padding-bottom:5px;border-bottom:1px solid var(--l1);color:var(--m)">כתבו כאן…</div>
+   <div class="lb">מייל לתשובה (לא חובה)</div><div style="font-size:15px;padding-bottom:5px;border-bottom:1px solid var(--l1);color:var(--m)">name@example.com</div>
+   <div class="s" style="display:flex;justify-content:space-between;font-size:12.5px;margin-top:12px"><span>לצרף פרטי מכשיר וגרסה</span><span style="width:30px;height:18px;border-radius:9px;background:var(--sun);position:relative"><span style="position:absolute;top:2px;left:2px;width:14px;height:14px;border-radius:7px;background:#fff"></span></span></div>
+   <div class="btn">שליחה</div></div>`))+
+  fig('אחרי שליחה',phone('L',`<div class="pad" style="text-align:center"><div style="margin-top:150px;font-size:30px">תודה</div>
+   <div style="color:var(--r);margin:10px 0 12px">✦</div><div class="mu" style="font-size:12.5px;line-height:1.6">ההודעה התקבלה.<br>אם השארתם מייל, נחזור אליכם.</div>
+   <div class="btn">חזרה</div></div>`));
 document.getElementById('about').innerHTML=
   fig('אודות',phone('L',`<div class="pad" style="padding-top:24px"><div class="mu s" style="font-size:13px">‹ הגדרות</div>
    <div style="text-align:center;margin-top:22px">${iconTile('A',64,false).replace('display:block','display:inline-block')}
