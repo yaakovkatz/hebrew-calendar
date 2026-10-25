@@ -12,6 +12,8 @@ type SettingsStore = Settings & {
   setOpenOn: (openOn: OpenOn) => void;
   /** Marks the first-run onboarding as done. */
   completeOnboarding: () => void;
+  /** Marks "להזכיר לך?" as shown, whatever the answer. */
+  markNotifyAsked: () => void;
 };
 
 const SettingsContext = createContext<SettingsStore | null>(null);
@@ -48,6 +50,7 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
       setShowEventsInCalendar: (showEventsInCalendar) => patch({ showEventsInCalendar }),
       setOpenOn: (openOn) => patch({ openOn }),
       completeOnboarding: () => patch({ onboarded: true }),
+      markNotifyAsked: () => patch({ notifyAsked: true }),
     }),
     [settings, patch],
   );
