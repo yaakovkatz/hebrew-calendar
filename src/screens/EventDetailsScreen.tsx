@@ -1,7 +1,7 @@
 import { Alert, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useEvents } from '@/data/useEvents';
-import { CITIES } from '@/lib/cities';
+import { useSettings } from '@/data/useSettings';
 import { formatHebrewFull } from '@/lib/datePicking';
 import {
   headline,
@@ -18,13 +18,13 @@ import { WEEKDAYS } from '@/lib/month';
 import { useNow } from '@/lib/useNow';
 import { fonts, usePalette } from '@/theme/tokens';
 
-const city = CITIES[0];
 
 type Props = { eventId: number; onBack: () => void; onEdit: () => void };
 
 /** Approved design: countdown in orange, a few plain rows, edit and delete at the bottom. */
 export function EventDetailsScreen({ eventId, onBack, onEdit }: Props) {
   const palette = usePalette();
+  const { city } = useSettings();
   const insets = useSafeAreaInsets();
   const now = useNow();
   const { events, remove } = useEvents();

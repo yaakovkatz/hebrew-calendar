@@ -1,18 +1,18 @@
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useEvents } from '@/data/useEvents';
-import { CITIES } from '@/lib/cities';
+import { useSettings } from '@/data/useSettings';
 import { headline, shortHebrewDate, upcoming, whenLabel, yearsLabel } from '@/lib/events';
 import { hebrewDateAt } from '@/lib/hebrewDay';
 import { WEEKDAYS } from '@/lib/month';
 import { useNow } from '@/lib/useNow';
 import { fonts, usePalette } from '@/theme/tokens';
 
-const city = CITIES[0];
 
 /** Approved design: the next date in large type, then a plain list. */
 export function EventsScreen({ onAdd, onOpen }: { onAdd: () => void; onOpen: (id: number) => void }) {
   const palette = usePalette();
+  const { city } = useSettings();
   const insets = useSafeAreaInsets();
   const now = useNow();
   const { events, loaded } = useEvents();

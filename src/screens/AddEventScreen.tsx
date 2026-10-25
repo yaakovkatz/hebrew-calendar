@@ -3,7 +3,7 @@ import { Pressable, ScrollView, StyleSheet, Switch, Text, TextInput, View } from
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { OptionSheet } from '@/components/OptionSheet';
 import { useEvents } from '@/data/useEvents';
-import { CITIES } from '@/lib/cities';
+import { useSettings } from '@/data/useSettings';
 import {
   clampHebrew,
   formatHebrewFull,
@@ -27,7 +27,6 @@ import {
 import { hebrewDateAt } from '@/lib/hebrewDay';
 import { fonts, usePalette } from '@/theme/tokens';
 
-const city = CITIES[0];
 const TYPES: EventType[] = ['birthday', 'anniversary', 'other'];
 const REMINDERS: { value: ReminderTime; label: string }[] = [
   { value: 'evening', label: 'בערב שבו היום מתחיל' },
@@ -46,6 +45,7 @@ type Sheet = null | 'hDay' | 'hMonth' | 'hYear' | 'gDay' | 'gMonth' | 'gYear' | 
 /** Approved design: type as the big title, name, Hebrew date (or Gregorian + after sunset), reminder. */
 export function AddEventScreen({ onClose, initial }: { onClose: () => void; initial?: FamilyEvent }) {
   const palette = usePalette();
+  const { city } = useSettings();
   const insets = useSafeAreaInsets();
   const { add, update } = useEvents();
   const today = hebrewDateAt(new Date(), city);

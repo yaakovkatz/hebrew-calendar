@@ -5,7 +5,7 @@ import { DaySheet } from '@/components/DaySheet';
 import { DayView } from '@/components/DayView';
 import { MonthView } from '@/components/MonthView';
 import { useEvents } from '@/data/useEvents';
-import { CITIES } from '@/lib/cities';
+import { useSettings } from '@/data/useSettings';
 import { headline, shortHebrewDate, upcoming } from '@/lib/events';
 import { civilNoon, formatTime, hebrewDateAt } from '@/lib/hebrewDay';
 import { shiftMonth } from '@/lib/month';
@@ -14,19 +14,17 @@ import { upcomingShabbatTimes } from '@/lib/zmanim';
 import { HDate } from '@hebcal/core';
 import { fonts, usePalette } from '@/theme/tokens';
 
-// Until onboarding and settings exist, the city is Jerusalem and holidays follow Israel.
-const city = CITIES[0];
-const IL = true;
 
 type Mode = 'month' | 'day';
 
 export function CalendarScreen({ onAddEvent, onOpenEvent }: { onAddEvent: () => void; onOpenEvent: (id: number) => void }) {
   const { events } = useEvents();
+  const { city, il: IL, showEventsInCalendar, openOn } = useSettings();
   const palette = usePalette();
   const insets = useSafeAreaInsets();
   const now = useNow();
   const today = hebrewDateAt(now, city);
-  const [mode, setMode] = useState<Mode>('month');
+  const [mode, setMode] = useState<Mode>(openOn);
   const [selected, setSelected] = useState<{ hd: HDate; holidays: string[] } | null>(null);
   const [shown, setShown] = useState({ year: today.getFullYear(), month: today.getMonth() });
   const onCurrentMonth = shown.year === today.getFullYear() && shown.month === today.getMonth();
@@ -74,6 +72,7 @@ export function CalendarScreen({ onAddEvent, onOpenEvent }: { onAddEvent: () => 
             nextEvent={nextEvent}
             onOpenNext={first ? () => onOpenEvent(first.event.id) : undefined}
             events={events}
+            showEvents={showEventsInCalendar}
             onAddEvent={onAddEvent}
             onSelectDay={(hd, holidays) => setSelected({ hd, holidays })}
           />
