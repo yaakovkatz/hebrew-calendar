@@ -115,7 +115,7 @@ figcaption{font-size:13px;color:var(--muted)}
 .pp2{animation:pop 3.2s ease-out infinite}
 .stripes{position:absolute;inset:0;background:repeating-linear-gradient(-55deg,#F6F0E4 0 22px,#EFE4CF 22px 40px,#F6F0E4 40px 60px);background-size:120px 100%;animation:slide 1.6s linear infinite}
 .gl{position:absolute;background:#C9BBA0;animation:drawL 3.2s ease-out infinite}
-</style><section><h2>מסך פתיחה, גרסה 2 <span style="font-size:14px;color:var(--red);font-family:var(--sans)">לבחירה</span></h2><p>באנדרואיד חייבים מסך קצר בפתיחה, עם אייקון במרכז. אפשר לבחור מה יופיע בו</p><div class="row" id="splash2"></div></section>
+</style><section><h2>מסך פתיחה, גרסה 2 <span style="font-size:14px;color:var(--red);font-family:var(--sans)">לבחירה</span></h2><p>"לוח יהודי" באמצע, "לוח עברי" קטן למטה, ועיטור קטן לבחירה. מופיע פחות משנייה</p><div class="row" id="splash2"></div></section>
 <section><h2>יצירת קשר <span style="font-size:14px;color:var(--red);font-family:var(--sans)">לאישור</span></h2><p>טופס בתוך האפליקציה. הכתובת לשליחה תתווסף כשהמייל של החברה יהיה מוכן</p><div class="row" id="contact"></div></section>
 <section><h2>מסך טעינה</h2><p>אושר: שם האפליקציה על נייר, בבהיר ובכהה</p><div class="row" id="splash"></div></section>
 <section><h2>אודות</h2><p>נכנסים מההגדרות. כולל רישיונות, שחובה להציג</p><div class="row" id="about"></div></section>
@@ -397,14 +397,19 @@ for(let r=0;r<=5;r++)grid+=`<div class="gl" style="top:${r*22}px;left:0;height:1
 const A1=phone('',`<div style="height:100%;background:#F6F0E4;display:flex;flex-direction:column;align-items:center;justify-content:center">${lines(6)}<div class="fi" style="font-family:Frank Ruhl Libre,serif;font-size:34px;color:#2B2118;margin-top:10px">לוח יהודי</div><div class="pp2" style="color:#A32D2D;margin-top:4px">✦</div></div>`);
 const A2=phone('',`<div style="height:100%;position:relative;overflow:hidden"><div class="stripes"></div><div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center">${ic(110)}<div style="font-family:Frank Ruhl Libre,serif;font-size:20px;color:#2B2118;margin-top:14px">לוח יהודי</div></div></div>`);
 const A3=phone('',`<div style="height:100%;background:#F6F0E4;display:flex;flex-direction:column;align-items:center;justify-content:center"><div style="position:relative;width:155px;height:111px">${grid}<div class="pp2" style="position:absolute;left:67px;top:45px;width:21px;height:21px;background:#EF9F27;border-radius:3px"></div></div><div class="fi" style="font-family:Frank Ruhl Libre,serif;font-size:28px;color:#2B2118;margin-top:18px">לוח יהודי</div></div>`);
+const sp3=(bg,ink,mut,orn)=>phone('',`<div style="height:100%;background:${bg};display:flex;flex-direction:column;align-items:center;justify-content:center;position:relative">
+  <div style="font-family:Frank Ruhl Libre,serif;font-size:38px;color:${ink};line-height:1.1">לוח יהודי</div>${orn}
+  <div style="position:absolute;bottom:44px;left:0;right:0;text-align:center;font-family:var(--sans);font-size:11px;color:${mut};letter-spacing:3px">לוח עברי</div></div>`);
+const star=c=>`<div style="color:${c};margin-top:8px;font-size:14px">✦</div>`;
+const rule=(l,c)=>`<div style="display:flex;align-items:center;gap:8px;margin-top:10px"><span style="width:34px;height:1px;background:${l}"></span><span style="color:${c};font-size:11px">✦</span><span style="width:34px;height:1px;background:${l}"></span></div>`;
+const dots=c=>`<div style="display:flex;gap:6px;margin-top:12px">${['#D9CDB6',c,'#D9CDB6'].map(x=>`<span style="width:5px;height:5px;border-radius:50%;background:${x}"></span>`).join('')}</div>`;
+const arch=(l,c)=>`<svg width="90" height="22" viewBox="0 0 90 22" style="margin-top:8px" aria-hidden="true"><path d="M5 18 Q45 -4 85 18" fill="none" stroke="${l}" stroke-width="1"/><circle cx="45" cy="7" r="3" fill="${c}"/></svg>`;
 document.getElementById('splash2').innerHTML=
- fig('א · פסים נכתבים, ואז השם',A1)+
- fig('ב · פסים זזים מאחורי האייקון',A2)+
- fig('ג · רשת הלוח נבנית, היום נדלק',A3)+
- fig('1 · רק האייקון',sp('#F6F0E4',ic(110)))+
- fig('2 · אייקון, ולמטה השם',sp('#F6F0E4',ic(110)+`<div style="position:absolute;bottom:46px;left:0;right:0;text-align:center"><div style="font-family:Frank Ruhl Libre,serif;font-size:19px;color:#2B2118">לוח יהודי</div><div style="font-family:var(--sans);font-size:10px;color:#9A8B73;letter-spacing:2px;margin-top:2px">לוח עברי</div></div>`))+
- fig('3 · אייקון על רקע כריכה',sp('#4A2E1C',ic(110)+`<div style="position:absolute;bottom:46px;left:0;right:0;text-align:center;font-family:Frank Ruhl Libre,serif;font-size:19px;color:#F6F0E4">לוח יהודי</div>`))+
- fig('היום',phone('',`<div style="height:100%;background:#F6F0E4;display:flex;flex-direction:column;align-items:center;justify-content:center"><div style="font-family:var(--sans);font-size:11px;color:#9A8B73;letter-spacing:3px">תשפ״ז</div><div style="font-family:Frank Ruhl Libre,serif;font-size:40px;color:#2B2118;line-height:1.2">לוח יהודי</div><div style="color:#A32D2D;margin-top:6px">✦</div></div>`));
+ fig('1 · כוכב קטן',sp3('#F6F0E4','#2B2118','#9A8B73',star('#A32D2D')))+
+ fig('2 · קו עם כוכב באמצע',sp3('#F6F0E4','#2B2118','#9A8B73',rule('#C9BBA0','#A32D2D')))+
+ fig('3 · שלוש נקודות',sp3('#F6F0E4','#2B2118','#9A8B73',dots('#A32D2D')))+
+ fig('4 · קשת עם שמש',sp3('#F6F0E4','#2B2118','#9A8B73',arch('#C9BBA0','#EF9F27')))+
+ fig('2 · בכהה',sp3('#17140F','#EDE4D3','#8C8170',rule('#3A3328','#E8806F')));
 document.getElementById('contact').innerHTML=
   fig('יצירת קשר',phone('L',`<div class="pad" style="padding-top:24px"><div class="mu s" style="font-size:13px">‹ אודות</div>
    <div class="big" style="font-size:28px;margin-top:16px">יצירת קשר</div>

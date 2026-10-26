@@ -45,15 +45,16 @@
         }
       ],
       "expo-sqlite",
+      ["./plugins/withSplashBranding", { "light": "./assets/splash-branding-light.png", "dark": "./assets/splash-branding-dark.png" }],
       [
         "expo-splash-screen",
         {
-          "image": "./assets/splash-blank.png",
+          "image": "./assets/splash-light.png",
           "imageWidth": 320,
           "resizeMode": "contain",
           "backgroundColor": "#F6F0E4",
           "dark": {
-            "image": "./assets/splash-blank.png",
+            "image": "./assets/splash-dark.png",
             "backgroundColor": "#17140F"
           }
         }
