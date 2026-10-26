@@ -54,7 +54,7 @@ export function EventDetailsScreen({ eventId, onBack, onEdit }: Props) {
     ['השנה', `${shortHebrewDate(item.date)} · יום ${WEEKDAYS[item.date.getDay()]}`],
     ['בלועזי', gregThisYear],
     [originalDateLabel(event.type), original],
-    ['תזכורת', REMINDER_LABEL[event.reminder]],
+    ['מתי להזכיר', REMINDER_LABEL[event.reminder]],
   ];
 
   return (

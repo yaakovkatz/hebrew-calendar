@@ -3,7 +3,11 @@ import { shortHebrewDate, whenLabel } from './events';
 import { WEEKDAYS } from './month';
 
 export type RepeatKind = 'once' | 'yearly';
-export type AlertTime = 'hour' | 'morning' | 'day';
+/**
+ * When to alert for a reminder (PLAN.md fix round 1, item 4):
+ * a number of minutes before its time (0 = בזמן), 08:00 on the day, or 20:00 the day before.
+ */
+export type ReminderAlert = { kind: 'before'; minutes: number } | { kind: 'morning' } | { kind: 'dayBefore' };
 
 /** A reminder on a specific Hebrew date, e.g. "רופא שיניים, י׳ בניסן, 10:30" (PLAN.md). */
 export type Reminder = {
@@ -15,8 +19,7 @@ export type Reminder = {
   /** 'HH:MM' on the daytime of that Hebrew date; null = all day. */
   time: string | null;
   repeat: RepeatKind;
-  /** Stored now, used by the notifications in stage 2. */
-  alert: AlertTime;
+  alert: ReminderAlert;
   createdAt: string;
 };
 
@@ -29,7 +32,6 @@ export type ReminderItem = {
 };
 
 export const REPEAT_LABEL: Record<RepeatKind, string> = { once: 'פעם אחת', yearly: 'כל שנה' };
-export const ALERT_LABEL: Record<AlertTime, string> = { hour: 'שעה לפני', morning: 'בבוקר', day: 'יום לפני' };
 export const PAST_LABEL = 'עבר';
 
 /**
@@ -143,23 +145,121 @@ export function remindersOn(reminders: Reminder[], hd: HDate): Reminder[] {
     .sort((a, b) => timeKey(a.time).localeCompare(timeKey(b.time)) || a.title.localeCompare(b.title, 'he'));
 }
 
-/** Time picker: 'כל היום', then 00:00 to 23:45 in 15-minute steps. */
-export function timeOptions(): { value: string | null; label: string }[] {
-  const list: { value: string | null; label: string }[] = [{ value: null, label: 'כל היום' }];
-  for (let m = 0; m < 24 * 60; m += 15) {
-    const t = `${String(Math.floor(m / 60)).padStart(2, '0')}:${String(m % 60).padStart(2, '0')}`;
-    list.push({ value: t, label: t });
-  }
-  return list;
-}
-
 /** 'כל היום' for null. */
 export function timeLabel(time: string | null): string {
   return time ?? 'כל היום';
 }
 
-/** 'שעה לפני' only makes sense with a time. */
-export function alertOptions(time: string | null): { value: AlertTime; label: string }[] {
-  const all: AlertTime[] = time ? ['hour', 'morning', 'day'] : ['morning', 'day'];
-  return all.map((value) => ({ value, label: ALERT_LABEL[value] }));
+// ---------------------------------------------------------------- alert
+
+export const ALERT_MORNING: ReminderAlert = { kind: 'morning' };
+export const ALERT_DAY_BEFORE: ReminderAlert = { kind: 'dayBefore' };
+export const before = (minutes: number): ReminderAlert => ({ kind: 'before', minutes });
+/** New reminders start at 15 minutes before (approved mockup 1ג). */
+export const DEFAULT_ALERT: ReminderAlert = before(15);
+
+const HOUR_MIN = 60;
+const DAY_MIN = 24 * 60;
+
+/**
+ * The DB keeps `alert` (text) and, since schema v3, `alert_minutes`.
+ * Old rows say 'hour' (60 minutes before), 'morning' or 'day' (the day before) and have no minutes.
+ */
+export function alertFromStored(alert: string, minutes: number | null): ReminderAlert {
+  if (alert === 'before' && minutes !== null && minutes >= 0) return before(minutes);
+  if (alert === 'hour') return before(HOUR_MIN);
+  if (alert === 'day' || alert === 'dayBefore') return ALERT_DAY_BEFORE;
+  return ALERT_MORNING;
 }
+
+export function alertToStored(alert: ReminderAlert): { alert: string; minutes: number | null } {
+  if (alert.kind === 'before') return { alert: 'before', minutes: alert.minutes };
+  return { alert: alert.kind === 'morning' ? 'morning' : 'day', minutes: null };
+}
+
+export function sameAlert(a: ReminderAlert, b: ReminderAlert): boolean {
+  return a.kind === b.kind && (a.kind !== 'before' || a.minutes === (b as { minutes: number }).minutes);
+}
+
+/** A stable short key, e.g. for notification ids: 'b15', 'morning', 'day'. */
+export function alertKey(alert: ReminderAlert): string {
+  if (alert.kind === 'before') return `b${alert.minutes}`;
+  return alert.kind === 'morning' ? 'morning' : 'day';
+}
+
+/** Without a time, "before" has nothing to count from: it alerts in the morning. */
+export function effectiveAlert(alert: ReminderAlert, time: string | null): ReminderAlert {
+  return alert.kind === 'before' && !time ? ALERT_MORNING : alert;
+}
+
+/** 'בזמן', 'דקה לפני', '5 דק׳ לפני', 'שעה לפני', 'שעתיים לפני', '3 ימים לפני', 'בבוקר', 'יום לפני' */
+export function alertLabel(alert: ReminderAlert): string {
+  if (alert.kind === 'morning') return 'בבוקר';
+  if (alert.kind === 'dayBefore') return 'יום לפני';
+  const m = alert.minutes;
+  if (m === 0) return 'בזמן';
+  if (m % DAY_MIN === 0) {
+    const d = m / DAY_MIN;
+    // 'יום לפני' already means 20:00 the evening before.
+    if (d === 1) return '24 שעות לפני';
+    return d === 2 ? 'יומיים לפני' : `${d} ימים לפני`;
+  }
+  if (m % HOUR_MIN === 0) {
+    const h = m / HOUR_MIN;
+    if (h === 1) return 'שעה לפני';
+    return h === 2 ? 'שעתיים לפני' : `${h} שעות לפני`;
+  }
+  return m === 1 ? 'דקה לפני' : `${m} דק׳ לפני`;
+}
+
+/** The fixed rows of the "מתי להזכיר" sheet; "before" rows only make sense with a time. */
+export function alertPresets(time: string | null): ReminderAlert[] {
+  const timed = [before(0), before(5), before(15), before(HOUR_MIN)];
+  return [...(time ? timed : []), ALERT_MORNING, ALERT_DAY_BEFORE];
+}
+
+export type AlertUnit = 'minutes' | 'hours' | 'days';
+export const ALERT_UNITS: { value: AlertUnit; label: string; minutes: number }[] = [
+  { value: 'minutes', label: 'דקות', minutes: 1 },
+  { value: 'hours', label: 'שעות', minutes: HOUR_MIN },
+  { value: 'days', label: 'ימים', minutes: DAY_MIN },
+];
+/** Up to a month before. */
+export const MAX_ALERT_MINUTES = 31 * DAY_MIN;
+
+/** "אחר: כמה זמן לפני?": a typed number and a unit; null when the number is not valid. */
+export function customAlert(amount: string, unit: AlertUnit): ReminderAlert | null {
+  if (!/^\d{1,4}$/.test(amount.trim())) return null;
+  const minutes = Number(amount.trim()) * ALERT_UNITS.find((u) => u.value === unit)!.minutes;
+  if (minutes > MAX_ALERT_MINUTES) return null;
+  return before(minutes);
+}
+
+/** Split a saved alert back into the "אחר" fields, using the largest whole unit. */
+export function splitAlert(alert: ReminderAlert): { amount: string; unit: AlertUnit } {
+  if (alert.kind !== 'before' || alert.minutes === 0) return { amount: '', unit: 'minutes' };
+  const m = alert.minutes;
+  if (m % DAY_MIN === 0) return { amount: String(m / DAY_MIN), unit: 'days' };
+  if (m % HOUR_MIN === 0) return { amount: String(m / HOUR_MIN), unit: 'hours' };
+  return { amount: String(m), unit: 'minutes' };
+}
+
+// ---------------------------------------------------------------- typed time
+
+/** As the user types on a number pad: digits only, a colon after the hours. '1030' → '10:30'. */
+export function maskTime(input: string): string {
+  const digits = input.replace(/\D/g, '').slice(0, 4);
+  return digits.length > 2 ? `${digits.slice(0, 2)}:${digits.slice(2)}` : digits;
+}
+
+/** 'HH:MM' between 00:00 and 23:59, or null ('25:00', '10:7', ''). '9:30' is read as 09:30. */
+export function parseTimeInput(input: string): string | null {
+  const match = /^(\d{1,2}):(\d{2})$/.exec(input.trim());
+  if (!match) return null;
+  const h = Number(match[1]);
+  const m = Number(match[2]);
+  if (h > 23 || m > 59) return null;
+  return `${String(h).padStart(2, '0')}:${match[2]}`;
+}
+
+export const TIME_SHORTCUTS = ['08:00', '12:00', '18:00', '20:00'];

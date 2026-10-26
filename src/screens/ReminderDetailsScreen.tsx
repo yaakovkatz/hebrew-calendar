@@ -4,7 +4,7 @@ import { useReminders } from '@/data/useReminders';
 import { useSettings } from '@/data/useSettings';
 import { formatHebrewFull } from '@/lib/datePicking';
 import { hebrewDateAt } from '@/lib/hebrewDay';
-import { ALERT_LABEL, gregorianLine, REPEAT_LABEL, reminderItem, reminderWhen, timeLabel } from '@/lib/reminders';
+import { alertLabel, effectiveAlert, gregorianLine, REPEAT_LABEL, reminderItem, reminderWhen, timeLabel } from '@/lib/reminders';
 import { useNow } from '@/lib/useNow';
 import { fonts, usePalette } from '@/theme/tokens';
 
@@ -41,13 +41,13 @@ export function ReminderDetailsScreen({ reminderId, onBack, onEdit }: Props) {
     ['בלועזי', gregorianLine(item.date)],
     ['שעה', timeLabel(reminder.time)],
     ['חוזר', REPEAT_LABEL[reminder.repeat]],
-    ['התראה', ALERT_LABEL[reminder.alert]],
+    ['מתי להזכיר', alertLabel(effectiveAlert(reminder.alert, reminder.time))],
   ];
 
   return (
     <View style={[styles.screen, { backgroundColor: palette.paper, paddingTop: insets.top + 12 }]}>
       <Pressable onPress={onBack} accessibilityRole="button" hitSlop={12} style={styles.back}>
-        <Text style={[styles.backText, { color: palette.muted }]}>‹ תזכורות</Text>
+        <Text style={[styles.backText, { color: palette.muted }]}>‹ אירועים</Text>
       </Pressable>
 
       <ScrollView contentContainerStyle={styles.body}>

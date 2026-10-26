@@ -16,6 +16,7 @@ const mom: FamilyEvent = {
   afterSunset: false,
   gregDate: null,
   reminder: 'evening',
+  showYears: false,
 };
 
 function build(over: Partial<CalendarOptions> = {}): string {
