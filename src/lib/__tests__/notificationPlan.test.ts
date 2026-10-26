@@ -1,4 +1,4 @@
-import { months } from '@hebcal/core';
+import { HDate, months } from '@hebcal/core';
 import { CITIES } from '../cities';
 import type { FamilyEvent } from '../events';
 import { formatTime, zmanimFor } from '../hebrewDay';
@@ -7,6 +7,7 @@ import {
   planCountdowns,
   planNotifications,
   restPeriods,
+  stubFor,
   zonedTime,
   type PlannedNotification,
 } from '../notificationPlan';
@@ -343,3 +344,61 @@ describe('planCountdowns', () => {
   });
 });
 
+
+describe('date stub (design ה1)', () => {
+  it('stubFor: day with gershayim or geresh, month name in the app spelling', () => {
+    expect(stubFor(new HDate(15, months.CHESHVAN, 5787))).toEqual({ day: 'ט״ו', month: 'חשוון' });
+    expect(stubFor(new HDate(5, months.KISLEV, 5787))).toEqual({ day: 'ה׳', month: 'כסלו' });
+    expect(stubFor(new HDate(30, months.CHESHVAN, 5787)).day).toBe('ל׳');
+    expect(stubFor(new HDate(15, months.SHVAT, 5787))).toEqual({ day: 'ט״ו', month: 'שבט' });
+  });
+
+  it("an event shows its own date, not the day it is delivered", () => {
+    // 'evening' fires on 24 Cheshvan at sunset, 'week' on 18 Cheshvan; both are about 25 Cheshvan.
+    for (const reminder of ['evening', 'morning', 'week'] as const) {
+      expect(only(plan({ events: [ev({ reminder })] }), 'event')[0].stub).toEqual({ day: 'כ״ה', month: 'חשוון' });
+    }
+  });
+
+  it("a reminder shows its own date, also when alerted the day before", () => {
+    expect(only(plan({ reminders: [rem({})] }), 'reminder')[0].stub).toEqual({ day: 'י״ח', month: 'חשוון' });
+    expect(only(plan({ reminders: [rem({ alert: ALERT_DAY_BEFORE })] }), 'reminder')[0].stub).toEqual({
+      day: 'י״ח',
+      month: 'חשוון',
+    });
+  });
+
+  it('Shabbat shows the candle-lighting day: Friday 30 Oct 2026 is 19 Cheshvan', () => {
+    expect(only(plan({}), 'shabbat')[0].stub).toEqual({ day: 'י״ט', month: 'חשוון' });
+  });
+
+  it('a moved notification keeps its date; a merged one shows the shared date', () => {
+    const moved = only(plan({ events: [ev({ hDay: 27, reminder: 'morning' })] }), 'event')[0];
+    expect(moved.stub).toEqual({ day: 'כ״ז', month: 'חשוון' });
+    const merged = only(
+      plan({
+        events: [ev({ hDay: 27, reminder: 'morning' })],
+        reminders: [rem({ hDay: 27, alert: before(60), title: 'קידוש' })],
+      }),
+      'merged',
+    )[0];
+    expect(merged.stub).toEqual({ day: 'כ״ז', month: 'חשוון' });
+  });
+
+  it('a merged notification of different dates shows the day it is delivered', () => {
+    // A 'week' alert for Shabbat 14 Nov fires Shabbat 7 Nov 08:00, beside a 27 Cheshvan morning alert.
+    const nextShabbat = new HDate(new Date(2026, 10, 14, 12));
+    const merged = only(
+      plan({
+        events: [
+          ev({ hDay: 27, reminder: 'morning' }),
+          ev({ id: 2, title: 'דן', hDay: nextShabbat.getDate(), hMonth: nextShabbat.getMonth(), reminder: 'week' }),
+        ],
+      }),
+      'merged',
+    );
+    expect(merged).toHaveLength(1);
+    // Delivered Friday 6 Nov, 30 minutes before candle lighting: 26 Cheshvan.
+    expect(merged[0].stub).toEqual({ day: 'כ״ו', month: 'חשוון' });
+  });
+});

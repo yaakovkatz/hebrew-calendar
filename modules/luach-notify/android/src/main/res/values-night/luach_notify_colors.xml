@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Dark mode: light text on the system's dark notification card. -->
+<resources>
+  <color name="luach_notify_day">#E0A060</color>
+  <color name="luach_notify_month">#A89A82</color>
+  <color name="luach_notify_divider">#4A4134</color>
+  <color name="luach_notify_title">#F1E8D8</color>
+  <color name="luach_notify_body">#BDB09A</color>
+</resources>

@@ -1,9 +1,10 @@
 import * as Notifications from 'expo-notifications';
 import { Platform } from 'react-native';
+import { LuachNotify } from '../../modules/luach-notify';
 import type { City } from './cities';
 import { clearCountdowns, syncCountdowns } from './countdown';
 import type { FamilyEvent } from './events';
-import { planNotifications } from './notificationPlan';
+import { planNotifications, type PlannedNotification } from './notificationPlan';
 import type { Reminder } from './reminders';
 
 // Side effects only; what to schedule is decided in notificationPlan.ts (pure, tested).
@@ -54,16 +55,72 @@ export async function requestNotifications(): Promise<boolean> {
   }
 }
 
+/** The local native module draws design ה1 (PLAN.md "ההתראה"); Android only. */
+const nativeNotify = Platform.OS === 'android' ? LuachNotify : null;
+
+/** Clears both: our native alarms, and anything scheduled earlier through expo-notifications. */
+async function cancelScheduled(): Promise<void> {
+  if (nativeNotify) {
+    try {
+      await nativeNotify.cancelAll();
+    } catch {
+      // Keep going: the expo-scheduled ones still need clearing.
+    }
+  }
+  await Notifications.cancelAllScheduledNotificationsAsync();
+}
+
+/** Native path: one call; the module stores the plan and re-arms it after a reboot or update. */
+async function scheduleNative(plan: PlannedNotification[]): Promise<number> {
+  return nativeNotify!.schedule(
+    plan.map((n) => ({
+      id: n.id,
+      atMs: n.at.getTime(),
+      title: n.title,
+      body: n.body,
+      stubDay: n.stub?.day ?? '',
+      stubMonth: n.stub?.month ?? '',
+      channelId: REMINDERS_CHANNEL,
+    })),
+  );
+}
+
+/**
+ * Fallback without the native module (iOS, an old build): plain expo-notifications.
+ * Date triggers with 'bestEffort' delivery use setExactAndAllowWhileIdle.
+ */
+async function scheduleExpo(plan: PlannedNotification[]): Promise<number> {
+  let count = 0;
+  for (const n of plan) {
+    try {
+      await Notifications.scheduleNotificationAsync({
+        identifier: n.id,
+        content: { title: n.title, body: n.body, data: { kind: n.kind } },
+        trigger: {
+          type: Notifications.SchedulableTriggerInputTypes.DATE,
+          date: n.at,
+          channelId: REMINDERS_CHANNEL,
+          delivery: 'bestEffort',
+        },
+      });
+      count++;
+    } catch {
+      // One bad item must not stop the rest.
+    }
+  }
+  return count;
+}
+
 /**
  * Cancels everything and schedules the plan again (about a month ahead, PLAN.md).
- * Date triggers with 'bestEffort' delivery use setExactAndAllowWhileIdle: exact while the app
- * holds USE_EXACT_ALARM, and "about on time" if the permission is missing. 'alarmClock' is
- * not used: it would keep an alarm icon in the status bar all month.
+ * On Android the native module sets setExactAndAllowWhileIdle alarms (setAndAllowWhileIdle when
+ * exact alarms are not allowed) and posts each notification in design ה1. 'alarmClock' is not
+ * used: it would keep an alarm icon in the status bar all month.
  * Never throws: a failure only means fewer notifications until the next run.
  */
 export async function rescheduleAll({ events, reminders, city, il, now = new Date() }: ScheduleInput): Promise<number> {
   try {
-    await Notifications.cancelAllScheduledNotificationsAsync();
+    await cancelScheduled();
     if (!(await notificationsAllowed())) {
       await clearCountdowns();
       return 0;
@@ -71,22 +128,10 @@ export async function rescheduleAll({ events, reminders, city, il, now = new Dat
     await ensureChannel();
     const plan = planNotifications({ now, events, reminders, city, il });
     let count = 0;
-    for (const n of plan) {
-      try {
-        await Notifications.scheduleNotificationAsync({
-          identifier: n.id,
-          content: { title: n.title, body: n.body, data: { kind: n.kind } },
-          trigger: {
-            type: Notifications.SchedulableTriggerInputTypes.DATE,
-            date: n.at,
-            channelId: REMINDERS_CHANNEL,
-            delivery: 'bestEffort',
-          },
-        });
-        count++;
-      } catch {
-        // One bad item must not stop the rest.
-      }
+    try {
+      count = nativeNotify ? await scheduleNative(plan) : await scheduleExpo(plan);
+    } catch {
+      // Countdowns still get their turn.
     }
     await syncCountdowns({ now, city, il });
     return count;
