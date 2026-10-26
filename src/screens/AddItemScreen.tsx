@@ -68,7 +68,9 @@ const EVENT_REMINDERS: Option<ReminderTime>[] = (['evening', 'morning', 'week'] 
   value,
   label: REMINDER_LABEL[value],
 }));
-const TYPE_OPTIONS: Option<EventType>[] = EVENT_TYPES;
+// Approved 27.10.2026 (option ב): no event/reminder switch; "תזכורת" is the first type.
+type ItemType = EventType | 'reminder';
+const TYPE_OPTIONS: Option<ItemType>[] = [{ value: 'reminder', label: 'תזכורת', hint: 'משהו בתאריך ובשעה מסוימים' }, ...EVENT_TYPES];
 const REPEATS: Option<RepeatKind>[] = [
   { value: 'once', label: REPEAT_LABEL.once },
   { value: 'yearly', label: REPEAT_LABEL.yearly },
@@ -291,9 +293,35 @@ export function AddItemScreen({ onClose, initial, defaultKind = 'event' }: Props
     }
   };
 
+  const switchKind = (k: ItemKind) => {
+    if (k === kind) return;
+    // An untouched default date follows the kind (they differ after sunset).
+    const from = dateParts(defaultItemDate(kind, now, city));
+    if (!editing && h.day === from.day && h.month === from.month && h.year === from.year) {
+      setH(dateParts(defaultItemDate(k, now, city)));
+    }
+    setKind(k);
+    setError(null);
+    setTimeError(false);
+  };
+
   const sheetProps = (): { title: string; options: Option<any>[]; selected: any; onSelect: (v: any) => void } | null => {
     switch (sheet) {
-      case 'type': return { title: 'סוג האירוע', options: TYPE_OPTIONS, selected: type, onSelect: (t) => { setType(t); clearError(); } };
+      case 'type':
+        return {
+          title: 'סוג',
+          // Editing keeps the item in its own list: a reminder stays a reminder, an event an event.
+          options: editing ? TYPE_OPTIONS.filter((o) => (o.value === 'reminder') === !isEvent) : TYPE_OPTIONS,
+          selected: isEvent ? type : 'reminder',
+          onSelect: (t: ItemType) => {
+            if (t === 'reminder') switchKind('reminder');
+            else {
+              switchKind('event');
+              setType(t);
+            }
+            clearError();
+          },
+        };
       case 'hDay': return { title: 'יום', options: hebrewDayOptions(h.month, h.year), selected: h.day, onSelect: (day) => setHebrew({ day }) };
       case 'hMonth': return { title: 'חודש', options: hebrewMonthOptions(h.year), selected: h.month, onSelect: (month) => setHebrew({ month }) };
       case 'hYear':
@@ -342,38 +370,9 @@ export function AddItemScreen({ onClose, initial, defaultKind = 'event' }: Props
 
       <ScrollView style={{ flex: 1 }} contentContainerStyle={styles.body} keyboardShouldPersistTaps="handled">
         <Text style={[styles.big, { color: palette.ink }]}>{editing ? 'עריכה' : 'חדש'}</Text>
-        <View style={[styles.segment, { borderColor: palette.line, opacity: editing ? 0.5 : 1 }]}>
-          {(['event', 'reminder'] as const).map((k) => {
-            const on = k === kind;
-            return (
-              <Pressable
-                key={k}
-                onPress={() => {
-                  // An untouched default date follows the kind (they differ after sunset).
-                  const from = dateParts(defaultItemDate(kind, now, city));
-                  if (!editing && h.day === from.day && h.month === from.month && h.year === from.year) {
-                    setH(dateParts(defaultItemDate(k, now, city)));
-                  }
-                  setKind(k);
-                  setError(null);
-                  setTimeError(false);
-                }}
-                disabled={editing}
-                accessibilityRole="button"
-                accessibilityState={{ selected: on, disabled: editing }}
-                style={[styles.segmentItem, on && { backgroundColor: palette.ink }]}
-              >
-                <Text style={[styles.segmentText, { color: on ? palette.paper : palette.muted }]}>{k === 'event' ? 'אירוע' : 'תזכורת'}</Text>
-              </Pressable>
-            );
-          })}
+        <View style={{ marginTop: 14 }}>
+          <Row label="סוג" value={isEvent ? TYPE_LABEL[type] : 'תזכורת'} onPress={() => setSheet('type')} />
         </View>
-
-        {isEvent ? (
-          <View style={{ marginTop: 10 }}>
-            <Row label="סוג" value={TYPE_LABEL[type]} onPress={() => setSheet('type')} />
-          </View>
-        ) : null}
 
         <Text style={[styles.label, { color: palette.muted }]}>{nameField.label}</Text>
         <TextInput
@@ -534,9 +533,6 @@ const styles = StyleSheet.create({
   topText: { fontFamily: fonts.sans, fontSize: 15 },
   body: { paddingHorizontal: 24, paddingBottom: 40 },
   big: { fontFamily: fonts.serif, fontSize: 36, lineHeight: 44, marginTop: 18 },
-  segment: { flexDirection: 'row', borderWidth: 1, borderRadius: 18, padding: 2, marginTop: 14 },
-  segmentItem: { flex: 1, alignItems: 'center', paddingVertical: 7, borderRadius: 16 },
-  segmentText: { fontFamily: fonts.sans, fontSize: 13 },
   note: { fontFamily: fonts.sans, fontSize: 12, marginTop: 6 },
   small: { fontFamily: fonts.sans, fontSize: 13 },
   label: { fontFamily: fonts.sans, fontSize: 12, marginTop: 22, marginBottom: 4 },
