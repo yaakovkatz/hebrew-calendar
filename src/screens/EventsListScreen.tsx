@@ -1,11 +1,16 @@
+import { useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { ZmanAlertSheet } from '@/components/ZmanAlertSheet';
 import { useEvents } from '@/data/useEvents';
 import { useReminders } from '@/data/useReminders';
 import { useSettings } from '@/data/useSettings';
+import { useZmanAlerts } from '@/data/useZmanAlerts';
 import { agenda, agendaDateLine, agendaRowDate, agendaRowWhen, agendaWhen, type AgendaItem } from '@/lib/agenda';
-import { hebrewDateAt } from '@/lib/hebrewDay';
+import { civilNoon, formatTime, hebrewDateAt } from '@/lib/hebrewDay';
 import { useNow } from '@/lib/useNow';
+import { sortedZmanAlerts, ZMAN_ALERT_ERROR, zmanAlertWhen } from '@/lib/zmanimAlerts';
+import { fullZmanim, ZMAN_LABEL, type ZmanKey } from '@/lib/zmanimFull';
 import { fonts, usePalette } from '@/theme/tokens';
 
 type Props = {
@@ -17,16 +22,27 @@ type Props = {
 /**
  * Approved mockup 3 (fix round 1, item 1): events and reminders in one list by date.
  * "הבא בתור": the name big, a small orange countdown with the time, a grey date line.
+ * At the bottom, "כל יום": the daily zman alerts (PLAN.md "תזכורת לזמנים", mockup ד).
  */
 export function EventsListScreen({ onAdd, onOpenEvent, onOpenReminder }: Props) {
   const palette = usePalette();
-  const { city } = useSettings();
+  const { city, il } = useSettings();
   const insets = useSafeAreaInsets();
   const now = useNow();
   const events = useEvents();
   const reminders = useReminders();
   const loaded = events.loaded && reminders.loaded;
-  const list = agenda(events.events, reminders.reminders, hebrewDateAt(now, city));
+  const zman = useZmanAlerts();
+  const [editing, setEditing] = useState<ZmanKey | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  // With the clock, a reminder earlier today is already past, never "הבא בתור".
+  const list = agenda(events.events, reminders.reminders, hebrewDateAt(now, city), { now, tzid: city.tzid });
+  const daily = sortedZmanAlerts(zman.alerts);
+  const act = (work: Promise<void>) => {
+    setError(null);
+    work.catch(() => setError(ZMAN_ALERT_ERROR));
+  };
+  const todayTime = (key: ZmanKey) => formatTime(fullZmanim(civilNoon(now, city.tzid), city, il).find((r) => r.key === key)?.time, city.tzid);
   // Only an upcoming item can be "the next one"; past reminders stay at the end of the list.
   const next = list[0] && !list[0].past ? list[0] : null;
   const rest = next ? list.slice(1) : list;
@@ -77,10 +93,42 @@ export function EventsListScreen({ onAdd, onOpenEvent, onOpenReminder }: Props) 
             </Text>
           </>
         )}
+        {loaded && daily.length ? (
+          <>
+            <Text style={[styles.section, { color: palette.muted }]}>כל יום</Text>
+            {daily.map((a) => (
+              <Pressable
+                key={a.zman}
+                onPress={() => setEditing(a.zman)}
+                accessibilityRole="button"
+                style={[styles.row, { borderBottomColor: palette.lineSoft }]}
+              >
+                <Text style={[styles.rowTitle, { color: palette.ink }]} numberOfLines={1}>
+                  {ZMAN_LABEL[a.zman]}
+                </Text>
+                <View style={styles.rowEnd}>
+                  <Text style={[styles.rowDate, { color: palette.ink }]}>{zmanAlertWhen(a.minutesBefore)}</Text>
+                </View>
+              </Pressable>
+            ))}
+          </>
+        ) : null}
+        {error ? <Text style={[styles.error, { color: palette.red }]}>{error}</Text> : null}
       </ScrollView>
       <Pressable onPress={onAdd} accessibilityRole="button" style={styles.add}>
         <Text style={[styles.addText, { color: palette.red }]}>+ חדש</Text>
       </Pressable>
+      {editing ? (
+        <ZmanAlertSheet
+          visible
+          title={`להזכיר לפני ${ZMAN_LABEL[editing]}`}
+          subtitle={`היום ${todayTime(editing)} · ${city.name}`}
+          selected={daily.find((a) => a.zman === editing)?.minutesBefore ?? null}
+          onSave={(m) => act(zman.save(editing, m))}
+          onRemove={() => act(zman.remove(editing))}
+          onClose={() => setEditing(null)}
+        />
+      ) : null}
     </View>
   );
 }
@@ -99,6 +147,8 @@ const styles = StyleSheet.create({
   rowEnd: { alignItems: 'flex-end', marginStart: 12 },
   rowDate: { fontFamily: fonts.sans, fontSize: 13 },
   rowWhen: { fontFamily: fonts.sans, fontSize: 11 },
+  section: { fontFamily: fonts.sans, fontSize: 12, marginTop: 28, marginBottom: 2 },
+  error: { fontFamily: fonts.sans, fontSize: 12, marginTop: 10, textAlign: 'center' },
   add: { alignItems: 'center', paddingVertical: 16 },
   addText: { fontFamily: fonts.sans, fontSize: 15 },
 });

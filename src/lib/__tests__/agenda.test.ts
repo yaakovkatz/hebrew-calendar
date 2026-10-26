@@ -78,3 +78,37 @@ describe('agenda', () => {
     expect(same.map((i) => i.title)).toEqual(['ב', 'יום ההולדת של אמא', 'א']);
   });
 });
+
+describe('agenda with the clock: past is the moment, not the day', () => {
+  const TZ = 'Asia/Jerusalem';
+  // Monday 26 Oct 2026 (15 Cheshvan) at 14:00 in Jerusalem.
+  const clock = { now: new Date('2026-10-26T12:00:00Z'), tzid: TZ };
+  const todayRem = rem({ hDay: 15, time: '10:30', title: 'בבוקר' });
+
+  it('a one-time reminder earlier today is past, never "הבא בתור"', () => {
+    const list = agenda([ev({})], [todayRem], today, clock);
+    expect(list.map((i) => i.title)).toEqual(['יום ההולדת של אמא', 'בבוקר']);
+    expect(list[1].past).toBe(true);
+    expect(agendaRowDate(list[1])).toBe('עבר · ט״ו חשוון · 10:30');
+  });
+
+  it('later today, at this very minute, and all day stay upcoming', () => {
+    const list = agenda(
+      [],
+      [rem({ hDay: 15, time: '18:00', title: 'בערב' }), rem({ id: 2, hDay: 15, time: '14:00', title: 'עכשיו' }), rem({ id: 3, hDay: 15, time: null, title: 'כל היום' })],
+      today,
+      clock,
+    );
+    expect(list.every((i) => !i.past)).toBe(true);
+  });
+
+  it('without the clock, by day only (as before)', () => {
+    expect(agenda([], [todayRem], today)[0].past).toBe(false);
+  });
+
+  it('a yearly reminder earlier today moves on to next year', () => {
+    const [item] = agenda([], [rem({ hDay: 15, time: '10:30', repeat: 'yearly' })], today, clock);
+    expect(item.past).toBe(false);
+    expect(item.date.getFullYear()).toBe(5788);
+  });
+});

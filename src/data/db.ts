@@ -1,9 +1,11 @@
 import type { SQLiteDatabase } from 'expo-sqlite';
 import type { EventType, FamilyEvent, ReminderTime } from '@/lib/events';
 import { alertFromStored, alertToStored, type Reminder, type RepeatKind } from '@/lib/reminders';
+import type { ZmanAlert } from '@/lib/zmanimAlerts';
+import { isZmanKey, type ZmanKey } from '@/lib/zmanimFull';
 
 export const DATABASE_NAME = 'luach.db';
-const DATABASE_VERSION = 3;
+const DATABASE_VERSION = 4;
 
 /** Runs once when the app opens; each step upgrades one schema version (PLAN.md). */
 export async function migrateDbIfNeeded(db: SQLiteDatabase): Promise<void> {
@@ -55,6 +57,19 @@ export async function migrateDbIfNeeded(db: SQLiteDatabase): Promise<void> {
       ALTER TABLE reminders ADD COLUMN alert_minutes INTEGER;
     `);
     version = 3;
+  }
+
+  if (version === 3) {
+    // Daily alerts before a zman (PLAN.md "תזכורת לזמנים"): one per zman, so `zman` is unique.
+    await db.execAsync(`
+      CREATE TABLE zman_alerts (
+        id INTEGER PRIMARY KEY NOT NULL,
+        zman TEXT NOT NULL UNIQUE,
+        minutes_before INTEGER NOT NULL DEFAULT 15,
+        created_at TEXT NOT NULL DEFAULT (datetime('now'))
+      );
+    `);
+    version = 4;
   }
 
   await db.execAsync(`PRAGMA user_version = ${DATABASE_VERSION}`);
@@ -171,4 +186,27 @@ export async function updateReminder(db: SQLiteDatabase, r: NewReminder & { id: 
 
 export async function deleteReminder(db: SQLiteDatabase, id: number): Promise<void> {
   await db.runAsync('DELETE FROM reminders WHERE id = ?', [id]);
+}
+
+type ZmanAlertRow = { id: number; zman: string; minutes_before: number };
+
+/** Rows with a zman this version doesn't know are left out. */
+export async function listZmanAlerts(db: SQLiteDatabase): Promise<ZmanAlert[]> {
+  const rows = await db.getAllAsync<ZmanAlertRow>('SELECT id, zman, minutes_before FROM zman_alerts');
+  return rows.flatMap((row) =>
+    isZmanKey(row.zman) ? [{ id: row.id, zman: row.zman, minutesBefore: row.minutes_before }] : [],
+  );
+}
+
+/** Adds the zman's alert, or changes its time when it already has one (one alert per zman). */
+export async function setZmanAlert(db: SQLiteDatabase, zman: ZmanKey, minutesBefore: number): Promise<void> {
+  await db.runAsync(
+    `INSERT INTO zman_alerts (zman, minutes_before) VALUES (?, ?)
+     ON CONFLICT(zman) DO UPDATE SET minutes_before = excluded.minutes_before`,
+    [zman, minutesBefore],
+  );
+}
+
+export async function deleteZmanAlert(db: SQLiteDatabase, zman: ZmanKey): Promise<void> {
+  await db.runAsync('DELETE FROM zman_alerts WHERE zman = ?', [zman]);
 }

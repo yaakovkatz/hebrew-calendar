@@ -21,7 +21,7 @@ export function ReminderDetailsScreen({ reminderId, onBack, onEdit }: Props) {
   const reminder = reminders.find((r) => r.id === reminderId);
   if (!reminder) return null;
 
-  const item = reminderItem(reminder, hebrewDateAt(now, city));
+  const item = reminderItem(reminder, hebrewDateAt(now, city), { now, tzid: city.tzid });
 
   const confirmDelete = () =>
     Alert.alert(`למחוק את ${reminder.title}?`, 'אי אפשר לבטל את המחיקה.', [

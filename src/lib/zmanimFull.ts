@@ -6,7 +6,37 @@ import { dayLetters, hebrewMonthName, WEEKDAYS } from './month';
 /** A civil day: a Gregorian Date (its y/m/d is read) or an HDate (its daytime civil day). */
 export type DayInput = HDate | Date;
 
-export type ZmanRow = { key: string; label: string; time: Date | null };
+/** The zmanim of the Zmanim tab, in order. Also the keys of a daily zman alert (PLAN.md "תזכורת לזמנים"). */
+export const ZMAN_KEYS = [
+  'alot', 'misheyakir', 'sunrise', 'shmaMGA', 'shmaGRA', 'tfillaMGA', 'tfillaGRA', 'chatzot',
+  'minchaGedola', 'minchaKetana', 'plag', 'sunset', 'tzeit', 'tzeit72', 'chatzotNight',
+] as const;
+
+export type ZmanKey = (typeof ZMAN_KEYS)[number];
+
+export function isZmanKey(value: string): value is ZmanKey {
+  return (ZMAN_KEYS as readonly string[]).includes(value);
+}
+
+export const ZMAN_LABEL: Record<ZmanKey, string> = {
+  alot: 'עלות השחר',
+  misheyakir: 'משיכיר',
+  sunrise: 'הנץ החמה',
+  shmaMGA: 'סוף זמן ק״ש מג״א',
+  shmaGRA: 'סוף זמן ק״ש גר״א',
+  tfillaMGA: 'סוף זמן תפילה מג״א',
+  tfillaGRA: 'סוף זמן תפילה גר״א',
+  chatzot: 'חצות',
+  minchaGedola: 'מנחה גדולה',
+  minchaKetana: 'מנחה קטנה',
+  plag: 'פלג המנחה',
+  sunset: 'שקיעה',
+  tzeit: 'צאת הכוכבים',
+  tzeit72: 'צאת הכוכבים ר״ת',
+  chatzotNight: 'חצות הלילה',
+};
+
+export type ZmanRow = { key: ZmanKey; label: string; time: Date | null };
 
 export type ShabbatRow = { key: 'candles' | 'havdalah'; label: string; time: Date };
 
@@ -40,26 +70,26 @@ export function fullZmanim(date: DayInput, city: City, il: boolean): ZmanRow[] {
   void il; // Zmanim don't depend on il; kept so callers pass it explicitly like the rest of hebcal.
   const z = new Zmanim(toLocation(city), dayNoon(date), false);
   const t72 = z.tzeit72();
-  const rows: ZmanRow[] = [
-    { key: 'alot', label: 'עלות השחר', time: z.alotHaShachar() },
-    { key: 'misheyakir', label: 'משיכיר', time: z.misheyakir() },
-    { key: 'sunrise', label: 'הנץ החמה', time: z.sunrise() },
-    { key: 'shmaMGA', label: 'סוף זמן ק״ש מג״א', time: z.sofZmanShmaMGA() },
-    { key: 'shmaGRA', label: 'סוף זמן ק״ש גר״א', time: z.sofZmanShma() },
-    { key: 'tfillaMGA', label: 'סוף זמן תפילה מג״א', time: z.sofZmanTfillaMGA() },
-    { key: 'tfillaGRA', label: 'סוף זמן תפילה גר״א', time: z.sofZmanTfilla() },
-    { key: 'chatzot', label: 'חצות', time: z.chatzot() },
-    { key: 'minchaGedola', label: 'מנחה גדולה', time: z.minchaGedola() },
-    { key: 'minchaKetana', label: 'מנחה קטנה', time: z.minchaKetana() },
-    { key: 'plag', label: 'פלג המנחה', time: z.plagHaMincha() },
-    { key: 'sunset', label: 'שקיעה', time: z.sunset() },
-    { key: 'tzeit', label: 'צאת הכוכבים', time: z.tzeit(8.5) },
-    { key: 'tzeit72', label: 'צאת הכוכבים ר״ת', time: t72 ? new Date(t72.epochMilliseconds) : null },
+  const times: Record<ZmanKey, Date | null> = {
+    alot: z.alotHaShachar(),
+    misheyakir: z.misheyakir(),
+    sunrise: z.sunrise(),
+    shmaMGA: z.sofZmanShmaMGA(),
+    shmaGRA: z.sofZmanShma(),
+    tfillaMGA: z.sofZmanTfillaMGA(),
+    tfillaGRA: z.sofZmanTfilla(),
+    chatzot: z.chatzot(),
+    minchaGedola: z.minchaGedola(),
+    minchaKetana: z.minchaKetana(),
+    plag: z.plagHaMincha(),
+    sunset: z.sunset(),
+    tzeit: z.tzeit(8.5),
+    tzeit72: t72 ? new Date(t72.epochMilliseconds) : null,
     // hebcal's chatzotNight() for a day is the midnight *before* it (00:xx that morning).
     // The list wants tonight's, which is the next civil day's value.
-    { key: 'chatzotNight', label: 'חצות הלילה', time: new Zmanim(toLocation(city), addDays(date, 1), false).chatzotNight() },
-  ];
-  return rows.map((row) => ({ ...row, time: valid(row.time) }));
+    chatzotNight: new Zmanim(toLocation(city), addDays(date, 1), false).chatzotNight(),
+  };
+  return ZMAN_KEYS.map((key) => ({ key, label: ZMAN_LABEL[key], time: valid(times[key]) }));
 }
 
 /** Candle lighting (Friday, erev chag) and havdalah (Shabbat, Yom Tov) on that civil day. */
@@ -85,7 +115,7 @@ export function shabbatRows(date: DayInput, city: City, il: boolean): ShabbatRow
 }
 
 /** Key of the first zman still ahead of `now`, or null when the day is over. */
-export function nextZmanKey(rows: ZmanRow[], now: Date): string | null {
+export function nextZmanKey(rows: ZmanRow[], now: Date): ZmanKey | null {
   return rows.find((row) => row.time && row.time.getTime() > now.getTime())?.key ?? null;
 }
 
