@@ -1,4 +1,4 @@
-import { useCallback, useState } from 'react';
+import { useState } from 'react';
 import { StatusBar } from 'expo-status-bar';
 import { SQLiteProvider } from 'expo-sqlite';
 import { useColorScheme, View } from 'react-native';
@@ -22,7 +22,6 @@ import { BatteryHelpScreen } from '@/screens/BatteryHelpScreen';
 import { PrintScreen } from '@/screens/PrintScreen';
 import { ZmanimScreen } from '@/screens/ZmanimScreen';
 import { NotifyPrompt, useNotifyPrompt } from '@/components/NotifyPrompt';
-import { SplashIntro } from '@/components/SplashIntro';
 import { useNotificationScheduler } from '@/data/useNotificationScheduler';
 import { usePalette } from '@/theme/tokens';
 
@@ -135,8 +134,6 @@ function Main() {
 }
 
 export default function App() {
-  const [intro, setIntro] = useState(true);
-  const endIntro = useCallback(() => setIntro(false), []);
   return (
     <SafeAreaProvider>
       <SQLiteProvider databaseName={DATABASE_NAME} onInit={migrateDbIfNeeded}>
@@ -148,7 +145,6 @@ export default function App() {
           </EventsProvider>
         </SettingsProvider>
       </SQLiteProvider>
-      {intro ? <SplashIntro onDone={endIntro} /> : null}
     </SafeAreaProvider>
   );
 }
