@@ -28,6 +28,7 @@ import { usePalette } from '@/theme/tokens';
 type ScreenProps = {
   tab: TabId;
   onAddEvent: () => void;
+  onAddItem: () => void;
   onOpenEvent: (id: number) => void;
   onOpenAbout: () => void;
   onOpenPrint: () => void;
@@ -36,14 +37,14 @@ type ScreenProps = {
 };
 
 function Screen(props: ScreenProps) {
-  const { tab, onAddEvent, onOpenEvent, onOpenAbout, onOpenReminder } = props;
+  const { tab, onAddEvent, onAddItem, onOpenEvent, onOpenAbout, onOpenReminder } = props;
   switch (tab) {
     case 'calendar':
       return <CalendarScreen onAddEvent={onAddEvent} onOpenEvent={onOpenEvent} onOpenReminder={onOpenReminder} />;
     case 'zmanim':
       return <ZmanimScreen />;
     case 'family':
-      return <EventsListScreen onAdd={onAddEvent} onOpenEvent={onOpenEvent} onOpenReminder={onOpenReminder} />;
+      return <EventsListScreen onAdd={onAddItem} onOpenEvent={onOpenEvent} onOpenReminder={onOpenReminder} />;
     case 'settings':
       return <SettingsScreen onOpenAbout={onOpenAbout} onOpenPrint={props.onOpenPrint} onOpenBatteryHelp={props.onOpenBatteryHelp} />;
   }
@@ -63,7 +64,8 @@ function Main() {
   const [editingReminder, setEditingReminder] = useState(false);
   const editingReminderItem = editingReminder ? reminders.find((r) => r.id === openReminderId) : undefined;
   const [tab, setTab] = useState<TabId>('calendar');
-  const [adding, setAdding] = useState(false);
+  // What a new item starts as: the calendar adds a birthday, "+ חדש" in the events tab a reminder.
+  const [adding, setAdding] = useState<null | 'event' | 'reminder'>(null);
   const [openId, setOpenId] = useState<number | null>(null);
   const [editing, setEditing] = useState(false);
   const [overlay, setOverlay] = useState<Overlay>(null);
@@ -86,7 +88,8 @@ function Main() {
       <View style={{ flex: 1 }}>
         <Screen
           tab={tab}
-          onAddEvent={() => setAdding(true)}
+          onAddEvent={() => setAdding('event')}
+          onAddItem={() => setAdding('reminder')}
           onOpenEvent={setOpenId}
           onOpenAbout={() => setOverlay('about')}
           onOpenPrint={() => setOverlay('print')}
@@ -98,7 +101,7 @@ function Main() {
       {openId !== null ? (
         <EventDetailsScreen eventId={openId} onBack={() => setOpenId(null)} onEdit={() => setEditing(true)} />
       ) : null}
-      {adding ? <AddItemScreen onClose={() => setAdding(false)} /> : null}
+      {adding ? <AddItemScreen defaultKind={adding} onClose={() => setAdding(null)} /> : null}
       {editingEvent ? (
         <AddItemScreen initial={{ kind: 'event', event: editingEvent }} onClose={() => setEditing(false)} />
       ) : null}
