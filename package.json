@@ -51,7 +51,8 @@
       "node_modules/(?!((jest-)?react-native|@react-native(-community)?)|expo(nent)?|@expo(nent)?/.*|@expo-google-fonts/.*|react-navigation|@react-navigation/.*|@sentry/react-native|native-base|react-native-svg|@hebcal/.*|temporal-polyfill|temporal-utils|quick-lru)"
     ],
     "moduleNameMapper": {
-      "^@hebcal/core$": "<rootDir>/node_modules/@hebcal/core/dist/esm/index.js"
+      "^@hebcal/core$": "<rootDir>/node_modules/@hebcal/core/dist/esm/index.js",
+      "^@hebcal/learning$": "<rootDir>/node_modules/@hebcal/learning/dist/esm/index.js"
     },
     "testPathIgnorePatterns": [
       "/node_modules/",
