@@ -99,7 +99,7 @@ figcaption{font-size:13px;color:var(--muted)}
 </div>
 
 <div class="rule"><span></span>✦<span></span></div>
-<style>section{display:none}section:has(#r2){display:block}.sum,.rule{display:none}</style>
+<style>section{display:none}section:has(#btns){display:block}.sum,.rule{display:none}</style>
 
 <section><h2>המסכים הראשיים</h2><p>חודש ויום, בבהיר ובכהה</p><div class="row" id="main"></div></section>
 <section><h2>אירועים</h2><p>פרטי יום, המשפחה, תאריך חדש</p><div class="row" id="ev"></div></section>
@@ -118,6 +118,7 @@ figcaption{font-size:13px;color:var(--muted)}
 .gl{position:absolute;background:#C9BBA0;animation:drawL 3.2s ease-out infinite}
 </style><section><h2>מסך פתיחה, גרסה 2 <span style="font-size:14px;color:var(--red);font-family:var(--sans)">לבחירה</span></h2><p>"לוח יהודי" באמצע, "לוח עברי" קטן למטה, ועיטור קטן לבחירה. מופיע פחות משנייה</p><div class="row" id="splash2"></div></section>
 <section><h2>סבב 2 <span style="font-size:14px;color:var(--red);font-family:var(--sans)">לבחירה</span></h2><p>אייקון קטן להתראות, "בוצע" בתוך ההתראה, ומסך "חדש": מתג או סוג</p><div class="row" id="r2"></div></section>
+<section><h2>כפתורי ביטול וחזרה <span style="font-size:14px;color:var(--red);font-family:var(--sans)">לבחירה</span></h2><p>היום: טקסט אפור קטן. שלוש אפשרויות, במסך "חדש" ובמסך פרטים</p><div class="row" id="btns"></div></section>
 <section><h2>יצירת קשר <span style="font-size:14px;color:var(--red);font-family:var(--sans)">לאישור</span></h2><p>טופס בתוך האפליקציה. הכתובת לשליחה תתווסף כשהמייל של החברה יהיה מוכן</p><div class="row" id="contact"></div></section>
 <section><h2>מסך טעינה</h2><p>אושר: שם האפליקציה על נייר, בבהיר ובכהה</p><div class="row" id="splash"></div></section>
 <section><h2>אודות</h2><p>נכנסים מההגדרות. כולל רישיונות, שחובה להציג</p><div class="row" id="about"></div></section>
@@ -461,6 +462,29 @@ document.getElementById('r2').innerHTML=
    <div style="width:34px;height:3px;background:var(--l1);border-radius:2px;margin:0 auto 14px"></div><div class="mu" style="font-size:11px">סוג</div>
    ${[['תזכורת','משהו בשעה מסוימת'],['יום הולדת','כל שנה · גיל'],['נישואין','כל שנה · שנים'],['אזכרה','כל שנה · שנים'],['עלייה לארץ','כל שנה · שנים'],['אחר','שם חופשי']].map(([t,d],i)=>`<div class="r" style="${i==0?'background:var(--t);margin:0 -8px;padding-left:8px;padding-right:8px;':''}"><span style="font-size:15px">${t}</span><span>${d}</span></div>`).join('')}
    </div>`,'height:560px'));
+
+const X=`<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>`;
+const ARR=`<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg>`;
+const topA=(kind)=>kind=='x'
+  ?`<div style="display:flex;justify-content:flex-start"><span style="width:34px;height:34px;border-radius:50%;background:var(--t);color:var(--i);display:flex;align-items:center;justify-content:center">${X}</span></div>`
+  :`<div style="display:flex;justify-content:flex-start"><span style="width:34px;height:34px;border-radius:50%;background:var(--t);color:var(--i);display:flex;align-items:center;justify-content:center">${ARR}</span></div>`;
+const topB=(kind)=>`<div style="display:flex"><span class="s" style="display:inline-flex;align-items:center;gap:5px;border:1px solid var(--l1);border-radius:16px;padding:5px 12px;font-size:12.5px;color:var(--i)">${kind=='x'?'ביטול':ARR+' אירועים'}</span></div>`;
+const topC=(kind)=>`<div class="s" style="display:flex;align-items:center;gap:4px;font-size:14.5px;font-weight:500;color:var(--i)">${kind=='x'?X+' ביטול':ARR+' אירועים'}</div>`;
+const addScr=(top)=>phone('L',`<div class="pad" style="padding-top:20px">${top('x')}
+   <div class="big" style="font-size:26px;margin-top:10px">חדש</div>
+   <div class="s" style="font-size:13px;margin-top:10px">${fam('סוג','תזכורת ›')}</div>
+   <div class="lb" style="margin-top:12px">מה</div><div style="font-size:17px;padding-bottom:4px;border-bottom:1px solid var(--l1)">רופא שיניים</div>
+   <div class="s" style="font-size:12.5px;margin-top:8px">${fam('תאריך','ט״ו בחשוון ›')}${fam('שעה','10:30 ›')}</div>
+   <div class="btn" style="bottom:18px">שמירה</div></div>`,'height:470px');
+const detScr=(top)=>phone('L',`<div class="pad" style="padding-top:20px">${top('back')}
+   <div class="big" style="font-size:28px;margin-top:14px">רופא שיניים</div>
+   <div class="s" style="font-size:14px;color:var(--sun);margin-top:4px">מחר · 10:30</div>
+   <div class="s" style="font-size:12.5px;margin-top:16px">${fam('תאריך','ט״ו בחשוון')}${fam('חוזר','פעם אחת')}<div class="r n"><span>מתי להזכיר</span><span>15 דק׳ לפני</span></div></div>
+   <div class="s" style="position:absolute;bottom:22px;left:0;right:0;text-align:center;font-size:13px;color:var(--r)">עריכה</div></div>`,'height:470px');
+document.getElementById('btns').innerHTML=
+ fig('א · עיגול עם סמל',addScr(topA))+fig('א · בפרטים',detScr(topA))+
+ fig('ב · כפתור עם מסגרת',addScr(topB))+fig('ב · בפרטים',detScr(topB))+
+ fig('ג · טקסט כהה עם סמל',addScr(topC))+fig('ג · בפרטים',detScr(topC));
 document.getElementById('contact').innerHTML=
   fig('יצירת קשר',phone('L',`<div class="pad" style="padding-top:24px"><div class="mu s" style="font-size:13px">‹ אודות</div>
    <div class="big" style="font-size:28px;margin-top:16px">יצירת קשר</div>
