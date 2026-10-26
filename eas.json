@@ -7,14 +7,21 @@
     "development": {
       "developmentClient": true,
       "distribution": "internal",
-      "android": { "buildType": "apk" }
+      "android": {
+        "buildType": "apk"
+      },
+      "node": "24.16.0"
     },
     "preview": {
       "distribution": "internal",
-      "android": { "buildType": "apk" }
+      "android": {
+        "buildType": "apk"
+      },
+      "node": "24.16.0"
     },
     "production": {
-      "autoIncrement": true
+      "autoIncrement": true,
+      "node": "24.16.0"
     }
   }
 }
