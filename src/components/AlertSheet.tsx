@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { KeyboardAvoidingView, Modal, Platform, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
+import { KeyboardAvoidingView, Modal, Platform, Pressable, ScrollView, StyleSheet, Text, TextInput, useWindowDimensions, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import {
   ALERT_UNITS,
@@ -29,6 +29,8 @@ type Props = {
 export function AlertSheet({ visible, time, selected, onSelect, onClose }: Props) {
   const palette = usePalette();
   const insets = useSafeAreaInsets();
+  // A percentage would resolve against the wrapper, which is only as tall as the sheet.
+  const { height } = useWindowDimensions();
   const presets = alertPresets(time);
   const isPreset = presets.some((p) => sameAlert(p, selected));
   const initial = isPreset ? { amount: '', unit: 'minutes' as AlertUnit } : splitAlert(selected);
@@ -43,10 +45,10 @@ export function AlertSheet({ visible, time, selected, onSelect, onClose }: Props
   };
 
   return (
-    <Modal visible={visible} transparent animationType="slide" onRequestClose={onClose}>
+    <Modal visible={visible} transparent statusBarTranslucent navigationBarTranslucent animationType="slide" onRequestClose={onClose}>
       <Pressable style={styles.backdrop} onPress={onClose} accessibilityLabel="סגירה" />
       <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
-        <View style={[styles.sheet, { backgroundColor: palette.paper, paddingBottom: insets.bottom + 18 }]}>
+        <View style={[styles.sheet, { backgroundColor: palette.paper, maxHeight: height * 0.85, paddingBottom: insets.bottom + 18 }]}>
           <View style={[styles.handle, { backgroundColor: palette.line }]} />
           <Text style={[styles.title, { color: palette.muted }]}>מתי להזכיר</Text>
           <ScrollView keyboardShouldPersistTaps="handled">
@@ -112,7 +114,7 @@ export function AlertSheet({ visible, time, selected, onSelect, onClose }: Props
 
 const styles = StyleSheet.create({
   backdrop: { flex: 1, backgroundColor: '#0006' },
-  sheet: { maxHeight: '80%', borderTopLeftRadius: 22, borderTopRightRadius: 22, paddingHorizontal: 20 },
+  sheet: { borderTopLeftRadius: 22, borderTopRightRadius: 22, paddingHorizontal: 20 },
   handle: { alignSelf: 'center', width: 34, height: 3, borderRadius: 2, marginTop: 10, marginBottom: 10 },
   title: { fontFamily: fonts.sans, fontSize: 12, marginBottom: 4 },
   row: {

@@ -18,7 +18,7 @@ export function OptionSheet<T>({ visible, title, options, selected, onSelect, on
   const insets = useSafeAreaInsets();
   const initialIndex = Math.max(0, options.findIndex((o) => o.value === selected));
   return (
-    <Modal visible={visible} transparent animationType="slide" onRequestClose={onClose}>
+    <Modal visible={visible} transparent statusBarTranslucent navigationBarTranslucent animationType="slide" onRequestClose={onClose}>
       <Pressable style={styles.backdrop} onPress={onClose} accessibilityLabel="סגירה" />
       <View style={[styles.sheet, { backgroundColor: palette.paper, paddingBottom: insets.bottom + 12 }]}>
         <View style={[styles.handle, { backgroundColor: palette.line }]} />

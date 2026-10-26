@@ -44,7 +44,7 @@ export function DaySheet({ day, holidays, events, reminders, city, onClose, onOp
   };
 
   return (
-    <Modal visible transparent animationType="slide" onRequestClose={close}>
+    <Modal visible transparent statusBarTranslucent navigationBarTranslucent animationType="slide" onRequestClose={close}>
       <Pressable style={styles.backdrop} onPress={close} accessibilityLabel="סגירה" />
       <View style={[styles.sheet, { backgroundColor: palette.paper, paddingBottom: insets.bottom + 18 }]}>
         <View style={[styles.handle, { backgroundColor: palette.line }]} />

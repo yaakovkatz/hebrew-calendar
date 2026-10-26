@@ -18,7 +18,7 @@ export function NotifyPrompt({ visible, onYes, onLater }: Props) {
   const palette = usePalette();
   const insets = useSafeAreaInsets();
   return (
-    <Modal visible={visible} transparent animationType="slide" onRequestClose={onLater}>
+    <Modal visible={visible} transparent statusBarTranslucent navigationBarTranslucent animationType="slide" onRequestClose={onLater}>
       <Pressable style={styles.backdrop} onPress={onLater} accessibilityLabel="סגירה" />
       <View style={[styles.sheet, { backgroundColor: palette.paper, paddingBottom: insets.bottom + 16 }]}>
         <View style={[styles.handle, { backgroundColor: palette.line }]} />
