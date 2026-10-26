@@ -1,6 +1,18 @@
 import { HDate, months } from '@hebcal/core';
 import {
-  alertOptions,
+  ALERT_DAY_BEFORE,
+  ALERT_MORNING,
+  alertFromStored,
+  alertKey,
+  alertLabel,
+  alertPresets,
+  alertToStored,
+  before,
+  customAlert,
+  effectiveAlert,
+  maskTime,
+  parseTimeInput,
+  splitAlert,
   dayOffKind,
   dayOffWarning,
   gregorianLine,
@@ -11,7 +23,6 @@ import {
   remindersOn,
   reminderWhen,
   sortedReminders,
-  timeOptions,
   type Reminder,
 } from '../reminders';
 
@@ -26,7 +37,7 @@ function rem(partial: Partial<Reminder>): Reminder {
     hYear: 5787,
     time: '10:30',
     repeat: 'once',
-    alert: 'hour',
+    alert: before(60),
     createdAt: '2026-10-23 10:00:00',
     ...partial,
   };
@@ -132,17 +143,90 @@ describe('labels', () => {
     expect(reminderRowLabel(past)).toBe('עבר · א׳ חשוון · 10:30');
   });
 
-  it('time options in 15-minute steps, with all day first', () => {
-    const opts = timeOptions();
-    expect(opts[0]).toEqual({ value: null, label: 'כל היום' });
-    expect(opts[1].value).toBe('00:00');
-    expect(opts[43].value).toBe('10:30');
-    expect(opts.length).toBe(1 + 96);
+});
+
+describe('alert', () => {
+  it('old saved values keep working: hour = 60 minutes before, day = the day before', () => {
+    expect(alertFromStored('hour', null)).toEqual(before(60));
+    expect(alertFromStored('morning', null)).toEqual(ALERT_MORNING);
+    expect(alertFromStored('day', null)).toEqual(ALERT_DAY_BEFORE);
+    expect(alertFromStored('before', 1)).toEqual(before(1));
+    expect(alertFromStored('before', 0)).toEqual(before(0));
+    // A broken row never crashes: it alerts in the morning.
+    expect(alertFromStored('before', null)).toEqual(ALERT_MORNING);
+    expect(alertFromStored('???', null)).toEqual(ALERT_MORNING);
   });
 
-  it('no "hour before" for an all-day reminder', () => {
-    expect(alertOptions('10:30').map((o) => o.value)).toEqual(['hour', 'morning', 'day']);
-    expect(alertOptions(null).map((o) => o.value)).toEqual(['morning', 'day']);
+  it('round-trips through the DB columns', () => {
+    for (const a of [before(0), before(1), before(90), before(3 * 1440), ALERT_MORNING, ALERT_DAY_BEFORE]) {
+      const { alert, minutes } = alertToStored(a);
+      expect(alertFromStored(alert, minutes)).toEqual(a);
+    }
+  });
+
+  it('labels', () => {
+    expect([0, 1, 5, 15, 60, 120, 180, 1440, 2880, 4320, 90].map((m) => alertLabel(before(m)))).toEqual([
+      'בזמן',
+      'דקה לפני',
+      '5 דק׳ לפני',
+      '15 דק׳ לפני',
+      'שעה לפני',
+      'שעתיים לפני',
+      '3 שעות לפני',
+      '24 שעות לפני',
+      'יומיים לפני',
+      '3 ימים לפני',
+      '90 דק׳ לפני',
+    ]);
+    expect(alertLabel(ALERT_MORNING)).toBe('בבוקר');
+    expect(alertLabel(ALERT_DAY_BEFORE)).toBe('יום לפני');
+  });
+
+  it('presets: the "before" rows only with a time', () => {
+    expect(alertPresets('10:30').map(alertLabel)).toEqual(['בזמן', '5 דק׳ לפני', '15 דק׳ לפני', 'שעה לפני', 'בבוקר', 'יום לפני']);
+    expect(alertPresets(null).map(alertLabel)).toEqual(['בבוקר', 'יום לפני']);
+    expect(effectiveAlert(before(15), null)).toEqual(ALERT_MORNING);
+    expect(effectiveAlert(before(15), '10:30')).toEqual(before(15));
+  });
+
+  it('"אחר": a number and a unit', () => {
+    expect(customAlert('1', 'minutes')).toEqual(before(1));
+    expect(customAlert('2', 'hours')).toEqual(before(120));
+    expect(customAlert('3', 'days')).toEqual(before(3 * 1440));
+    expect(customAlert('0', 'minutes')).toEqual(before(0));
+    expect(customAlert('', 'minutes')).toBeNull();
+    expect(customAlert('1.5', 'hours')).toBeNull();
+    expect(customAlert('99', 'days')).toBeNull();
+    expect(splitAlert(before(120))).toEqual({ amount: '2', unit: 'hours' });
+    expect(splitAlert(before(90))).toEqual({ amount: '90', unit: 'minutes' });
+    expect(splitAlert(before(2880))).toEqual({ amount: '2', unit: 'days' });
+  });
+
+  it('keys are stable and distinct', () => {
+    expect([before(0), before(60), ALERT_MORNING, ALERT_DAY_BEFORE].map(alertKey)).toEqual(['b0', 'b60', 'morning', 'day']);
+  });
+});
+
+describe('typed time', () => {
+  it('masks number-pad input as HH:MM', () => {
+    expect(maskTime('1')).toBe('1');
+    expect(maskTime('10')).toBe('10');
+    expect(maskTime('103')).toBe('10:3');
+    expect(maskTime('1030')).toBe('10:30');
+    expect(maskTime('10305')).toBe('10:30');
+    expect(maskTime('10:30')).toBe('10:30');
+  });
+
+  it('accepts 00:00 to 23:59 only', () => {
+    expect(parseTimeInput('10:30')).toBe('10:30');
+    expect(parseTimeInput('00:00')).toBe('00:00');
+    expect(parseTimeInput('23:59')).toBe('23:59');
+    expect(parseTimeInput('9:30')).toBe('09:30');
+    expect(parseTimeInput('24:00')).toBeNull();
+    expect(parseTimeInput('25:00')).toBeNull();
+    expect(parseTimeInput('10:60')).toBeNull();
+    expect(parseTimeInput('10:3')).toBeNull();
+    expect(parseTimeInput('')).toBeNull();
   });
 });
 

@@ -40,6 +40,11 @@ export function OptionSheet<T>({ visible, title, options, selected, onSelect, on
                 style={[styles.row, { borderBottomColor: palette.lineSoft }, on && { backgroundColor: palette.today }]}
               >
                 <Text style={[styles.label, { color: palette.ink }]}>{item.label}</Text>
+                {item.hint ? (
+                  <Text style={[styles.hint, { color: palette.muted }]} numberOfLines={1}>
+                    {item.hint}
+                  </Text>
+                ) : null}
               </Pressable>
             );
           }}
@@ -56,6 +61,15 @@ const styles = StyleSheet.create({
   sheet: { maxHeight: '60%', borderTopLeftRadius: 22, borderTopRightRadius: 22, paddingHorizontal: 20 },
   handle: { alignSelf: 'center', width: 34, height: 3, borderRadius: 2, marginTop: 10, marginBottom: 10 },
   title: { fontFamily: fonts.sans, fontSize: 12, marginBottom: 4 },
-  row: { height: ROW, justifyContent: 'center', borderBottomWidth: 1, paddingHorizontal: 8 },
+  row: {
+    height: ROW,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    gap: 12,
+    borderBottomWidth: 1,
+    paddingHorizontal: 8,
+  },
   label: { fontFamily: fonts.serif, fontSize: 18 },
+  hint: { flexShrink: 1, fontFamily: fonts.sans, fontSize: 12 },
 });

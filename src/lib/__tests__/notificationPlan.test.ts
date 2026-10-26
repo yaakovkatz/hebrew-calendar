@@ -10,7 +10,7 @@ import {
   zonedTime,
   type PlannedNotification,
 } from '../notificationPlan';
-import type { Reminder } from '../reminders';
+import { ALERT_DAY_BEFORE, ALERT_MORNING, before, type Reminder } from '../reminders';
 
 const jerusalem = CITIES.find((c) => c.id === 'jerusalem')!;
 const TZ = jerusalem.tzid;
@@ -30,6 +30,7 @@ function ev(partial: Partial<FamilyEvent>): FamilyEvent {
     afterSunset: false,
     gregDate: null,
     reminder: 'evening',
+    showYears: false,
     ...partial,
   };
 }
@@ -43,7 +44,7 @@ function rem(partial: Partial<Reminder>): Reminder {
     hYear: 5787,
     time: '10:30',
     repeat: 'once',
-    alert: 'hour',
+    alert: before(60),
     createdAt: '2026-10-23 10:00:00',
     ...partial,
   };
@@ -152,7 +153,7 @@ describe('family events', () => {
 });
 
 describe('reminders', () => {
-  it("'hour' fires an hour before the time", () => {
+  it('60 minutes before fires an hour before the time', () => {
     const [n] = only(plan({ reminders: [rem({})] }), 'reminder');
     expect(local(n.at)).toBe('2026-10-29 09:30'); // 18 Cheshvan = Thursday 29 Oct
     expect(n.title).toBe('רופא שיניים');
@@ -161,14 +162,28 @@ describe('reminders', () => {
   });
 
   it("'morning' at 08:00 that day, 'day' at 20:00 the day before", () => {
-    expect(local(only(plan({ reminders: [rem({ alert: 'morning' })] }), 'reminder')[0].at)).toBe('2026-10-29 08:00');
-    expect(local(only(plan({ reminders: [rem({ alert: 'day' })] }), 'reminder')[0].at)).toBe('2026-10-28 20:00');
+    expect(local(only(plan({ reminders: [rem({ alert: ALERT_MORNING })] }), 'reminder')[0].at)).toBe('2026-10-29 08:00');
+    expect(local(only(plan({ reminders: [rem({ alert: ALERT_DAY_BEFORE })] }), 'reminder')[0].at)).toBe('2026-10-28 20:00');
   });
 
-  it("'hour' without a time behaves like 'morning'", () => {
+  it('minutes before, without a time, behaves like the morning', () => {
     const [n] = only(plan({ reminders: [rem({ time: null })] }), 'reminder');
     expect(local(n.at)).toBe('2026-10-29 08:00');
     expect(n.body).toBe('י״ח בחשוון');
+  });
+
+  it('custom minutes: 1 minute before, 0 = at the time, 3 days before', () => {
+    const at = (minutes: number) => local(only(plan({ reminders: [rem({ alert: before(minutes) })] }), 'reminder')[0].at);
+    expect(at(1)).toBe('2026-10-29 10:29');
+    expect(at(0)).toBe('2026-10-29 10:30');
+    expect(at(15)).toBe('2026-10-29 10:15');
+    expect(at(3 * 24 * 60)).toBe('2026-10-26 10:30');
+  });
+
+  it('the notification id names the alert, so changing it reschedules', () => {
+    const id = (r: Reminder) => only(plan({ reminders: [r] }), 'reminder')[0].id;
+    expect(id(rem({ alert: before(1) }))).not.toBe(id(rem({ alert: before(0) })));
+    expect(id(rem({ alert: before(5) }))).toMatch(/^reminder-1-b5-/);
   });
 
   it('a past one-time reminder is dropped, a yearly one comes back next year', () => {
@@ -219,7 +234,7 @@ describe('Shabbat and Yom Tov', () => {
   it('several moved notifications merge into one', () => {
     const list = plan({
       events: [ev({ hDay: 27, reminder: 'morning' })],
-      reminders: [rem({ hDay: 27, alert: 'hour', title: 'קידוש' })],
+      reminders: [rem({ hDay: 27, alert: before(60), title: 'קידוש' })],
     });
     const merged = only(list, 'merged');
     expect(merged).toHaveLength(1);
@@ -233,7 +248,7 @@ describe('Shabbat and Yom Tov', () => {
     const now = new Date('2027-04-15T06:00:00Z');
     const list = plan({
       now,
-      reminders: [rem({ hDay: 15, hMonth: months.NISAN, alert: 'morning', title: 'סדר אצל סבתא' })],
+      reminders: [rem({ hDay: 15, hMonth: months.NISAN, alert: ALERT_MORNING, title: 'סדר אצל סבתא' })],
     });
     const notice = only(list, 'shabbat').find((n) => n.title === 'פסח א׳')!;
     const [p] = restPeriods(new Date('2027-04-20T00:00:00Z'), new Date('2027-04-23T00:00:00Z'), jerusalem, true);
@@ -278,7 +293,7 @@ describe('horizon, order and cap', () => {
   it('everything is in the future and sorted by time', () => {
     const list = plan({
       events: [ev({}), ev({ id: 2, hDay: 20, reminder: 'morning' }), ev({ id: 3, hDay: 1, hMonth: months.KISLEV })],
-      reminders: [rem({}), rem({ id: 2, hDay: 16, alert: 'day' })],
+      reminders: [rem({}), rem({ id: 2, hDay: 16, alert: ALERT_DAY_BEFORE })],
     });
     expect(list.length).toBeGreaterThan(5);
     const times = list.map((n) => n.at.getTime());

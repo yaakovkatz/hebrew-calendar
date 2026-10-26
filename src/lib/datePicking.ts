@@ -1,7 +1,8 @@
 import { HDate, gematriya } from '@hebcal/core';
 import { hebrewMonthName, yearLabel } from './month';
 
-export type Option<T> = { value: T; label: string };
+/** `hint`: a short grey text at the row's end (e.g. the event types sheet). */
+export type Option<T> = { value: T; label: string; hint?: string };
 
 /** Hebrew months in calendar order (Tishrei first), with Adar I and II in a leap year. */
 export function hebrewMonthOptions(year: number): Option<number>[] {

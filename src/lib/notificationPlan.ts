@@ -2,7 +2,7 @@ import { CandleLightingEvent, HavdalahEvent, HDate, HebrewCalendar, Location, Zm
 import { City, toLocation } from './cities';
 import { headline, nextOccurrence, yearsLabel, type FamilyEvent } from './events';
 import { formatTime, hebrewDateAt, parshaOfWeek } from './hebrewDay';
-import { hebrewDateWithB, nextReminderDate, type Reminder } from './reminders';
+import { alertKey, effectiveAlert, hebrewDateWithB, nextReminderDate, type Reminder } from './reminders';
 
 // Pure planning only: no expo imports, so everything here runs in Jest (PLAN.md "התראות").
 
@@ -174,14 +174,15 @@ function reminderCandidates(reminders: Reminder[], today: HDate, city: City): Pl
     const date = nextReminderDate(rem, today);
     if (!date) continue;
     const time = rem.time ? parseTime(rem.time) : null;
-    const alert = rem.alert === 'hour' && !time ? 'morning' : rem.alert;
+    // An all-day reminder (or an unreadable time) has nothing to count back from: 08:00 instead.
+    const alert = effectiveAlert(rem.alert, time ? rem.time : null);
     let at: Date;
-    if (alert === 'hour' && time) at = new Date(atTime(date, time.h, time.m, city).getTime() - 60 * MIN);
-    else if (alert === 'day') at = atTime(date.prev(), EVENING_BEFORE.h, EVENING_BEFORE.m, city);
+    if (alert.kind === 'before' && time) at = new Date(atTime(date, time.h, time.m, city).getTime() - alert.minutes * MIN);
+    else if (alert.kind === 'dayBefore') at = atTime(date.prev(), EVENING_BEFORE.h, EVENING_BEFORE.m, city);
     else at = atTime(date, MORNING.h, MORNING.m, city);
     const body = [hebrewDateWithB(date), rem.time].filter(Boolean).join(' · ');
     out.push({
-      id: `reminder-${rem.id}-${alert}-${date.getFullYear()}-${date.getMonth()}-${date.getDate()}`,
+      id: `reminder-${rem.id}-${alertKey(alert)}-${date.getFullYear()}-${date.getMonth()}-${date.getDate()}`,
       at,
       title: rem.title,
       body,
@@ -206,7 +207,7 @@ function shabbatCandidates(periods: RestPeriod[], city: City): PlannedNotificati
 /**
  * Everything to schedule for the coming `horizonDays`, soonest first (PLAN.md "התראות"):
  * - events at sunset of the evening the date begins, 08:00 on the day, or 08:00 a week before
- * - reminders an hour before, 08:00 on the day, or 20:00 the day before
+ * - reminders a chosen number of minutes before their time (0 = at the time), 08:00 on the day, or 20:00 the day before
  * - Shabbat and Yom Tov two hours before candle lighting
  * Nothing fires between candle lighting and havdalah: such a notification moves to 30 minutes
  * before that candle lighting (or to havdalah when that moment has already passed), and several

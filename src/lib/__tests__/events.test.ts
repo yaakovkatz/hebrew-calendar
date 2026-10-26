@@ -2,8 +2,12 @@ import { HDate, months } from '@hebcal/core';
 import {
   eventDaysInRange,
   headline,
+  EVENT_TYPES,
   hebrewFromGregorian,
+  mitzvahDate,
+  mitzvahTitle,
   nextOccurrence,
+  previewLine,
   originalDateLabel,
   shortHebrewDate,
   upcoming,
@@ -25,6 +29,7 @@ function ev(partial: Partial<FamilyEvent>): FamilyEvent {
     afterSunset: false,
     gregDate: null,
     reminder: 'evening',
+    showYears: false,
     ...partial,
   };
 }
@@ -53,6 +58,29 @@ describe('nextOccurrence', () => {
   it('never returns a date before the event itself', () => {
     const future = ev({ hYear: 5790 });
     expect(nextOccurrence(future, today).getFullYear()).toBeGreaterThanOrEqual(5790);
+  });
+});
+
+describe('yahrzeit (hebcal getYahrzeit, not birthday rules)', () => {
+  // 15 Adar 5785 (a regular year); 5787 is a leap year.
+  const adar = { hDay: 15, hMonth: months.ADAR_I, hYear: 5785 };
+  const ymd = (hd: HDate) => [hd.getDate(), hd.getMonth(), hd.getFullYear()];
+
+  it('Adar of a regular year: the yahrzeit is in Adar I, a birthday in Adar II', () => {
+    expect(ymd(nextOccurrence(ev({ ...adar, type: 'yahrzeit' }), today))).toEqual([15, months.ADAR_I, 5787]);
+    expect(ymd(nextOccurrence(ev({ ...adar, type: 'birthday' }), today))).toEqual([15, months.ADAR_II, 5787]);
+  });
+
+  it('30 Cheshvan in a year without it: the yahrzeit is 29 Cheshvan, a birthday 1 Kislev', () => {
+    const cheshvan30 = { hDay: 30, hMonth: months.CHESHVAN, hYear: 5785 };
+    const from = new HDate(1, months.TISHREI, 5786); // 5786 has a short Cheshvan
+    expect(ymd(nextOccurrence(ev({ ...cheshvan30, type: 'yahrzeit' }), from))).toEqual([29, months.CHESHVAN, 5786]);
+    expect(ymd(nextOccurrence(ev({ ...cheshvan30, type: 'birthday' }), from))).toEqual([1, months.KISLEV, 5786]);
+  });
+
+  it('the first yahrzeit is a year later, never the day itself', () => {
+    const recent = ev({ type: 'yahrzeit', hDay: 12, hMonth: months.CHESHVAN, hYear: 5787 });
+    expect(ymd(nextOccurrence(recent, today))).toEqual([12, months.CHESHVAN, 5788]);
   });
 });
 
@@ -111,15 +139,68 @@ describe('labels', () => {
     expect(yearsLabel(anniv)).toBe('שנה 38');
   });
 
+  it('yahrzeit and aliyah: headline and "שנה N"', () => {
+    const [yz] = upcoming([ev({ type: 'yahrzeit', title: 'סבא', hYear: 5784 })], today);
+    expect(headline(yz.event)).toBe('האזכרה של סבא');
+    expect(yearsLabel(yz)).toBe('שנה 3');
+    const [al] = upcoming([ev({ type: 'aliyah', title: 'סבתא', hYear: 5710 })], today);
+    expect(headline(al.event)).toBe('יום העלייה של סבתא');
+    expect(yearsLabel(al)).toBe('שנה 77');
+  });
+
+  it('"אחר" shows years only when asked', () => {
+    const [plain] = upcoming([ev({ type: 'other', title: 'פתיחת העסק', hYear: 5777 })], today);
+    expect(headline(plain.event)).toBe('פתיחת העסק');
+    expect(yearsLabel(plain)).toBeNull();
+    const [withYears] = upcoming([ev({ type: 'other', title: 'פתיחת העסק', hYear: 5777, showYears: true })], today);
+    expect(yearsLabel(withYears)).toBe('שנה 10');
+  });
+
+  it('the preview line on the add screen', () => {
+    expect(previewLine(ev({ title: 'נועה', hYear: 5778 }), today)).toBe('יופיע: יום ההולדת של נועה · 9');
+    expect(previewLine(ev({ type: 'yahrzeit', title: 'סבא', hYear: 5784 }), today)).toBe('יופיע: האזכרה של סבא · שנה 3');
+    expect(previewLine(ev({ type: 'other', title: 'פתיחת העסק', hYear: 5777 }), today)).toBe('יופיע: פתיחת העסק');
+    // Born this year: no age yet.
+    expect(previewLine(ev({ title: 'תינוק', hYear: 5787 }), today)).toBe('יופיע: יום ההולדת של תינוק');
+  });
+
+  it('the type sheet lists five types, each with a hint', () => {
+    expect(EVENT_TYPES.map((t) => t.label)).toEqual(['יום הולדת', 'נישואין', 'אזכרה', 'עלייה לארץ', 'אחר']);
+    expect(EVENT_TYPES.every((t) => t.hint.length > 0)).toBe(true);
+  });
+
   it('names the original date without gender', () => {
     expect(originalDateLabel('birthday')).toBe('תאריך לידה');
     expect(originalDateLabel('anniversary')).toBe('תאריך החתונה');
+    expect(originalDateLabel('yahrzeit')).toBe('תאריך הפטירה');
+    expect(originalDateLabel('aliyah')).toBe('תאריך העלייה');
     expect(originalDateLabel('other')).toBe('התאריך');
   });
 
   it('formats a short Hebrew date with geresh and gershayim', () => {
     expect(shortHebrewDate(new HDate(25, months.CHESHVAN, 5787))).toBe('כ״ה חשוון');
     expect(shortHebrewDate(new HDate(3, months.KISLEV, 5787))).toBe('ג׳ כסלו');
+  });
+});
+
+describe('bar and bat mitzvah', () => {
+  const ymd = (hd: HDate) => [hd.getDate(), hd.getMonth(), hd.getFullYear()];
+
+  it('bar mitzvah on the 13th Hebrew birthday, bat mitzvah on the 12th', () => {
+    const birth = { hDay: 2, hMonth: months.SHVAT, hYear: 5778 };
+    expect(ymd(mitzvahDate(birth, 'bar'))).toEqual([2, months.SHVAT, 5791]);
+    expect(ymd(mitzvahDate(birth, 'bat'))).toEqual([2, months.SHVAT, 5790]);
+  });
+
+  it('born in Adar of a regular year: Adar II when the year is a leap year', () => {
+    // 5790 is a leap year.
+    expect(HDate.isLeapYear(5790)).toBe(true);
+    expect(ymd(mitzvahDate({ hDay: 10, hMonth: months.ADAR_I, hYear: 5778 }, 'bat'))).toEqual([10, months.ADAR_II, 5790]);
+  });
+
+  it('titles', () => {
+    expect(mitzvahTitle('דוד', 'bar')).toBe('בר מצווה של דוד');
+    expect(mitzvahTitle('נועה', 'bat')).toBe('בת מצווה של נועה');
   });
 });
 
