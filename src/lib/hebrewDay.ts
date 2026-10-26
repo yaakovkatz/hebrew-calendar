@@ -34,6 +34,15 @@ export function zmanimFor(instant: Date, city: City): Zmanim {
  * The Hebrew date at `instant` in `city`.
  * hebcal's HDate flips at midnight; the app flips at sunset (PLAN.md).
  */
+/**
+ * The date a new item starts on. An event (birthday…) follows the Hebrew day, which flips at
+ * sunset. A reminder's time is read on its date's daytime civil day, so after sunset it starts
+ * on today's civil date: "19:10" then means tonight, not tomorrow evening.
+ */
+export function defaultItemDate(kind: 'event' | 'reminder', instant: Date, city: City): HDate {
+  return kind === 'reminder' ? new HDate(civilNoon(instant, city.tzid)) : hebrewDateAt(instant, city);
+}
+
 export function hebrewDateAt(instant: Date, city: City): HDate {
   const hd = new HDate(civilNoon(instant, city.tzid));
   const sunset = zmanimFor(instant, city).sunset();

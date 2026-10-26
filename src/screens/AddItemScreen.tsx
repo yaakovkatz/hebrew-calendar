@@ -32,7 +32,7 @@ import {
   type MitzvahKind,
   type ReminderTime,
 } from '@/lib/events';
-import { hebrewDateAt } from '@/lib/hebrewDay';
+import { defaultItemDate, hebrewDateAt } from '@/lib/hebrewDay';
 import { yearLabel } from '@/lib/month';
 import {
   ALERT_MORNING,
@@ -98,6 +98,10 @@ type Sheet = null | 'type' | 'hDay' | 'hMonth' | 'hYear' | 'gDay' | 'gMonth' | '
  * Fix round 1, items 1, 3, 4 (approved mockups 1א, 1ב, 1ג, 2): one add/edit screen for events and reminders.
  * The two kinds stay in their own tables; only this screen and the list are shared.
  */
+function dateParts(d: HDate) {
+  return { day: d.getDate(), month: d.getMonth(), year: d.getFullYear() };
+}
+
 export function AddItemScreen({ onClose, initial, defaultKind = 'event' }: Props) {
   const palette = usePalette();
   const { city, il } = useSettings();
@@ -117,7 +121,7 @@ export function AddItemScreen({ onClose, initial, defaultKind = 'event' }: Props
     const src = initEvent ?? initRem;
     return src
       ? { day: src.hDay, month: src.hMonth, year: src.hYear }
-      : { day: today.getDate(), month: today.getMonth(), year: today.getFullYear() };
+      : dateParts(defaultItemDate(initial?.kind ?? defaultKind, now, city));
   });
 
   // Event fields. A Gregorian entry reopens in Gregorian mode.
@@ -343,6 +347,11 @@ export function AddItemScreen({ onClose, initial, defaultKind = 'event' }: Props
               <Pressable
                 key={k}
                 onPress={() => {
+                  // An untouched default date follows the kind (they differ after sunset).
+                  const from = dateParts(defaultItemDate(kind, now, city));
+                  if (!editing && h.day === from.day && h.month === from.month && h.year === from.year) {
+                    setH(dateParts(defaultItemDate(k, now, city)));
+                  }
                   setKind(k);
                   setError(null);
                   setTimeError(false);

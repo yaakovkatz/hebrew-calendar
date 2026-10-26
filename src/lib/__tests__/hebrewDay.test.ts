@@ -2,6 +2,7 @@ import { HDate, HebrewCalendar, months } from '@hebcal/core';
 import { CITIES } from '../cities';
 import {
   civilDateIn,
+  defaultItemDate,
   formatHebrewDay,
   formatTime,
   hebrewDateAt,
@@ -84,5 +85,26 @@ describe('birthdays (library rules we rely on)', () => {
     const hd = HebrewCalendar.getBirthdayOrAnniversary(shortYear, born)!;
     expect(hd.getMonth()).toBe(months.KISLEV);
     expect(hd.getDate()).toBe(1);
+  });
+});
+
+describe('defaultItemDate', () => {
+  const jerusalem = CITIES[0];
+  // Monday 26.10.2026 at 19:06 in Israel (16:06 UTC), after sunset: the Hebrew day is already ט״ז.
+  const evening = new Date('2026-10-26T16:06:00Z');
+  const morning = new Date('2026-10-26T07:00:00Z');
+
+  it('starts an event on the Hebrew day, which flipped at sunset', () => {
+    expect(defaultItemDate('event', evening, jerusalem).getDate()).toBe(16);
+  });
+
+  it('starts a reminder on the civil date of today, so an evening time means tonight', () => {
+    const d = defaultItemDate('reminder', evening, jerusalem);
+    expect(d.getDate()).toBe(15);
+    expect(d.greg().getDate()).toBe(26);
+  });
+
+  it('is the same day for both before sunset', () => {
+    expect(defaultItemDate('reminder', morning, jerusalem).abs()).toBe(defaultItemDate('event', morning, jerusalem).abs());
   });
 });
