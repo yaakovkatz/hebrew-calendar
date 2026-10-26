@@ -145,6 +145,21 @@ describe('sortedReminders', () => {
   });
 });
 
+describe('reminders after sunset', () => {
+  // Monday 26 Oct 2026, 20:02 in Jerusalem (winter time, UTC+2): after sunset the Hebrew day is ט״ז.
+  const clock = { now: new Date('2026-10-26T18:02:00Z'), tzid: 'Asia/Jerusalem' };
+  const flipped = new HDate(16, months.CHESHVAN, 5787);
+  it('a reminder at 20:04 tonight is today and upcoming', () => {
+    const [item] = sortedReminders([rem({ id: 1, title: 'בדיקה', hDay: 15, time: '20:04' })], flipped, clock);
+    expect(item.past).toBe(false);
+    expect(item.daysUntil).toBe(0);
+  });
+  it('one at 20:00 tonight is past', () => {
+    const [item] = sortedReminders([rem({ id: 1, title: 'בדיקה', hDay: 15, time: '20:00' })], flipped, clock);
+    expect(item.past).toBe(true);
+  });
+});
+
 describe('reminderMomentPassed', () => {
   const day = new HDate(12, months.CHESHVAN, 5787); // Friday 23 Oct 2026
   // Still summer time in Israel (UTC+3) on 23 Oct 2026.

@@ -154,6 +154,14 @@ describe('family events', () => {
 });
 
 describe('reminders', () => {
+  it('after sunset, a reminder for tonight is still scheduled', () => {
+    // Monday 26 Oct 2026, 20:02 in Jerusalem (UTC+2): the Hebrew day is already ט״ז.
+    const now = new Date('2026-10-26T18:02:00Z');
+    const tonight = rem({ hDay: 15, time: '20:04', alert: before(0) });
+    const [n] = only(plan({ now, reminders: [tonight] }), 'reminder');
+    expect(local(n.at)).toBe('2026-10-26 20:04');
+  });
+
   it('60 minutes before fires an hour before the time', () => {
     const [n] = only(plan({ reminders: [rem({})] }), 'reminder');
     expect(local(n.at)).toBe('2026-10-29 09:30'); // 18 Cheshvan = Thursday 29 Oct

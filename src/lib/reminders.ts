@@ -77,11 +77,20 @@ export function reminderMomentPassed(date: HDate, time: string | null, clock: Re
   return `${day} ${time ?? '24:00'}` < wallClock(clock.now, clock.tzid);
 }
 
+/** The Hebrew date of the civil day in `tzid`: a reminder's day, which does not flip at sunset. */
+function civilHebrewDay(clock: ReminderClock): HDate {
+  const [y, m, d] = wallClock(clock.now, clock.tzid).slice(0, 10).split('-').map(Number);
+  return new HDate(new Date(y, m - 1, d, 12));
+}
+
 /**
  * Without `clock`, past is by day only. With it, a reminder today whose time has gone by is past too:
  * a one-time reminder becomes "עבר", a yearly one moves on to next year.
+ * With `clock`, "today" is the civil day (a reminder's time is read on its date's daytime civil day),
+ * so after sunset a reminder at 20:04 tonight is still today, not yesterday.
  */
-export function reminderItem(rem: Reminder, today: HDate, clock?: ReminderClock): ReminderItem {
+export function reminderItem(rem: Reminder, hebrewToday: HDate, clock?: ReminderClock): ReminderItem {
+  const today = clock ? civilHebrewDay(clock) : hebrewToday;
   let next = nextReminderDate(rem, today);
   if (next && clock && next.abs() === today.abs() && reminderMomentPassed(next, rem.time, clock)) {
     next = rem.repeat === 'once' ? null : nextReminderDate(rem, today.next());

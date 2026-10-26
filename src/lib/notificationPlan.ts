@@ -1,7 +1,7 @@
 import { CandleLightingEvent, HavdalahEvent, HDate, HebrewCalendar, Location, Zmanim, flags } from '@hebcal/core';
 import { City, toLocation } from './cities';
 import { headline, nextOccurrence, shortHebrewDate, yearsLabel, type FamilyEvent } from './events';
-import { formatTime, hebrewDateAt, parshaOfWeek } from './hebrewDay';
+import { civilNoon, formatTime, hebrewDateAt, parshaOfWeek } from './hebrewDay';
 import { alertKey, effectiveAlert, hebrewDateWithB, nextReminderDate, type Reminder } from './reminders';
 
 // Pure planning only: no expo imports, so everything here runs in Jest (PLAN.md "התראות").
@@ -251,7 +251,8 @@ export function planNotifications({
 
   const candidates = [
     ...eventCandidates(events, today, city),
-    ...reminderCandidates(reminders, today, city),
+    // A reminder's day is the civil day (it doesn't flip at sunset), so tonight's reminders count.
+    ...reminderCandidates(reminders, new HDate(civilNoon(now, city.tzid)), city),
     ...shabbatCandidates(periods, city),
   ].filter((n) => valid(n.at));
 
