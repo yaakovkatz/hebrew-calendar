@@ -45,62 +45,65 @@ export function CalendarScreen({ onAddEvent, onOpenEvent, onOpenReminder }: Prop
     : null;
 
   return (
-    <ScrollView style={{ backgroundColor: palette.paper }} contentContainerStyle={{ paddingTop: insets.top + 8, paddingBottom: 24 }}>
-      <View style={[styles.toggle, { borderColor: palette.line }]}>
-        {(['month', 'day'] as const).map((m) => {
-          const on = mode === m;
-          return (
-            <Pressable
-              key={m}
-              accessibilityRole="button"
-              accessibilityState={{ selected: on }}
-              onPress={() => setMode(m)}
-              style={[styles.toggleItem, on && { backgroundColor: palette.ink }]}
-            >
-              <Text style={[styles.toggleText, { color: on ? palette.paper : palette.muted }]}>{m === 'month' ? 'חודש' : 'יום'}</Text>
-            </Pressable>
-          );
-        })}
-      </View>
+    <View style={{ flex: 1, backgroundColor: palette.paper, paddingTop: insets.top }}>
+      {/* The status bar area stays clear: scrolled content stops below it (phone test 27.10.2026). */}
+      <ScrollView contentContainerStyle={{ paddingTop: 8, paddingBottom: 24 }}>
+        <View style={[styles.toggle, { borderColor: palette.line }]}>
+          {(['month', 'day'] as const).map((m) => {
+            const on = mode === m;
+            return (
+              <Pressable
+                key={m}
+                accessibilityRole="button"
+                accessibilityState={{ selected: on }}
+                onPress={() => setMode(m)}
+                style={[styles.toggleItem, on && { backgroundColor: palette.ink }]}
+              >
+                <Text style={[styles.toggleText, { color: on ? palette.paper : palette.muted }]}>{m === 'month' ? 'חודש' : 'יום'}</Text>
+              </Pressable>
+            );
+          })}
+        </View>
 
-      {mode === 'month' ? (
-        <>
-          <MonthView
-            year={shown.year}
-            month={shown.month}
-            today={today}
-            il={IL}
-            onShift={(delta) => setShown((s) => shiftMonth(s.year, s.month, delta))}
-            candles={onCurrentMonth ? fmt(times.candles) : undefined}
-            havdalah={onCurrentMonth ? fmt(times.havdalah) : undefined}
-            nextEvent={nextEvent}
-            onOpenNext={first ? () => onOpenEvent(first.event.id) : undefined}
-            events={events}
-            reminders={reminders}
-            showEvents={showEventsInCalendar}
-            onAddEvent={onAddEvent}
-            onSelectDay={(hd, holidays) => setSelected({ hd, holidays })}
-          />
-          <DaySheet
-            day={selected?.hd ?? null}
-            holidays={selected?.holidays ?? []}
-            events={events}
-            reminders={reminders}
-            city={city}
-            onClose={() => setSelected(null)}
-            onOpenEvent={onOpenEvent}
-            onOpenReminder={onOpenReminder}
-          />
-          {!onCurrentMonth ? (
-            <Pressable onPress={() => setShown({ year: today.getFullYear(), month: today.getMonth() })} style={styles.backToday}>
-              <Text style={[styles.backTodayText, { color: palette.red }]}>חזרה להיום</Text>
-            </Pressable>
-          ) : null}
-        </>
-      ) : (
-        <DayView now={now} city={city} il={IL} />
-      )}
-    </ScrollView>
+        {mode === 'month' ? (
+          <>
+            <MonthView
+              year={shown.year}
+              month={shown.month}
+              today={today}
+              il={IL}
+              onShift={(delta) => setShown((s) => shiftMonth(s.year, s.month, delta))}
+              candles={onCurrentMonth ? fmt(times.candles) : undefined}
+              havdalah={onCurrentMonth ? fmt(times.havdalah) : undefined}
+              nextEvent={nextEvent}
+              onOpenNext={first ? () => onOpenEvent(first.event.id) : undefined}
+              events={events}
+              reminders={reminders}
+              showEvents={showEventsInCalendar}
+              onAddEvent={onAddEvent}
+              onSelectDay={(hd, holidays) => setSelected({ hd, holidays })}
+            />
+            <DaySheet
+              day={selected?.hd ?? null}
+              holidays={selected?.holidays ?? []}
+              events={events}
+              reminders={reminders}
+              city={city}
+              onClose={() => setSelected(null)}
+              onOpenEvent={onOpenEvent}
+              onOpenReminder={onOpenReminder}
+            />
+            {!onCurrentMonth ? (
+              <Pressable onPress={() => setShown({ year: today.getFullYear(), month: today.getMonth() })} style={styles.backToday}>
+                <Text style={[styles.backTodayText, { color: palette.red }]}>חזרה להיום</Text>
+              </Pressable>
+            ) : null}
+          </>
+        ) : (
+          <DayView now={now} city={city} il={IL} />
+        )}
+      </ScrollView>
+    </View>
   );
 }
 

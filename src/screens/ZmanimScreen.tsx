@@ -67,8 +67,9 @@ export function ZmanimScreen() {
   ).current;
 
   return (
-    <View style={{ flex: 1 }} {...pan.panHandlers}>
-      <ScrollView contentContainerStyle={[styles.wrap, { paddingTop: insets.top + 28 }]}>
+    <View style={{ flex: 1, paddingTop: insets.top }} {...pan.panHandlers}>
+      {/* The status bar area stays clear: scrolled content stops below it (phone test 27.10.2026). */}
+      <ScrollView contentContainerStyle={[styles.wrap, { paddingTop: 28 }]}>
         <View style={styles.header}>
           <Pressable onPress={() => shift(-1)} accessibilityRole="button" accessibilityLabel="היום הקודם" hitSlop={16} style={styles.arrow}>
             <Text style={[styles.arrowText, { color: palette.muted }]}>‹</Text>

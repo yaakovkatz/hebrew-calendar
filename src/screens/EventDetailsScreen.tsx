@@ -65,7 +65,7 @@ export function EventDetailsScreen({ eventId, onBack, onEdit }: Props) {
 
       <ScrollView contentContainerStyle={styles.body}>
         <Text style={[styles.small, { color: palette.muted }]}>{TYPE_LABEL[event.type]}</Text>
-        <Text style={[styles.title, { color: palette.ink }]}>{headline(event)}</Text>
+        <Text style={[styles.title, { color: palette.ink }]} numberOfLines={2} adjustsFontSizeToFit minimumFontScale={0.6}>{headline(event)}</Text>
         <Text style={[styles.when, { color: palette.sun }]}>{whenLabel(item.daysUntil)}</Text>
         {yearsLabel(item) ? <Text style={[styles.small, { color: palette.muted }]}>{yearsLabel(item)}</Text> : null}
 

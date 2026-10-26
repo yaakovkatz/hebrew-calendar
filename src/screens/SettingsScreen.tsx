@@ -46,8 +46,9 @@ export function SettingsScreen({ onOpenAbout, onOpenPrint, onOpenBatteryHelp }: 
   };
 
   return (
-    <View style={{ flex: 1, backgroundColor: palette.paper }}>
-      <ScrollView contentContainerStyle={[styles.body, { paddingTop: insets.top + 30 }]}>
+    <View style={{ flex: 1, backgroundColor: palette.paper, paddingTop: insets.top }}>
+      {/* The status bar area stays clear: scrolled content stops below it (phone test 27.10.2026). */}
+      <ScrollView contentContainerStyle={[styles.body, { paddingTop: 30 }]}>
         <Text style={[styles.big, { color: palette.ink }]}>הגדרות</Text>
         <View style={[styles.rule, { backgroundColor: palette.line }]} />
 

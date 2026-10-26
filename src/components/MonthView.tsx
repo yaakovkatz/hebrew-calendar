@@ -126,7 +126,7 @@ export function MonthView({
         >
           <View>
             <Text style={[styles.nextLabel, { color: palette.muted }]}>הבא בתור</Text>
-            <Text style={[styles.nextTitle, { color: nextEvent ? palette.ink : palette.red }]}>
+            <Text style={[styles.nextTitle, { color: nextEvent ? palette.ink : palette.red }]} numberOfLines={2}>
               {nextEvent ? nextEvent.title : 'הוספת יום הולדת ראשון ›'}
             </Text>
           </View>

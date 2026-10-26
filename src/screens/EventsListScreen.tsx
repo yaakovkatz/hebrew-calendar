@@ -49,14 +49,16 @@ export function EventsListScreen({ onAdd, onOpenEvent, onOpenReminder }: Props) 
   const open = (item: AgendaItem) => (item.kind === 'event' ? onOpenEvent(item.id) : onOpenReminder(item.id));
 
   return (
-    <View style={{ flex: 1 }}>
-      <ScrollView contentContainerStyle={[styles.wrap, { paddingTop: insets.top + 36 }]}>
+    <View style={{ flex: 1, paddingTop: insets.top }}>
+      {/* The status bar area stays clear: scrolled content stops below it (phone test 27.10.2026). */}
+      <ScrollView contentContainerStyle={[styles.wrap, { paddingTop: 36 }]}>
         {!loaded ? null : list.length ? (
           <>
             {next ? (
               <Pressable onPress={() => open(next)} accessibilityRole="button">
                 <Text style={[styles.small, { color: palette.muted }]}>הבא בתור</Text>
-                <Text style={[styles.big, { color: palette.ink }]}>{next.title}</Text>
+                {/* A long name shrinks to fit two lines (phone test 27.10.2026). */}
+                <Text style={[styles.big, { color: palette.ink }]} numberOfLines={2} adjustsFontSizeToFit minimumFontScale={0.6}>{next.title}</Text>
                 <Text style={[styles.when, { color: palette.sun }]}>{agendaWhen(next)}</Text>
                 <Text style={[styles.small, { color: palette.muted }]}>{agendaDateLine(next)}</Text>
               </Pressable>

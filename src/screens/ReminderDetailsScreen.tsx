@@ -52,7 +52,7 @@ export function ReminderDetailsScreen({ reminderId, onBack, onEdit }: Props) {
 
       <ScrollView contentContainerStyle={styles.body}>
         <Text style={[styles.small, { color: palette.muted }]}>תזכורת</Text>
-        <Text style={[styles.title, { color: palette.ink }]}>{reminder.title}</Text>
+        <Text style={[styles.title, { color: palette.ink }]} numberOfLines={2} adjustsFontSizeToFit minimumFontScale={0.6}>{reminder.title}</Text>
         <Text style={[styles.when, { color: item.past ? palette.muted : palette.sun }]}>{reminderWhen(item)}</Text>
 
         <View style={[styles.divider, { backgroundColor: palette.line }]} />
