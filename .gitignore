@@ -40,3 +40,7 @@ yarn-error.*
 /ios
 /android
 .claude/worktrees/
+
+# Test builds
+*.apk
+*.aab
