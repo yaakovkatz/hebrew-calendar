@@ -53,6 +53,30 @@ describe('buildCalendarHtml', () => {
     expect(pages(build({ hebrewYear: 5786 }))).toBe(13);
   });
 
+  it('year scope is the default and keeps the cover', () => {
+    const html = build({ scope: { kind: 'year' } });
+    expect(pages(html)).toBe(14);
+    expect(html).toContain('class="page cover"');
+    expect(html).toBe(build());
+  });
+
+  it('month scope prints exactly one page for that month, without a cover', () => {
+    const html = build({ scope: { kind: 'month', month: months.ELUL } });
+    expect(pages(html)).toBe(1);
+    expect(html).not.toContain('class="page cover"');
+    expect(html).toContain(`data-month="${months.ELUL}"`);
+    expect(html).toContain('<h1>אלול</h1>');
+    expect(html.match(/<h1>/g)).toHaveLength(1);
+  });
+
+  it('month scope handles Adar II in a leap year and keeps family events', () => {
+    const adar2 = build({ scope: { kind: 'month', month: months.ADAR_II } });
+    expect(pages(adar2)).toBe(1);
+    expect(adar2).toContain(`data-month="${months.ADAR_II}"`);
+    const cheshvan = build({ scope: { kind: 'month', month: months.CHESHVAN } });
+    expect(cell(cheshvan, new HDate(25, months.CHESHVAN, 5787))).toContain('יום ההולדת של אמא');
+  });
+
   it('starts with Tishrei and ends with Elul', () => {
     const list = monthsOfYear(5787);
     expect(list[0]).toBe(months.TISHREI);

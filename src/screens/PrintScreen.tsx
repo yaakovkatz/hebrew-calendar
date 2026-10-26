@@ -6,9 +6,10 @@ import * as Sharing from 'expo-sharing';
 import { OptionSheet } from '@/components/OptionSheet';
 import { useEvents } from '@/data/useEvents';
 import { useSettings } from '@/data/useSettings';
+import { clampHebrew, hebrewMonthOptions } from '@/lib/datePicking';
 import { hebrewDateAt } from '@/lib/hebrewDay';
-import { yearLabel } from '@/lib/month';
-import { A4_POINTS, buildCalendarHtml, PRINT_ERROR, type PrintInclude } from '@/lib/printCalendar';
+import { hebrewMonthName, yearLabel } from '@/lib/month';
+import { A4_POINTS, buildCalendarHtml, PRINT_ERROR, type PrintInclude, type PrintScope } from '@/lib/printCalendar';
 import { loadPrintFonts } from '@/lib/printFonts';
 import { fonts, usePalette } from '@/theme/tokens';
 
@@ -17,6 +18,13 @@ const CHECKS: { key: keyof PrintInclude; label: string }[] = [
   { key: 'parsha', label: 'פרשת השבוע' },
   { key: 'family', label: 'ימי המשפחה' },
   { key: 'candles', label: 'הדלקת נרות' },
+];
+
+type ScopeKind = PrintScope['kind'];
+
+const SCOPES: { kind: ScopeKind; label: string }[] = [
+  { kind: 'year', label: 'כל השנה' },
+  { kind: 'month', label: 'חודש אחד' },
 ];
 
 const TITLE_PREFIX = 'משפחת ';
@@ -34,7 +42,8 @@ export function PrintScreen({ onBack }: { onBack: () => void }) {
   const settings = useSettings();
   const { events } = useEvents();
 
-  const currentYear = useMemo(() => hebrewDateAt(new Date(), settings.city).getFullYear(), [settings.city]);
+  const today = useMemo(() => hebrewDateAt(new Date(), settings.city), [settings.city]);
+  const currentYear = today.getFullYear();
   const yearOptions = useMemo(
     () =>
       [currentYear, currentYear + 1, currentYear + 2].map((y) => ({
@@ -47,7 +56,9 @@ export function PrintScreen({ onBack }: { onBack: () => void }) {
   const [year, setYear] = useState(currentYear);
   const [title, setTitle] = useState(TITLE_PREFIX);
   const [include, setInclude] = useState<PrintInclude>({ holidays: true, parsha: true, family: true, candles: false });
-  const [picking, setPicking] = useState(false);
+  const [scopeKind, setScopeKind] = useState<ScopeKind>('year');
+  const [month, setMonth] = useState(today.getMonth());
+  const [picking, setPicking] = useState<'year' | 'month' | null>(null);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [fileUri, setFileUri] = useState<string | null>(null);
@@ -59,12 +70,17 @@ export function PrintScreen({ onBack }: { onBack: () => void }) {
     setError(null);
   };
 
+  // Adar II doesn't exist in a regular year: it becomes Adar.
+  const printMonth = clampHebrew(1, month, year).month;
+  const monthOptions = useMemo(() => hebrewMonthOptions(year), [year]);
+
   const create = async () => {
     setBusy(true);
     setError(null);
     try {
       const html = buildCalendarHtml({
         hebrewYear: year,
+        scope: scopeKind === 'month' ? { kind: 'month', month: printMonth } : { kind: 'year' },
         title: printedTitle(title),
         il: settings.il,
         city: settings.city,
@@ -127,8 +143,29 @@ export function PrintScreen({ onBack }: { onBack: () => void }) {
         <Text style={[styles.big, { color: palette.ink }]}>לוח קיר</Text>
         <Text style={[styles.sub, { color: palette.muted }]}>להדפסה או לתלייה במטבח</Text>
 
+        <Text style={[styles.label, { color: palette.muted }]}>מה להדפיס</Text>
+        <View style={[styles.segment, { borderColor: palette.line }]} accessibilityRole="radiogroup">
+          {SCOPES.map(({ kind, label }) => {
+            const on = scopeKind === kind;
+            return (
+              <Pressable
+                key={kind}
+                onPress={() => change(setScopeKind)(kind)}
+                accessibilityRole="radio"
+                accessibilityState={{ selected: on }}
+                style={[styles.segmentItem, on && { backgroundColor: palette.ink }]}
+              >
+                <Text style={[styles.segmentText, { color: on ? palette.paper : palette.muted }]}>{label}</Text>
+              </Pressable>
+            );
+          })}
+        </View>
+        {scopeKind === 'month' ? (
+          <Row label="חודש" value={`${hebrewMonthName(printMonth, year)} ${yearLabel(year)} ›`} onPress={() => setPicking('month')} last />
+        ) : null}
+
         <Text style={[styles.label, { color: palette.muted }]}>פרטים</Text>
-        <Row label="שנה" value={`${yearLabel(year)} ›`} onPress={() => setPicking(true)} />
+        <Row label="שנה" value={`${yearLabel(year)} ›`} onPress={() => setPicking('year')} />
         {/* Not via Row: Row is re-created each render and would remount the input. */}
         <View style={[styles.row, { borderBottomColor: palette.lineSoft }]}>
           <Text style={[styles.rowText, { color: palette.ink }]}>כותרת</Text>
@@ -184,18 +221,28 @@ export function PrintScreen({ onBack }: { onBack: () => void }) {
           accessibilityState={{ busy }}
           style={[styles.button, { backgroundColor: palette.ink }, busy && styles.dim]}
         >
-          {busy ? <ActivityIndicator color={palette.paper} /> : <Text style={[styles.buttonText, { color: palette.paper }]}>יצירת PDF</Text>}
+          {busy ? <ActivityIndicator color={palette.paper} /> : <Text style={[styles.buttonText, { color: palette.paper }]}>{scopeKind === 'month' ? 'יצירת PDF · עמוד אחד' : 'יצירת PDF'}</Text>}
         </Pressable>
       </View>
 
-      {picking ? (
+      {picking === 'year' ? (
         <OptionSheet
           visible
           title="שנה"
           options={yearOptions}
           selected={year}
           onSelect={change(setYear)}
-          onClose={() => setPicking(false)}
+          onClose={() => setPicking(null)}
+        />
+      ) : null}
+      {picking === 'month' ? (
+        <OptionSheet
+          visible
+          title="חודש"
+          options={monthOptions}
+          selected={printMonth}
+          onSelect={change(setMonth)}
+          onClose={() => setPicking(null)}
         />
       ) : null}
     </View>
@@ -222,6 +269,9 @@ const styles = StyleSheet.create({
   rowText: { fontFamily: fonts.sans, fontSize: 16 },
   value: { fontFamily: fonts.sans, fontSize: 14 },
   input: { fontFamily: fonts.sans, fontSize: 14, minWidth: 140, paddingVertical: 4 },
+  segment: { flexDirection: 'row', borderWidth: 1, borderRadius: 14, padding: 2, marginTop: 6, marginBottom: 4 },
+  segmentItem: { flex: 1, alignItems: 'center', justifyContent: 'center', paddingVertical: 8, borderRadius: 12 },
+  segmentText: { fontFamily: fonts.sans, fontSize: 14 },
   check: { fontFamily: fonts.sans, fontSize: 16 },
   error: { fontFamily: fonts.sans, fontSize: 14, textAlign: 'center', marginTop: 20 },
   actions: { flexDirection: 'row', gap: 12, marginTop: 24 },

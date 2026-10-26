@@ -77,6 +77,7 @@
           "widgets": [
             {
               "name": "HebrewDate",
+              "previewImage": "./assets/widgets/HebrewDate.png",
               "label": "תאריך עברי",
               "description": "התאריך העברי של היום, מתחלף בשקיעה",
               "minWidth": "110dp",
@@ -88,6 +89,7 @@
             },
             {
               "name": "NextUp",
+              "previewImage": "./assets/widgets/NextUp.png",
               "label": "הבא בתור",
               "description": "האירוע המשפחתי או התזכורת הקרובים",
               "minWidth": "110dp",
@@ -99,6 +101,7 @@
             },
             {
               "name": "ZmanimShabbat",
+              "previewImage": "./assets/widgets/ZmanimShabbat.png",
               "label": "זמנים ושבת",
               "description": "הזמן הבא, הדלקת נרות וצאת השבת",
               "minWidth": "250dp",
@@ -110,6 +113,7 @@
             },
             {
               "name": "Month",
+              "previewImage": "./assets/widgets/Month.png",
               "label": "החודש",
               "description": "החודש העברי, עם היום ושבתות",
               "minWidth": "250dp",

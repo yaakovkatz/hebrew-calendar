@@ -10,8 +10,13 @@ export type PrintInclude = { holidays: boolean; parsha: boolean; family: boolean
 /** Base64 TTF data; when missing the page falls back to system fonts. */
 export type PrintFonts = { serif: string; sans: string };
 
+/** The whole year (cover + every month) or a single month page, no cover. */
+export type PrintScope = { kind: 'year' } | { kind: 'month'; month: number };
+
 export type CalendarOptions = {
   hebrewYear: number;
+  /** Default: the whole year. */
+  scope?: PrintScope;
   /** 'משפחת כהן'; printed on the cover and at the bottom of each page. May be empty. */
   title: string;
   il: boolean;
@@ -168,7 +173,10 @@ td.out{opacity:.3;}
 footer{text-align:center;font-family:${SANS};font-size:10pt;letter-spacing:1px;color:${c.muted};margin-top:4mm;}`;
 }
 
-/** The whole printable wall calendar: a cover and one A4 page per Hebrew month. Pure. */
+/**
+ * The printable wall calendar: a cover and one A4 page per Hebrew month,
+ * or (scope month) exactly one A4 page for that month. Pure.
+ */
 export function buildCalendarHtml(opts: CalendarOptions): string {
   const { hebrewYear, il, city, include, events } = opts;
   const title = escapeHtml(opts.title.trim());
@@ -177,7 +185,10 @@ export function buildCalendarHtml(opts: CalendarOptions): string {
   const candles = include.candles ? candlesByDay(hebrewYear, city, il) : new Map<number, string>();
   const gregStart = first.greg().getFullYear();
 
-  const cover = `<section class="page cover">
+  const scope: PrintScope = opts.scope ?? { kind: 'year' };
+  const monthList = scope.kind === 'month' ? [scope.month] : monthsOfYear(hebrewYear);
+
+  const cover = scope.kind === 'month' ? '' : `<section class="page cover">
 <div class="brand">לוח יהודי</div>
 <div class="big-year">${yearLabel(hebrewYear)}</div>
 <div class="greg-years">${gregStart}–${gregStart + 1}</div>
@@ -186,7 +197,7 @@ ${title ? `<div class="title">${title}</div>` : ''}
 <div class="city">${escapeHtml(city.name)}</div>
 </section>`;
 
-  const pages = monthsOfYear(hebrewYear).map((m) =>
+  const pages = monthList.map((m) =>
     monthPage(buildMonth(hebrewYear, m, first, il), title, include, family, candles),
   );
 
@@ -196,8 +207,7 @@ ${title ? `<div class="title">${title}</div>` : ''}
 <title>לוח יהודי ${yearLabel(hebrewYear)}</title>
 <style>${styles(opts.fonts)}</style></head>
 <body>
-${cover}
-${pages.join('\n')}
+${[cover, ...pages].filter(Boolean).join('\n')}
 </body>
 </html>`;
 }
