@@ -1,10 +1,11 @@
 import Constants from 'expo-constants';
 import { Image, Linking, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { FORM_ENDPOINT } from '@/lib/contact';
 import { fonts, usePalette } from '@/theme/tokens';
 
 const REPO_URL = 'https://github.com/yaakovkatz/hebrew-calendar';
-const PRIVACY_URL = 'https://github.com/yaakovkatz/hebrew-calendar/blob/main/docs/privacy.md';
+const PRIVACY_URL = 'https://yaakovkatz.github.io/hebrew-calendar/privacy';
 
 type Props = { onBack: () => void; onOpenLicenses: () => void; onOpenContact: () => void };
 
@@ -18,7 +19,8 @@ export function AboutScreen({ onBack, onOpenLicenses, onOpenContact }: Props) {
     ['קוד פתוח ב-GitHub', () => Linking.openURL(REPO_URL).catch(() => {})],
     ['רישיונות', onOpenLicenses],
     ['מדיניות פרטיות', () => Linking.openURL(PRIVACY_URL).catch(() => {})],
-    ['יצירת קשר', onOpenContact],
+    // Hidden in the first version (decided 27.10.2026) until a form service is set up.
+    ...(FORM_ENDPOINT ? [['יצירת קשר', onOpenContact] as [string, () => void]] : []),
   ];
 
   return (
