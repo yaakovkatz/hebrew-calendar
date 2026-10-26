@@ -1,7 +1,7 @@
 import type { HDate } from '@hebcal/core';
 import { headline, shortHebrewDate, upcoming, whenLabel, yearsLabel, type FamilyEvent } from './events';
 import { WEEKDAYS } from './month';
-import { hebrewDateWithB, PAST_LABEL, sortedReminders, type Reminder } from './reminders';
+import { hebrewDateWithB, PAST_LABEL, sortedReminders, type Reminder, type ReminderClock } from './reminders';
 
 /** One row of the merged "אירועים" list (PLAN.md fix round 1, item 1): the two tables stay apart, only the view is one. */
 export type AgendaItem = {
@@ -14,12 +14,15 @@ export type AgendaItem = {
   time: string | null;
   /** 'יום הולדת 64', 'שנה 3' for events. */
   years: string | null;
-  /** A one-time reminder whose date has passed. */
+  /** A one-time reminder whose moment has passed. */
   past: boolean;
 };
 
-/** Events and reminders by next date, then time (all day first), then title. Past reminders at the end, newest first. */
-export function agenda(events: FamilyEvent[], reminders: Reminder[], today: HDate): AgendaItem[] {
+/**
+ * Events and reminders by next date, then time (all day first), then title. Past reminders at the end, newest first.
+ * With `clock`, a one-time reminder today whose time has gone by is past too, so it is never "הבא בתור".
+ */
+export function agenda(events: FamilyEvent[], reminders: Reminder[], today: HDate, clock?: ReminderClock): AgendaItem[] {
   const items: AgendaItem[] = [
     ...upcoming(events, today).map((u) => ({
       kind: 'event' as const,
@@ -31,7 +34,7 @@ export function agenda(events: FamilyEvent[], reminders: Reminder[], today: HDat
       years: yearsLabel(u),
       past: false,
     })),
-    ...sortedReminders(reminders, today).map((r) => ({
+    ...sortedReminders(reminders, today, clock).map((r) => ({
       kind: 'reminder' as const,
       id: r.reminder.id,
       title: r.reminder.title,

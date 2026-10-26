@@ -19,6 +19,7 @@ import {
   isShabbatOrYomTov,
   nextReminderDate,
   reminderDaysInRange,
+  reminderMomentPassed,
   reminderRowLabel,
   remindersOn,
   reminderWhen,
@@ -127,6 +128,35 @@ describe('sortedReminders', () => {
     expect(list.map((i) => i.reminder.title)).toEqual(['בוקר', 'רופא שיניים', 'אסיפת הורים', 'סבתא', 'עבר אתמול', 'עבר מזמן']);
     expect(list[1].daysUntil).toBe(4);
     expect(list.filter((i) => i.past).length).toBe(2);
+  });
+
+  it('with the clock, a one-time reminder earlier today is past', () => {
+    // Friday 23 Oct 2026, 11:00 in Jerusalem (UTC+3).
+    const clock = { now: new Date('2026-10-23T08:00:00Z'), tzid: 'Asia/Jerusalem' };
+    const list = sortedReminders(
+      [rem({ id: 1, title: 'בבוקר', hDay: 12, time: '10:30' }), rem({ id: 2, title: 'בצהריים', hDay: 12, time: '12:00' })],
+      today,
+      clock,
+    );
+    expect(list.map((i) => [i.reminder.title, i.past])).toEqual([
+      ['בצהריים', false],
+      ['בבוקר', true],
+    ]);
+  });
+});
+
+describe('reminderMomentPassed', () => {
+  const day = new HDate(12, months.CHESHVAN, 5787); // Friday 23 Oct 2026
+  // Still summer time in Israel (UTC+3) on 23 Oct 2026.
+  const at = (iso: string) => ({ now: new Date(iso), tzid: 'Asia/Jerusalem' });
+  it('the time on the day, in the city', () => {
+    expect(reminderMomentPassed(day, '10:30', at('2026-10-23T07:29:00Z'))).toBe(false); // 10:29
+    expect(reminderMomentPassed(day, '10:30', at('2026-10-23T07:30:00Z'))).toBe(false); // 10:30, now
+    expect(reminderMomentPassed(day, '10:30', at('2026-10-23T07:31:00Z'))).toBe(true); // 10:31
+  });
+  it('all day lasts until the end of the day', () => {
+    expect(reminderMomentPassed(day, null, at('2026-10-23T20:59:00Z'))).toBe(false); // 23:59
+    expect(reminderMomentPassed(day, null, at('2026-10-23T21:00:00Z'))).toBe(true); // 00:00 next day
   });
 });
 

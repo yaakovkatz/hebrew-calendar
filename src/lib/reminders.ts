@@ -48,8 +48,44 @@ export function nextReminderDate(rem: Reminder, today: HDate): HDate | null {
   }
 }
 
-export function reminderItem(rem: Reminder, today: HDate): ReminderItem {
-  const next = nextReminderDate(rem, today);
+/** The current moment and the city's time zone, to tell whether a reminder today has passed. */
+export type ReminderClock = { now: Date; tzid: string };
+
+/** 'YYYY-MM-DD HH:MM' on the wall clock in `tzid`; sorts as text. */
+function wallClock(instant: Date, tzid: string): string {
+  const parts = new Intl.DateTimeFormat('en-US', {
+    timeZone: tzid,
+    hourCycle: 'h23',
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+  }).formatToParts(instant);
+  const get = (type: string) => parts.find((p) => p.type === type)?.value ?? '';
+  return `${get('year')}-${get('month')}-${get('day')} ${get('hour')}:${get('minute')}`;
+}
+
+/**
+ * Whether the reminder's moment on `date` is already over: its time on the daytime civil day,
+ * or the end of that day when it has no time.
+ */
+export function reminderMomentPassed(date: HDate, time: string | null, clock: ReminderClock): boolean {
+  const d = date.greg();
+  const day = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+  // '24:00' is after every real time, so an all-day reminder lasts the whole day.
+  return `${day} ${time ?? '24:00'}` < wallClock(clock.now, clock.tzid);
+}
+
+/**
+ * Without `clock`, past is by day only. With it, a reminder today whose time has gone by is past too:
+ * a one-time reminder becomes "עבר", a yearly one moves on to next year.
+ */
+export function reminderItem(rem: Reminder, today: HDate, clock?: ReminderClock): ReminderItem {
+  let next = nextReminderDate(rem, today);
+  if (next && clock && next.abs() === today.abs() && reminderMomentPassed(next, rem.time, clock)) {
+    next = rem.repeat === 'once' ? null : nextReminderDate(rem, today.next());
+  }
   const date = next ?? new HDate(rem.hDay, rem.hMonth, rem.hYear);
   return { reminder: rem, date, daysUntil: date.abs() - today.abs(), past: next === null };
 }
@@ -63,9 +99,9 @@ function timeKey(time: string | null): string {
  * Upcoming first (soonest date, then time, then title).
  * Past one-time reminders stay at the end, most recent first, so they can still be opened and deleted.
  */
-export function sortedReminders(reminders: Reminder[], today: HDate): ReminderItem[] {
+export function sortedReminders(reminders: Reminder[], today: HDate, clock?: ReminderClock): ReminderItem[] {
   return reminders
-    .map((r) => reminderItem(r, today))
+    .map((r) => reminderItem(r, today, clock))
     .sort((a, b) => {
       if (a.past !== b.past) return a.past ? 1 : -1;
       const byDay = a.past ? b.daysUntil - a.daysUntil : a.daysUntil - b.daysUntil;
