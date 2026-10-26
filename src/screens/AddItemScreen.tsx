@@ -454,6 +454,9 @@ export function AddItemScreen({ onClose, initial, defaultKind = 'event' }: Props
                 setTimeText(maskTime(t));
                 setTimeError(false);
               }}
+              // The mask adds ':' by itself; on Android the cursor then stays before it and the next
+              // digit lands in the wrong place ('2010' became '20:01'). Typing always goes at the end.
+              selection={allDay ? undefined : { start: timeText.length, end: timeText.length }}
               onFocus={() => {
                 if (allDay) {
                   setAllDay(false);

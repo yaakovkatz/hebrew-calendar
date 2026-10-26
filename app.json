@@ -7,7 +7,10 @@
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "automatic",
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "infoPlist": {
+        "ExpoLocalization_forcesRTL": true
+      }
     },
     "android": {
       "adaptiveIcon": {
@@ -45,7 +48,13 @@
         }
       ],
       "expo-sqlite",
-      ["./plugins/withSplashBranding", { "light": "./assets/splash-branding-light.png", "dark": "./assets/splash-branding-dark.png" }],
+      [
+        "./plugins/withSplashBranding",
+        {
+          "light": "./assets/splash-branding-light.png",
+          "dark": "./assets/splash-branding-dark.png"
+        }
+      ],
       [
         "expo-splash-screen",
         {
@@ -129,6 +138,14 @@
       ],
       "react-native-notify-kit"
     ],
-    "scheme": "luachyehudi"
+    "scheme": "luachyehudi",
+    "extra": {
+      "supportsRTL": true,
+      "forcesRTL": true,
+      "eas": {
+        "projectId": "62c0e21f-8e8d-4203-8961-7149aca5ef7d"
+      }
+    },
+    "owner": "yaakovkatz"
   }
 }
