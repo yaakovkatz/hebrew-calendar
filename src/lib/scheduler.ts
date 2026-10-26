@@ -4,10 +4,12 @@ import { LuachNotify } from '../../modules/luach-notify';
 import type { City } from './cities';
 import { clearCountdowns, syncCountdowns } from './countdown';
 import type { FamilyEvent } from './events';
-import { planNotifications, type PlannedNotification } from './notificationPlan';
+import type { PlannedNotification } from './notificationPlan';
+import { planAll } from './planAll';
 import type { Reminder } from './reminders';
+import type { ZmanAlert } from './zmanimAlerts';
 
-// Side effects only; what to schedule is decided in notificationPlan.ts (pure, tested).
+// Side effects only; what to schedule is decided in planAll.ts (pure, tested).
 
 export const REMINDERS_CHANNEL = 'reminders';
 
@@ -16,6 +18,8 @@ export type ScheduleInput = {
   reminders: Reminder[];
   city: City;
   il: boolean;
+  /** Daily alerts before a zman (zmanimAlerts.ts); none when left out. */
+  zmanAlerts?: ZmanAlert[];
   now?: Date;
 };
 
@@ -118,7 +122,7 @@ async function scheduleExpo(plan: PlannedNotification[]): Promise<number> {
  * used: it would keep an alarm icon in the status bar all month.
  * Never throws: a failure only means fewer notifications until the next run.
  */
-export async function rescheduleAll({ events, reminders, city, il, now = new Date() }: ScheduleInput): Promise<number> {
+export async function rescheduleAll({ events, reminders, zmanAlerts = [], city, il, now = new Date() }: ScheduleInput): Promise<number> {
   try {
     await cancelScheduled();
     if (!(await notificationsAllowed())) {
@@ -126,7 +130,7 @@ export async function rescheduleAll({ events, reminders, city, il, now = new Dat
       return 0;
     }
     await ensureChannel();
-    const plan = planNotifications({ now, events, reminders, city, il });
+    const plan = planAll({ now, events, reminders, zmanAlerts, city, il });
     let count = 0;
     try {
       count = nativeNotify ? await scheduleNative(plan) : await scheduleExpo(plan);

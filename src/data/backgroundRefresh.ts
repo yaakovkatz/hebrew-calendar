@@ -3,7 +3,7 @@ import { openDatabaseAsync } from 'expo-sqlite';
 import Storage from 'expo-sqlite/kv-store';
 import * as TaskManager from 'expo-task-manager';
 import { queueReschedule } from '@/lib/scheduler';
-import { DATABASE_NAME, listEvents, listReminders, migrateDbIfNeeded } from './db';
+import { DATABASE_NAME, listEvents, listReminders, listZmanAlerts, migrateDbIfNeeded } from './db';
 import { cityFor, parseSettings, SETTINGS_KEY } from './settings';
 
 /*
@@ -17,9 +17,14 @@ export const REFRESH_TASK = 'luach-refresh-notifications';
 export async function refreshFromStorage(): Promise<void> {
   const db = await openDatabaseAsync(DATABASE_NAME);
   await migrateDbIfNeeded(db);
-  const [events, reminders, raw] = await Promise.all([listEvents(db), listReminders(db), Storage.getItem(SETTINGS_KEY)]);
+  const [events, reminders, zmanAlerts, raw] = await Promise.all([
+    listEvents(db),
+    listReminders(db),
+    listZmanAlerts(db),
+    Storage.getItem(SETTINGS_KEY),
+  ]);
   const settings = parseSettings(raw);
-  await queueReschedule({ events, reminders, city: cityFor(settings.cityId), il: settings.il });
+  await queueReschedule({ events, reminders, zmanAlerts, city: cityFor(settings.cityId), il: settings.il });
 }
 
 if (!TaskManager.isTaskDefined(REFRESH_TASK)) {

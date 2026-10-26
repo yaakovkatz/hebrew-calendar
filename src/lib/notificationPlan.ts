@@ -6,7 +6,7 @@ import { alertKey, effectiveAlert, hebrewDateWithB, nextReminderDate, type Remin
 
 // Pure planning only: no expo imports, so everything here runs in Jest (PLAN.md "התראות").
 
-export type PlannedKind = 'event' | 'reminder' | 'shabbat' | 'merged';
+export type PlannedKind = 'event' | 'reminder' | 'shabbat' | 'merged' | 'zman';
 
 export type PlannedNotification = {
   /** Stable and unique, used as the OS notification id. */

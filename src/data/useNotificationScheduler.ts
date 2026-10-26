@@ -18,7 +18,6 @@ export function useNotificationScheduler(): void {
   const { reminders, loaded: remindersLoaded } = useReminders();
   const { alerts: zmanAlerts, loaded: zmanAlertsLoaded } = useZmanAlerts();
   const { city, il, notifyAsked } = useSettings();
-  // `zmanAlerts` rides along for planZmanAlerts (src/lib/zmanimAlerts.ts) in the scheduler.
   const latest = useRef({ events, reminders, zmanAlerts, city, il });
   latest.current = { events, reminders, zmanAlerts, city, il };
   const ready = eventsLoaded && remindersLoaded && zmanAlertsLoaded;
