@@ -70,7 +70,7 @@ describe('cities', () => {
   });
 
   it('uses the local candle-lighting customs', () => {
-    const special: Record<string, number> = { jerusalem: 40, 'petah-tikva': 40, haifa: 30, 'zikhron-yaakov': 30 };
+    const special: Record<string, number> = { jerusalem: 40, haifa: 30, 'zikhron-yaakov': 30 };
     for (const c of CITIES) expect(c.candleLightingMins).toBe(special[c.id] ?? 20);
   });
 

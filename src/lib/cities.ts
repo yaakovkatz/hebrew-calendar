@@ -20,8 +20,8 @@ function city(id: string, name: string, latitude: number, longitude: number, can
 // Candle lighting (checked 26.10.2026):
 // - 20 minutes: the common Israeli custom and hebcal's Israel default.
 // - Jerusalem 40, Haifa 30, Zikhron Ya'akov 30: hebcal's city overrides.
-// - Petah Tikva 40: the old local custom (Ohr Somayach "Ask the Rabbi",
-//   Hamichlol "נרות שבת ויום טוב"). Some households there light 20-30.
+// - Petah Tikva stays at 20 by the user's decision (26.10.2026), though some
+//   sources give an old local custom of 40.
 // No reliable source found for a city-wide custom elsewhere (Bnei Brak, Safed,
 // Beit Shemesh, Beitar Illit, ...), so they stay at 20.
 // Coordinates are city centers, within ~3 km of GeoNames (hebcal's list).
@@ -35,7 +35,7 @@ export const CITIES: City[] = [
   city('ashdod', 'אשדוד', 31.8014, 34.6435),
   city('ashkelon', 'אשקלון', 31.6688, 34.5743),
   city('netanya', 'נתניה', 32.3215, 34.8532),
-  city('petah-tikva', 'פתח תקווה', 32.084, 34.8878, 40),
+  city('petah-tikva', 'פתח תקווה', 32.084, 34.8878),
   city('rishon-lezion', 'ראשון לציון', 31.973, 34.7925),
   city('rehovot', 'רחובות', 31.8928, 34.8113),
   city('holon', 'חולון', 32.0158, 34.7874),
