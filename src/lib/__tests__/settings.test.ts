@@ -1,3 +1,4 @@
+import { Location } from '@hebcal/core';
 import { CITIES, findCity, searchCities } from '../cities';
 import {
   candleLightingLabel,
@@ -68,12 +69,23 @@ describe('cities', () => {
     for (const id of ['jerusalem', 'tel-aviv', 'haifa', 'bnei-brak']) expect(findCity(id)).toBeDefined();
   });
 
-  it('uses the hebcal candle-lighting defaults', () => {
-    expect(findCity('jerusalem')!.candleLightingMins).toBe(40);
-    expect(findCity('haifa')!.candleLightingMins).toBe(30);
-    expect(findCity('zikhron-yaakov')!.candleLightingMins).toBe(30);
-    const others = CITIES.filter((c) => !['jerusalem', 'haifa', 'zikhron-yaakov'].includes(c.id));
-    for (const c of others) expect(c.candleLightingMins).toBe(20);
+  it('uses the local candle-lighting customs', () => {
+    const special: Record<string, number> = { jerusalem: 40, 'petah-tikva': 40, haifa: 30, 'zikhron-yaakov': 30 };
+    for (const c of CITIES) expect(c.candleLightingMins).toBe(special[c.id] ?? 20);
+  });
+
+  it('agrees with hebcal on the cities it knows (within 5 km)', () => {
+    const pairs: [string, string][] = [
+      ['jerusalem', 'Jerusalem'], ['tel-aviv', 'Tel Aviv'], ['haifa', 'Haifa'], ['petah-tikva', 'Petach Tikvah'],
+      ['beer-sheva', 'Beer Sheva'], ['ashdod', 'Ashdod'], ['tiberias', 'Tiberias'], ['eilat', 'Eilat'],
+    ];
+    for (const [id, name] of pairs) {
+      const ours = findCity(id)!;
+      const ref = Location.lookup(name)!;
+      const dLat = (ours.latitude - ref.getLatitude()) * 111;
+      const dLng = (ours.longitude - ref.getLongitude()) * 111 * Math.cos((ours.latitude * Math.PI) / 180);
+      expect(Math.hypot(dLat, dLng)).toBeLessThan(5);
+    }
   });
 
   it('are all in Israel, in Asia/Jerusalem', () => {

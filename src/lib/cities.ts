@@ -6,7 +6,7 @@ export type City = {
   latitude: number;
   longitude: number;
   tzid: string;
-  /** Minutes before sunset. Values must be verified before release (PLAN.md). */
+  /** Minutes before sunset, by local custom (see the note above CITIES). */
   candleLightingMins: number;
 };
 
@@ -17,10 +17,14 @@ function city(id: string, name: string, latitude: number, longitude: number, can
 }
 
 // Israeli cities. Jerusalem stays first: it is the default city and the fallback.
-// Candle lighting follows hebcal's defaults: 20 minutes, Jerusalem 40, Haifa and
-// Zikhron Ya'akov 30.
-// TODO before release: verify every candleLightingMins value (local custom differs,
-// e.g. Bnei Brak, Petah Tikva) and the coordinates against GeoNames (PLAN.md).
+// Candle lighting (checked 26.10.2026):
+// - 20 minutes: the common Israeli custom and hebcal's Israel default.
+// - Jerusalem 40, Haifa 30, Zikhron Ya'akov 30: hebcal's city overrides.
+// - Petah Tikva 40: the old local custom (Ohr Somayach "Ask the Rabbi",
+//   Hamichlol "נרות שבת ויום טוב"). Some households there light 20-30.
+// No reliable source found for a city-wide custom elsewhere (Bnei Brak, Safed,
+// Beit Shemesh, Beitar Illit, ...), so they stay at 20.
+// Coordinates are city centers, within ~3 km of GeoNames (hebcal's list).
 export const CITIES: City[] = [
   city('jerusalem', 'ירושלים', 31.7683, 35.2137, 40),
   city('tel-aviv', 'תל אביב', 32.0853, 34.7818),
@@ -31,7 +35,7 @@ export const CITIES: City[] = [
   city('ashdod', 'אשדוד', 31.8014, 34.6435),
   city('ashkelon', 'אשקלון', 31.6688, 34.5743),
   city('netanya', 'נתניה', 32.3215, 34.8532),
-  city('petah-tikva', 'פתח תקווה', 32.084, 34.8878),
+  city('petah-tikva', 'פתח תקווה', 32.084, 34.8878, 40),
   city('rishon-lezion', 'ראשון לציון', 31.973, 34.7925),
   city('rehovot', 'רחובות', 31.8928, 34.8113),
   city('holon', 'חולון', 32.0158, 34.7874),
