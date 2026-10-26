@@ -185,8 +185,10 @@ export function AddItemScreen({ onClose, initial, defaultKind = 'event' }: Props
   };
 
   const eventThisYear = isEvent ? nextOccurrence(draftEvent, today) : null;
-  const reminderShown = isEvent ? null : nextReminderDate(draftReminder, today);
-  const warning = reminderShown ? dayOffWarning(reminderShown, today, il) : null;
+  // A reminder counts days by the civil date (see defaultItemDate): after sunset today is still today.
+  const reminderToday = defaultItemDate('reminder', now, city);
+  const reminderShown = isEvent ? null : nextReminderDate(draftReminder, reminderToday);
+  const warning = reminderShown ? dayOffWarning(reminderShown, reminderToday, il) : null;
 
   const clearError = () => {
     if (error) setError(null);
