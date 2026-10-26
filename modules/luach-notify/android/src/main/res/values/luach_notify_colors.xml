@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Design ה1 (PLAN.md "ההתראה"). The card background belongs to the system, so only text and line colors. -->
+<resources>
+  <color name="luach_notify_day">#B5651D</color>
+  <color name="luach_notify_month">#9A8B73</color>
+  <color name="luach_notify_divider">#E4DAC6</color>
+  <color name="luach_notify_title">#2B2118</color>
+  <color name="luach_notify_body">#6B5E4B</color>
+</resources>

@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Design ה1, collapsed. RTL: the first child (the date stub) is on the right. -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+  android:layout_width="match_parent"
+  android:layout_height="wrap_content"
+  android:gravity="center_vertical"
+  android:layoutDirection="rtl"
+  android:orientation="horizontal">
+
+  <LinearLayout
+    android:id="@+id/luach_notify_stub"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:gravity="center_horizontal"
+    android:minWidth="36dp"
+    android:orientation="vertical">
+
+    <TextView
+      android:id="@+id/luach_notify_day"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:fontFamily="serif"
+      android:includeFontPadding="false"
+      android:maxLines="1"
+      android:textColor="@color/luach_notify_day"
+      android:textSize="20sp" />
+
+    <TextView
+      android:id="@+id/luach_notify_month"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:fontFamily="sans-serif"
+      android:includeFontPadding="false"
+      android:maxLines="1"
+      android:textColor="@color/luach_notify_month"
+      android:textSize="10sp" />
+  </LinearLayout>
+
+  <FrameLayout
+    android:id="@+id/luach_notify_divider"
+    android:layout_width="1dp"
+    android:layout_height="34dp"
+    android:layout_marginStart="10dp"
+    android:layout_marginEnd="10dp"
+    android:background="@color/luach_notify_divider" />
+
+  <LinearLayout
+    android:layout_width="0dp"
+    android:layout_height="wrap_content"
+    android:layout_weight="1"
+    android:orientation="vertical">
+
+    <TextView
+      android:id="@+id/luach_notify_title"
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      android:ellipsize="end"
+      android:fontFamily="serif"
+      android:includeFontPadding="false"
+      android:maxLines="1"
+      android:textAlignment="viewStart"
+      android:textColor="@color/luach_notify_title"
+      android:textDirection="rtl"
+      android:textSize="15sp" />
+
+    <TextView
+      android:id="@+id/luach_notify_body"
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      android:layout_marginTop="3dp"
+      android:ellipsize="end"
+      android:fontFamily="sans-serif"
+      android:includeFontPadding="false"
+      android:maxLines="1"
+      android:textAlignment="viewStart"
+      android:textColor="@color/luach_notify_body"
+      android:textDirection="rtl"
+      android:textSize="11sp" />
+  </LinearLayout>
+</LinearLayout>

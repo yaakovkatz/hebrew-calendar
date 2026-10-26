@@ -1,6 +1,6 @@
 import { CandleLightingEvent, HavdalahEvent, HDate, HebrewCalendar, Location, Zmanim, flags } from '@hebcal/core';
 import { City, toLocation } from './cities';
-import { headline, nextOccurrence, yearsLabel, type FamilyEvent } from './events';
+import { headline, nextOccurrence, shortHebrewDate, yearsLabel, type FamilyEvent } from './events';
 import { formatTime, hebrewDateAt, parshaOfWeek } from './hebrewDay';
 import { alertKey, effectiveAlert, hebrewDateWithB, nextReminderDate, type Reminder } from './reminders';
 
@@ -15,7 +15,19 @@ export type PlannedNotification = {
   title: string;
   body: string;
   kind: PlannedKind;
+  /** The Hebrew date beside the text in the notification (PLAN.md "ההתראה", design ה1). */
+  stub?: NotificationStub;
 };
+
+/** 'ט״ו' over 'חשוון'. */
+export type NotificationStub = { day: string; month: string };
+
+/** The date stub of a notification: the day with geresh or gershayim, and the month name. */
+export function stubFor(date: HDate): NotificationStub {
+  const full = shortHebrewDate(date);
+  const space = full.indexOf(' ');
+  return { day: full.slice(0, space), month: full.slice(space + 1) };
+}
 
 export type PlanInput = {
   now: Date;
@@ -163,6 +175,7 @@ function eventCandidates(events: FamilyEvent[], today: HDate, city: City): Plann
       title: headline(event),
       body,
       kind: 'event',
+      stub: stubFor(date),
     });
   }
   return out;
@@ -187,6 +200,7 @@ function reminderCandidates(reminders: Reminder[], today: HDate, city: City): Pl
       title: rem.title,
       body,
       kind: 'reminder',
+      stub: stubFor(date),
     });
   }
   return out;
@@ -199,10 +213,19 @@ function shabbatCandidates(periods: RestPeriod[], city: City): PlannedNotificati
     title: p.name,
     body: `הדלקת נרות היום ב-${formatTime(p.candles, city.tzid)}`,
     kind: 'shabbat' as const,
+    // The day of candle lighting, the "today" of the body; candles are before sunset.
+    stub: stubFor(hebrewDateAt(p.candles, city)),
   }));
 }
 
 // ---------------------------------------------------------------- the plan
+
+/** The items' date when they all share one, otherwise the Hebrew date when the merged notification shows. */
+function mergedStub(items: PlannedNotification[], at: Date, city: City): NotificationStub {
+  const [first] = items;
+  const same = items.every((i) => i.stub && first.stub && i.stub.day === first.stub.day && i.stub.month === first.stub.month);
+  return same && first.stub ? first.stub : stubFor(hebrewDateAt(at, city));
+}
 
 /**
  * Everything to schedule for the coming `horizonDays`, soonest first (PLAN.md "התראות"):
@@ -258,6 +281,7 @@ export function planNotifications({
       title: period.isChag ? 'לפני החג' : 'לפני שבת',
       body: items.map((i) => i.title).join(' · '),
       kind: 'merged',
+      stub: mergedStub(items, new Date(at), city),
     });
   }
 
