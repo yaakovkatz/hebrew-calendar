@@ -3,16 +3,16 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Svg, { Path } from 'react-native-svg';
 import { fonts, usePalette } from '@/theme/tokens';
 
-export type TabId = 'calendar' | 'family' | 'reminders' | 'settings';
+export type TabId = 'calendar' | 'zmanim' | 'family' | 'settings';
 
 export const TABS: { id: TabId; title: string; icon: string }[] = [
   { id: 'calendar', title: 'לוח', icon: 'M4 6h16v14H4zM4 10h16M9 3v4M15 3v4' },
+  { id: 'zmanim', title: 'זמנים', icon: 'M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18zM12 7v5l3 2' },
   {
     id: 'family',
     title: 'אירועים',
     icon: 'M8 11a3 3 0 1 0 0-6 3 3 0 0 0 0 6zM16 11a3 3 0 1 0 0-6 3 3 0 0 0 0 6zM2 20c0-3 3-5 6-5s6 2 6 5M14 15c3 0 8 1 8 5',
   },
-  { id: 'reminders', title: 'תזכורות', icon: 'M12 22a2 2 0 0 0 2-2h-4a2 2 0 0 0 2 2zM18 16V11a6 6 0 0 0-12 0v5l-2 2h16z' },
   {
     id: 'settings',
     title: 'הגדרות',

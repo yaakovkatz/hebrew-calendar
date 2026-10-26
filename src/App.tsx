@@ -9,19 +9,18 @@ import { EventsProvider, useEvents } from '@/data/useEvents';
 import { RemindersProvider, useReminders } from '@/data/useReminders';
 import { SettingsProvider, useSettings } from '@/data/useSettings';
 import { AboutScreen } from '@/screens/AboutScreen';
-import { AddEventScreen } from '@/screens/AddEventScreen';
+import { AddItemScreen } from '@/screens/AddItemScreen';
 import { CalendarScreen } from '@/screens/CalendarScreen';
 import { ContactScreen } from '@/screens/ContactScreen';
 import { EventDetailsScreen } from '@/screens/EventDetailsScreen';
-import { EventsScreen } from '@/screens/EventsScreen';
+import { EventsListScreen } from '@/screens/EventsListScreen';
 import { LicensesScreen } from '@/screens/LicensesScreen';
 import { OnboardingScreen } from '@/screens/OnboardingScreen';
-import { AddReminderScreen } from '@/screens/AddReminderScreen';
 import { ReminderDetailsScreen } from '@/screens/ReminderDetailsScreen';
-import { RemindersScreen } from '@/screens/RemindersScreen';
 import { SettingsScreen } from '@/screens/SettingsScreen';
 import { BatteryHelpScreen } from '@/screens/BatteryHelpScreen';
 import { PrintScreen } from '@/screens/PrintScreen';
+import { ZmanimScreen } from '@/screens/ZmanimScreen';
 import { NotifyPrompt, useNotifyPrompt } from '@/components/NotifyPrompt';
 import { useNotificationScheduler } from '@/data/useNotificationScheduler';
 import { usePalette } from '@/theme/tokens';
@@ -33,19 +32,18 @@ type ScreenProps = {
   onOpenAbout: () => void;
   onOpenPrint: () => void;
   onOpenBatteryHelp: () => void;
-  onAddReminder: () => void;
   onOpenReminder: (id: number) => void;
 };
 
 function Screen(props: ScreenProps) {
-  const { tab, onAddEvent, onOpenEvent, onOpenAbout, onAddReminder, onOpenReminder } = props;
+  const { tab, onAddEvent, onOpenEvent, onOpenAbout, onOpenReminder } = props;
   switch (tab) {
     case 'calendar':
       return <CalendarScreen onAddEvent={onAddEvent} onOpenEvent={onOpenEvent} onOpenReminder={onOpenReminder} />;
+    case 'zmanim':
+      return <ZmanimScreen />;
     case 'family':
-      return <EventsScreen onAdd={onAddEvent} onOpen={onOpenEvent} />;
-    case 'reminders':
-      return <RemindersScreen onAdd={onAddReminder} onOpen={onOpenReminder} />;
+      return <EventsListScreen onAdd={onAddEvent} onOpenEvent={onOpenEvent} onOpenReminder={onOpenReminder} />;
     case 'settings':
       return <SettingsScreen onOpenAbout={onOpenAbout} onOpenPrint={props.onOpenPrint} onOpenBatteryHelp={props.onOpenBatteryHelp} />;
   }
@@ -61,7 +59,6 @@ function Main() {
   const { events } = useEvents();
   const { onboarded } = useSettings();
   const { reminders } = useReminders();
-  const [addingReminder, setAddingReminder] = useState(false);
   const [openReminderId, setOpenReminderId] = useState<number | null>(null);
   const [editingReminder, setEditingReminder] = useState(false);
   const editingReminderItem = editingReminder ? reminders.find((r) => r.id === openReminderId) : undefined;
@@ -72,7 +69,7 @@ function Main() {
   const [overlay, setOverlay] = useState<Overlay>(null);
   const editingEvent = editing ? events.find((e) => e.id === openId) : undefined;
   useNotificationScheduler();
-  const prompt = useNotifyPrompt(!adding && !editing && !addingReminder && !editingReminder);
+  const prompt = useNotifyPrompt(!adding && !editing && !editingReminder);
   const statusBar = <StatusBar style={scheme === 'dark' ? 'light' : 'dark'} />;
 
   if (!onboarded) {
@@ -94,7 +91,6 @@ function Main() {
           onOpenAbout={() => setOverlay('about')}
           onOpenPrint={() => setOverlay('print')}
           onOpenBatteryHelp={() => setOverlay('battery')}
-          onAddReminder={() => setAddingReminder(true)}
           onOpenReminder={setOpenReminderId}
         />
       </View>
@@ -102,8 +98,10 @@ function Main() {
       {openId !== null ? (
         <EventDetailsScreen eventId={openId} onBack={() => setOpenId(null)} onEdit={() => setEditing(true)} />
       ) : null}
-      {adding ? <AddEventScreen onClose={() => setAdding(false)} /> : null}
-      {editingEvent ? <AddEventScreen initial={editingEvent} onClose={() => setEditing(false)} /> : null}
+      {adding ? <AddItemScreen onClose={() => setAdding(false)} /> : null}
+      {editingEvent ? (
+        <AddItemScreen initial={{ kind: 'event', event: editingEvent }} onClose={() => setEditing(false)} />
+      ) : null}
       {openReminderId !== null ? (
         <ReminderDetailsScreen
           reminderId={openReminderId}
@@ -111,9 +109,11 @@ function Main() {
           onEdit={() => setEditingReminder(true)}
         />
       ) : null}
-      {addingReminder ? <AddReminderScreen onClose={() => setAddingReminder(false)} /> : null}
       {editingReminderItem ? (
-        <AddReminderScreen initial={editingReminderItem} onClose={() => setEditingReminder(false)} />
+        <AddItemScreen
+          initial={{ kind: 'reminder', reminder: editingReminderItem }}
+          onClose={() => setEditingReminder(false)}
+        />
       ) : null}
       {/* Licenses and contact sit on top of About, so "back" returns to it. */}
       {overlay === 'about' || overlay === 'licenses' || overlay === 'contact' ? (
