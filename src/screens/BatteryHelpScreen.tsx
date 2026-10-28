@@ -2,6 +2,7 @@ import { Linking, Pressable, ScrollView, StyleSheet, Text, View } from 'react-na
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { noOrphan } from '@/lib/text';
 import { fonts, usePalette } from '@/theme/tokens';
+import { TopButton } from '@/components/TopButton';
 
 // Short steps; menu names differ a little between phone versions.
 const SECTIONS: { title: string; steps: string[] }[] = [
@@ -26,9 +27,9 @@ export function BatteryHelpScreen({ onBack }: { onBack: () => void }) {
 
   return (
     <View style={[styles.screen, { backgroundColor: palette.paper, paddingTop: insets.top + 12 }]}>
-      <Pressable onPress={onBack} accessibilityRole="button" hitSlop={12} style={styles.back}>
-        <Text style={[styles.backText, { color: palette.muted }]}>‹ הגדרות</Text>
-      </Pressable>
+      <View style={styles.back}>
+        <TopButton label="‹ הגדרות" onPress={onBack} />
+      </View>
 
       <ScrollView contentContainerStyle={[styles.body, { paddingBottom: insets.bottom + 24 }]}>
         <Text style={[styles.title, { color: palette.ink }]}>התראות בזמן</Text>
@@ -64,7 +65,6 @@ export function BatteryHelpScreen({ onBack }: { onBack: () => void }) {
 const styles = StyleSheet.create({
   screen: { position: 'absolute', top: 0, right: 0, bottom: 0, left: 0 },
   back: { paddingHorizontal: 24 },
-  backText: { fontFamily: fonts.sans, fontSize: 15 },
   body: { paddingHorizontal: 24, paddingTop: 22 },
   title: { fontFamily: fonts.serif, fontSize: 36, lineHeight: 44 },
   intro: { fontFamily: fonts.sans, fontSize: 14, lineHeight: 21, marginTop: 8 },

@@ -4,6 +4,20 @@ import { hebrewMonthName, yearLabel } from './month';
 /** `hint`: a short grey text at the row's end (e.g. the event types sheet). */
 export type Option<T> = { value: T; label: string; hint?: string };
 
+/** Rows a picker sheet shows without scrolling. */
+export const SHEET_VISIBLE_ROWS = 7;
+
+/**
+ * Where a picker list opens: at the selected row in a long list (days, years), at the top of a
+ * short one. Opening a short list mid-way rendered only the rows from the selected one on, so the
+ * sheet shrank to 2-3 rows (phone test 28.10.2026).
+ */
+export function sheetStartIndex<T>(options: Option<T>[], selected: T): number | undefined {
+  if (options.length <= SHEET_VISIBLE_ROWS) return undefined;
+  const i = options.findIndex((o) => o.value === selected);
+  return i > 0 ? i : undefined;
+}
+
 /** Hebrew months in calendar order (Tishrei first), with Adar I and II in a leap year. */
 export function hebrewMonthOptions(year: number): Option<number>[] {
   const count = HDate.monthsInYear(year);

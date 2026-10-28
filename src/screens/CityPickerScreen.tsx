@@ -4,6 +4,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useSettings } from '@/data/useSettings';
 import { searchCities, type City } from '@/lib/cities';
 import { fonts, usePalette } from '@/theme/tokens';
+import { TopButton } from '@/components/TopButton';
 
 type Props = {
   /** Cancel / Android back. Also called after a pick when `onPick` is not given. */
@@ -41,9 +42,7 @@ export function CityPickerScreen({ onClose, onPick, stepLabel, closeLabel = '×‘×
   return (
     <View style={[styles.screen, { backgroundColor: palette.paper, paddingTop: insets.top + 12 }]}>
       <View style={styles.topBar}>
-        <Pressable onPress={onClose} accessibilityRole="button" hitSlop={12}>
-          <Text style={[styles.topText, { color: palette.muted }]}>{closeLabel}</Text>
-        </Pressable>
+        <TopButton label={closeLabel} onPress={onClose} />
       </View>
 
       <View style={styles.head}>
@@ -91,7 +90,6 @@ export function CityPickerScreen({ onClose, onPick, stepLabel, closeLabel = '×‘×
 const styles = StyleSheet.create({
   screen: { position: 'absolute', top: 0, right: 0, bottom: 0, left: 0 },
   topBar: { flexDirection: 'row', justifyContent: 'space-between', paddingHorizontal: 24 },
-  topText: { fontFamily: fonts.sans, fontSize: 15 },
   head: { paddingHorizontal: 24 },
   step: { fontFamily: fonts.sans, fontSize: 12, marginTop: 18 },
   big: { fontFamily: fonts.serif, fontSize: 36, lineHeight: 44, marginTop: 6 },

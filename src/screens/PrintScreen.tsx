@@ -12,6 +12,7 @@ import { hebrewMonthName, yearLabel } from '@/lib/month';
 import { A4_POINTS, buildCalendarHtml, PRINT_ERROR, type PrintInclude, type PrintScope } from '@/lib/printCalendar';
 import { loadPrintFonts } from '@/lib/printFonts';
 import { fonts, usePalette } from '@/theme/tokens';
+import { TopButton } from '@/components/TopButton';
 
 const CHECKS: { key: keyof PrintInclude; label: string }[] = [
   { key: 'holidays', label: 'חגים ומועדים' },
@@ -135,9 +136,9 @@ export function PrintScreen({ onBack }: { onBack: () => void }) {
 
   return (
     <View style={[styles.screen, { backgroundColor: palette.paper, paddingTop: insets.top + 12 }]}>
-      <Pressable onPress={onBack} accessibilityRole="button" hitSlop={12} style={styles.back}>
-        <Text style={[styles.backText, { color: palette.muted }]}>‹ הגדרות</Text>
-      </Pressable>
+      <View style={styles.back}>
+        <TopButton label="‹ הגדרות" onPress={onBack} />
+      </View>
 
       <ScrollView contentContainerStyle={styles.body} keyboardShouldPersistTaps="handled">
         <Text style={[styles.big, { color: palette.ink }]}>לוח קיר</Text>
@@ -252,7 +253,6 @@ export function PrintScreen({ onBack }: { onBack: () => void }) {
 const styles = StyleSheet.create({
   screen: { position: 'absolute', top: 0, right: 0, bottom: 0, left: 0 },
   back: { paddingHorizontal: 24 },
-  backText: { fontFamily: fonts.sans, fontSize: 15 },
   body: { paddingHorizontal: 24, paddingTop: 22, paddingBottom: 24 },
   big: { fontFamily: fonts.serif, fontSize: 36, lineHeight: 44 },
   sub: { fontFamily: fonts.sans, fontSize: 14, marginTop: 2 },

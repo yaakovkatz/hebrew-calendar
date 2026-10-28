@@ -1,6 +1,6 @@
 import { FlatList, Modal, Pressable, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import type { Option } from '@/lib/datePicking';
+import { sheetStartIndex, type Option } from '@/lib/datePicking';
 import { fonts, usePalette } from '@/theme/tokens';
 
 type Props<T> = {
@@ -16,7 +16,7 @@ type Props<T> = {
 export function OptionSheet<T>({ visible, title, options, selected, onSelect, onClose }: Props<T>) {
   const palette = usePalette();
   const insets = useSafeAreaInsets();
-  const initialIndex = Math.max(0, options.findIndex((o) => o.value === selected));
+  const initialIndex = sheetStartIndex(options, selected);
   return (
     <Modal visible={visible} transparent statusBarTranslucent navigationBarTranslucent animationType="slide" onRequestClose={onClose}>
       <Pressable style={styles.backdrop} onPress={onClose} accessibilityLabel="סגירה" />

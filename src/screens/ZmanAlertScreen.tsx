@@ -9,6 +9,7 @@ import { useNow } from '@/lib/useNow';
 import { DEFAULT_ZMAN_MINUTES, nextAlertsLine, ZMAN_ALERT_ERROR, ZMAN_OPTIONS, zmanAlertWhen } from '@/lib/zmanimAlerts';
 import { ZMAN_LABEL, type ZmanKey } from '@/lib/zmanimFull';
 import { fonts, usePalette } from '@/theme/tokens';
+import { TopButton } from '@/components/TopButton';
 
 type Props = { onBack: () => void };
 
@@ -52,9 +53,9 @@ export function ZmanAlertScreen({ onBack }: Props) {
 
   return (
     <View style={[styles.screen, { backgroundColor: palette.paper, paddingTop: insets.top + 12 }]}>
-      <Pressable onPress={onBack} accessibilityRole="button" hitSlop={12} style={styles.back}>
-        <Text style={[styles.backText, { color: palette.muted }]}>‹ זמנים</Text>
-      </Pressable>
+      <View style={styles.back}>
+        <TopButton label="‹ זמנים" onPress={onBack} />
+      </View>
 
       <ScrollView style={{ flex: 1 }} contentContainerStyle={styles.body}>
         <Text style={[styles.title, { color: palette.ink }]}>התראה יומית</Text>
@@ -108,7 +109,6 @@ export function ZmanAlertScreen({ onBack }: Props) {
 const styles = StyleSheet.create({
   screen: { position: 'absolute', top: 0, right: 0, bottom: 0, left: 0 },
   back: { paddingHorizontal: 24 },
-  backText: { fontFamily: fonts.sans, fontSize: 15 },
   body: { paddingHorizontal: 24, paddingTop: 18, paddingBottom: 40 },
   title: { fontFamily: fonts.serif, fontSize: 36, lineHeight: 44 },
   subtitle: { fontFamily: fonts.sans, fontSize: 13, marginTop: 4 },

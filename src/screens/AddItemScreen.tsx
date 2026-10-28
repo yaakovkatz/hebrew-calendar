@@ -52,6 +52,7 @@ import {
   type RepeatKind,
 } from '@/lib/reminders';
 import { fonts, usePalette } from '@/theme/tokens';
+import { TopButton } from '@/components/TopButton';
 
 export type ItemKind = 'event' | 'reminder';
 export type AddItemInitial = { kind: 'event'; event: FamilyEvent } | { kind: 'reminder'; reminder: Reminder };
@@ -363,9 +364,7 @@ export function AddItemScreen({ onClose, initial, defaultKind = 'event' }: Props
   return (
     <View style={[styles.screen, { backgroundColor: palette.paper, paddingTop: insets.top + 12 }]}>
       <View style={styles.topBar}>
-        <Pressable onPress={onClose} accessibilityRole="button" hitSlop={12}>
-          <Text style={[styles.topText, { color: palette.muted }]}>ביטול</Text>
-        </Pressable>
+        <TopButton label="ביטול" onPress={onClose} />
       </View>
 
       <ScrollView style={{ flex: 1 }} contentContainerStyle={styles.body} keyboardShouldPersistTaps="handled">
@@ -530,7 +529,6 @@ const styles = StyleSheet.create({
   saveBar: { paddingHorizontal: 24, paddingTop: 8 },
   saveButton: { alignItems: 'center', paddingVertical: 14, borderRadius: 26 },
   saveText: { fontFamily: fonts.sans, fontSize: 16 },
-  topText: { fontFamily: fonts.sans, fontSize: 15 },
   body: { paddingHorizontal: 24, paddingBottom: 40 },
   big: { fontFamily: fonts.serif, fontSize: 36, lineHeight: 44, marginTop: 18 },
   note: { fontFamily: fonts.sans, fontSize: 12, marginTop: 6 },

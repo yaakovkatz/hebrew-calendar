@@ -1,5 +1,13 @@
 import { months } from '@hebcal/core';
-import { clampHebrew, formatHebrewFull, hebrewDayOptions, hebrewMonthOptions, hebrewYearOptions } from '../datePicking';
+import {
+  SHEET_VISIBLE_ROWS,
+  clampHebrew,
+  formatHebrewFull,
+  hebrewDayOptions,
+  hebrewMonthOptions,
+  hebrewYearOptions,
+  sheetStartIndex,
+} from '../datePicking';
 
 describe('hebrewMonthOptions', () => {
   it('starts with Tishrei and has 13 months in a leap year', () => {
@@ -37,5 +45,23 @@ describe('clampHebrew', () => {
 describe('formatHebrewFull', () => {
   it('writes the full Hebrew date', () => {
     expect(formatHebrewFull(2, months.SHVAT, 5778)).toBe('ב׳ בשבט תשע״ח');
+  });
+});
+
+describe('sheetStartIndex', () => {
+  const opts = (n: number) => Array.from({ length: n }, (_, i) => ({ value: i, label: String(i) }));
+
+  it('opens a short list at the top, whatever is selected', () => {
+    expect(sheetStartIndex(opts(6), 4)).toBeUndefined();
+    expect(sheetStartIndex(opts(SHEET_VISIBLE_ROWS), SHEET_VISIBLE_ROWS - 1)).toBeUndefined();
+  });
+
+  it('opens a long list at the selected row', () => {
+    expect(sheetStartIndex(opts(30), 14)).toBe(14);
+  });
+
+  it('opens at the top when the first row or nothing is selected', () => {
+    expect(sheetStartIndex(opts(30), 0)).toBeUndefined();
+    expect(sheetStartIndex(opts(30), 99)).toBeUndefined();
   });
 });
