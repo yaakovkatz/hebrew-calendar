@@ -44,3 +44,4 @@ yarn-error.*
 # Test builds
 *.apk
 *.aab
+build-out/
