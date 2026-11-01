@@ -1,8 +1,9 @@
 import { useMemo, useRef } from 'react';
 import { PanResponder, Pressable, StyleSheet, Text, View } from 'react-native';
 import type { HDate } from '@hebcal/core';
-import { eventDaysInRange, type FamilyEvent } from '@/lib/events';
-import { reminderDaysInRange, type Reminder } from '@/lib/reminders';
+import { dayItemsInRange, type DayItem } from '@/lib/dayItems';
+import type { FamilyEvent } from '@/lib/events';
+import type { Reminder } from '@/lib/reminders';
 import { buildMonth, WEEKDAYS, type MonthCell } from '@/lib/month';
 import { fonts, usePalette, type Palette } from '@/theme/tokens';
 
@@ -21,7 +22,7 @@ type Props = {
   nextEvent?: { title: string; when: string; date: string } | null;
   onAddEvent?: () => void;
   onOpenNext?: () => void;
-  /** Family dates to mark with an orange dot (setting "הצגת אירועים בלוח", on by default). */
+  /** Family dates and reminders, named inside their cells (setting "הצגת אירועים בלוח", on by default). */
   events?: FamilyEvent[];
   reminders?: Reminder[];
   showEvents?: boolean;
@@ -47,16 +48,10 @@ export function MonthView({
 }: Props) {
   const palette = usePalette();
   const grid = useMemo(() => buildMonth(year, month, today, il), [year, month, today, il]);
-  const eventDays = useMemo(
-    () => {
-      if (!showEvents) return new Set<number>();
-      const first = grid.cells[0].hd;
-      const last = grid.cells[grid.cells.length - 1].hd;
-      // One orange dot per day, for family dates and reminders alike.
-      return new Set([...eventDaysInRange(events, first, last), ...reminderDaysInRange(reminders, first, last)]);
-    },
-    [events, reminders, grid, showEvents],
-  );
+  const dayItems = useMemo(() => {
+    if (!showEvents) return new Map<number, DayItem[]>();
+    return dayItemsInRange(events, reminders, grid.cells[0].hd, grid.cells[grid.cells.length - 1].hd);
+  }, [events, reminders, grid, showEvents]);
 
   const onShiftRef = useRef(onShift);
   onShiftRef.current = onShift;
@@ -96,7 +91,7 @@ export function MonthView({
           <Cell
             key={cell.hd.abs()}
             cell={cell}
-            hasEvent={eventDays.has(cell.hd.abs())}
+            items={dayItems.get(cell.hd.abs()) ?? []}
             palette={palette}
             onPress={() => onSelectDay(cell.hd, cell.holidays)}
           />
@@ -161,17 +156,19 @@ function Ornament({ palette }: { palette: Palette }) {
   );
 }
 
-function Cell({ cell, hasEvent, palette, onPress }: { cell: MonthCell; hasEvent: boolean; palette: Palette; onPress: () => void }) {
+const ITEM_COLOR = { family: 'sun', memorial: 'memorial', reminder: 'remind' } as const;
+
+function Cell({ cell, items, palette, onPress }: { cell: MonthCell; items: DayItem[]; palette: Palette; onPress: () => void }) {
   const color = cell.isShabbat ? palette.red : palette.ink;
-  const note = cell.isShabbat ? cell.parsha : null;
-  const hasHoliday = cell.holidays.length > 0;
-  // One dot per day at most: orange for a family date, otherwise grey for a holiday.
-  const dot = hasEvent ? palette.sun : hasHoliday ? palette.muted : null;
+  const first = items[0];
+  // Approved 01.11.2026 (ג+): the first name, up to two lines; on Shabbat it takes the parsha's place.
+  const note = first ? null : cell.isShabbat ? cell.parsha : null;
+  const holidayDot = !first && !note && cell.holidays.length > 0;
   return (
     <Pressable
       onPress={onPress}
       accessibilityRole="button"
-      accessibilityLabel={`${cell.hd.renderGematriya(true, true)}${cell.holidays.length ? ', ' + cell.holidays.join(', ') : ''}`}
+      accessibilityLabel={[cell.hd.renderGematriya(true, true), ...cell.holidays, ...items.map((i) => i.title)].join(', ')}
       style={[
         styles.cell,
         { borderBottomColor: palette.lineSoft, opacity: cell.inMonth ? 1 : 0.3 },
@@ -185,7 +182,13 @@ function Cell({ cell, hasEvent, palette, onPress }: { cell: MonthCell; hasEvent:
           {note}
         </Text>
       ) : null}
-      {dot && (!note || hasEvent) ? <View style={[styles.dot, { backgroundColor: dot }]} /> : null}
+      {first ? (
+        <Text numberOfLines={items.length > 1 ? 1 : 2} style={[styles.item, { color: palette[ITEM_COLOR[first.kind]] }]}>
+          {first.title}
+        </Text>
+      ) : null}
+      {items.length > 1 ? <Text style={[styles.more, { color: palette.muted }]}>+{items.length - 1}</Text> : null}
+      {holidayDot ? <View style={[styles.dot, { backgroundColor: palette.muted }]} /> : null}
     </Pressable>
   );
 }
@@ -200,12 +203,14 @@ const styles = StyleSheet.create({
   ornament: { flexDirection: 'row', alignItems: 'center', gap: 8, marginHorizontal: 14, marginBottom: 2 },
   rule: { flex: 1, height: 1 },
   grid: { flexDirection: 'row', flexWrap: 'wrap', marginHorizontal: 14 },
-  cell: { width: `${100 / 7}%`, height: 52, borderBottomWidth: 1, alignItems: 'center', paddingTop: 8 },
+  cell: { width: `${100 / 7}%`, height: 60, borderBottomWidth: 1, alignItems: 'center', paddingTop: 8 },
   // `end` is the left side in RTL, where the wall calendar puts the Gregorian day.
   gregDay: { position: 'absolute', top: 3, end: 4, fontFamily: fonts.sans, fontSize: 10 },
   day: { fontFamily: fonts.serif, fontSize: 19, lineHeight: 24 },
   note: { fontFamily: fonts.serif, fontSize: 9.5, lineHeight: 11 },
   dot: { width: 4, height: 4, borderRadius: 2, marginTop: 3 },
+  item: { fontFamily: fonts.sans, fontSize: 9, lineHeight: 10.5, textAlign: 'center', paddingHorizontal: 2 },
+  more: { fontFamily: fonts.sans, fontSize: 8, lineHeight: 9 },
   footer: { alignItems: 'center', paddingTop: 18 },
   footerLabel: { fontFamily: fonts.sans, fontSize: 12 },
   footerParsha: { fontFamily: fonts.serif, fontSize: 28, lineHeight: 34 },

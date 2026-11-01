@@ -11,6 +11,9 @@ const light = {
   today: '#EADFC8',
   red: '#A32D2D',
   sun: '#B5651D',
+  // Names in the month grid: reminders blue, memorials purple (family dates use sun).
+  remind: '#3F6E9E',
+  memorial: '#765A9C',
 };
 
 const dark: typeof light = {
@@ -23,6 +26,8 @@ const dark: typeof light = {
   today: '#2C261D',
   red: '#E8806F',
   sun: '#EF9F27',
+  remind: '#8DB4DE',
+  memorial: '#B9A3D9',
 };
 
 export type Palette = typeof light;
