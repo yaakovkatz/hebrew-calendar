@@ -1,11 +1,12 @@
 # רשימת משימות ב-Play Console (חשבון אישי חדש)
 
 ## לפני הכל
-- [ ] חשבון מפתח אישי (25$) ואימות זהות
-- [ ] מדיניות פרטיות באוויר (GitHub Pages), ולהחליף את "[כתובת ליצירת קשר]"
+- [x] חשבון מפתח אישי (25$) ואימות זהות
+- [x] מדיניות פרטיות באוויר (GitHub Pages), ולהחליף את "[כתובת ליצירת קשר]"
 - [ ] כתובת Formspree ב-`FORM_ENDPOINT`
 
 ## בדיקה סגורה (חובה לחשבון אישי חדש)
+- 01.11.2026: נשלח לבדיקה של Google. מסלול Alpha, גרסה 4 (1.0.0), ישראל, רשימה "בודקים – חברים" (4 בודקים, צריך 12+)
 - [ ] לפחות **12 בודקים** ברשימה, שכל אחד מהם **הצטרף (opt-in)** לבדיקה
 - [ ] **14 ימים ברצף** שבהם 12 בודקים לפחות רשומים
 - [ ] מי שיוצא וחוזר: הספירה שלו מתחילה מחדש
@@ -13,23 +14,23 @@
 - נבדק מול העמוד של גוגל (support.google.com, answer 14151465) ב-26.10.2026
 
 ## הגדרות האפליקציה (App content)
-- [ ] Privacy policy: הקישור
-- [ ] App access: "All functionality is available without special access" (אין התחברות)
-- [ ] Ads: אין פרסומות
-- [ ] Content rating: למלא שאלון (IARC). אין אלימות, הימורים, תוכן משתמשים משותף או רכישות. צפוי: לכל הגילאים
-- [ ] Target audience: לבחור קבוצות גיל. אם נבחר גיל מתחת ל-13, חלים כללי Families. **המלצה: 18+** או 13+ (לא לילדים)
-- [ ] Data safety: לפי `docs/store/data-safety.md`
-- [ ] Exact alarms: הצהרה על `USE_EXACT_ALARM`, כאפליקציית לוח עם תזכורות. אם נדחה: התראות "בערך בזמן"
-- [ ] Government apps / Financial / Health: לא
-- [ ] קטגוריה: Productivity (או Lifestyle)
+- [x] Privacy policy: הקישור
+- [x] App access: "All functionality is available without special access" (אין התחברות)
+- [x] Ads: אין פרסומות
+- [x] Content rating: למלא שאלון (IARC). אין אלימות, הימורים, תוכן משתמשים משותף או רכישות. צפוי: לכל הגילאים
+- [x] Target audience: לבחור קבוצות גיל. אם נבחר גיל מתחת ל-13, חלים כללי Families. **המלצה: 18+** או 13+ (לא לילדים)
+- [x] Data safety: לפי `docs/store/data-safety.md`
+- [x] Exact alarms: הצהרה על `USE_EXACT_ALARM`, כאפליקציית לוח עם תזכורות. אם נדחה: התראות "בערך בזמן"
+- [x] Government apps / Financial / Health: לא
+- [x] קטגוריה: Productivity (או Lifestyle)
 
 ## גרפיקה
-- [ ] אייקון 512×512 (PNG, 32-bit)
-- [ ] תמונה ראשית (Feature graphic) 1024×500
-- [ ] צילומי מסך טלפון: לפחות 2 (מומלץ 4–8): חודש, יום, זמנים, אירועים, ווידג'טים, לוח קיר
-- [ ] שם, תיאור קצר ומלא: `docs/store/listing.md`
+- [x] אייקון 512×512 (PNG, 32-bit)
+- [x] תמונה ראשית (Feature graphic) 1024×500
+- [x] צילומי מסך טלפון: לפחות 2 (מומלץ 4–8): חודש, יום, זמנים, אירועים, ווידג'טים, לוח קיר
+- [x] שם, תיאור קצר ומלא: `docs/store/listing.md`
 
 ## שחרור
-- [ ] בנייה ב-EAS (AAB), targetSdk 36
+- [x] בנייה ב-EAS (AAB), targetSdk 36
 - [ ] העלאה למסלול Closed testing, ולשלוח לבודקים את קישור ההצטרפות
 - [ ] אחרי 14 יום ואישור: Production
