@@ -118,7 +118,7 @@ figcaption{font-size:13px;color:var(--muted)}
 </style><section><h2>מסך פתיחה, גרסה 2 <span style="font-size:14px;color:var(--red);font-family:var(--sans)">לבחירה</span></h2><p>"לוח יהודי" באמצע, "לוח עברי" קטן למטה, ועיטור קטן לבחירה. מופיע פחות משנייה</p><div class="row" id="splash2"></div></section>
 <section><h2>סבב 2 <span style="font-size:14px;color:var(--red);font-family:var(--sans)">לבחירה</span></h2><p>אייקון קטן להתראות, "בוצע" בתוך ההתראה, ומסך "חדש": מתג או סוג</p><div class="row" id="r2"></div></section>
 <section><h2>כפתורי ביטול וחזרה <span style="font-size:14px;color:var(--red);font-family:var(--sans)">לבחירה</span></h2><p>היום: טקסט אפור קטן. שלוש אפשרויות, במסך "חדש" ובמסך פרטים</p><div class="row" id="btns"></div></section>
-<section><h2>שמות בתוך הלוח <span style="font-size:14px;color:var(--red);font-family:var(--sans)">לבחירה</span></h2><p>היום: נקודה. ב: שם קצר בתוך המשבצת. ב+: גם השם במשבצת, ולמטה רק פרשה וזמני שבת</p><div class="row" id="celltext"></div></section>
+<section><h2>שמות בתוך הלוח <span style="font-size:14px;color:var(--red);font-family:var(--sans)">לבחירה</span></h2><p>ג: השם המלא, קטן, בתוך המשבצת. ד/ה: נקודה בצבע לפי סוג, ולמטה רשימה של החודש עם אותה נקודה</p><div class="row" id="celltext"></div></section>
 <section><h2>יצירת קשר <span style="font-size:14px;color:var(--red);font-family:var(--sans)">לאישור</span></h2><p>טופס בתוך האפליקציה. הכתובת לשליחה תתווסף כשהמייל של החברה יהיה מוכן</p><div class="row" id="contact"></div></section>
 <section><h2>מסך טעינה</h2><p>אושר: שם האפליקציה על נייר, בבהיר ובכהה</p><div class="row" id="splash"></div></section>
 <section><h2>אודות</h2><p>נכנסים מההגדרות. כולל רישיונות, שחובה להציג</p><div class="row" id="about"></div></section>
@@ -499,10 +499,27 @@ const ctShabbat=`<div style="text-align:center;margin-top:10px"><div class="mu" 
  <div class="s" style="display:flex;justify-content:center;gap:22px;margin-top:4px;text-align:center"><div><div class="mu" style="font-size:9px">הדלקת נרות</div><div style="font-family:var(--serif);font-size:19px;color:var(--r)">16:11</div></div><div style="width:1px;background:var(--l1)"></div><div><div class="mu" style="font-size:9px">מוצאי שבת</div><div style="font-family:var(--serif);font-size:19px">17:28</div></div></div>`;
 const ctNext=`<div style="margin:10px 22px 0;padding-top:8px;border-top:1px solid var(--l2);display:flex;justify-content:space-between;align-items:baseline"><div><div class="mu" style="font-size:9px">הבא בתור</div><div style="font-size:13px">יום ההולדת של אשר</div></div><div class="s" style="text-align:left"><div style="color:var(--sun);font-size:12px">10 ימים</div><div class="mu" style="font-size:9px">כ״ו חשוון</div></div></div>`;
 const ctPhone=(mode,foot)=>phone('L',ctHead+`<div class="g" style="grid-template-columns:repeat(7,minmax(0,1fr))">${ctGrid(mode)}</div>`+foot+r2tabs(0),`height:${mode=='dot'?600:640}px`);
+
+// Round 2 (01.11.2026): full name in tiny type, or coloured dots + a month list below.
+const CT2={9:[['תור לרופא','r']],16:[['רופא שיניים','r']],11:[['אסיפת הורים','r'],['ביקור סבתא','r']],26:[['יום ההולדת של אשר','s']],23:[['אזכרה לסבא','y']]};
+const CT2C={r:'#6B8FB5',s:'#C9741F',y:'#8A7BA8'};
+const ct2Grid=(mode)=>{let h='';for(let k=0;k<35;k++){const g=k<=20?11+k:k-20,sat=k%7==6,out=k==0||k>30,heb=k<=30?H[k]:['א','ב','ג','ד'][k-31],par=sat?{6:'נח',13:'לך לך',20:'וירא',27:'חיי שרה',34:'תולדות'}[k]:'',it=CT2[k]||[];
+ let mark='';
+ if(mode=='full'&&it.length) mark=`<span class="s" style="display:block;margin:1px 1px 0;font-size:6.5px;line-height:1.15;color:var(--i2);word-break:break-word">${it[0][0]}</span>${it.length>1?`<span class="s" style="display:block;font-size:6.5px;color:var(--m)">+${it.length-1}</span>`:''}`;
+ if(mode=='dots'&&it.length) mark=`<span style="display:flex;justify-content:center;gap:2px;margin-top:2px">${it.map(x=>`<span style="width:5px;height:5px;border-radius:3px;background:${CT2C[x[1]]}"></span>`).join('')}</span>`;
+ h+=`<div class="c" style="min-width:0;overflow:hidden;height:${mode=='full'?58:44}px;${out?'opacity:.35;':''}${sat?'color:var(--r);':''}${k==16?'background:var(--t);':''}"><i>${g}</i>${heb}${par&&!it.length?`<em>${par}</em>`:''}${mark}</div>`}
+ return h};
+const ct2Row=(c,t,d,w,past)=>`<div style="display:flex;align-items:baseline;gap:8px;padding:5px 0;border-bottom:1px solid var(--l2);${past?'opacity:.45':''}"><span style="width:6px;height:6px;border-radius:3px;background:${c};flex:none;transform:translateY(-1px)"></span><span style="flex:1;font-size:12.5px">${t}</span><span class="s" style="font-size:9.5px;color:var(--m);white-space:nowrap">${d}${w?` · <span style="color:var(--sun)">${w}</span>`:''}</span></div>`;
+const ct2ListAll=`<div style="margin:8px 22px 0"><div class="mu" style="font-size:9px;margin-bottom:2px">החודש</div>
+ ${ct2Row(CT2C.r,'תור לרופא','ט׳ חשוון','',1)}${ct2Row(CT2C.r,'אסיפת הורים','י״א חשוון','',1)}${ct2Row(CT2C.r,'רופא שיניים','היום · 09:00','')}${ct2Row(CT2C.y,'אזכרה לסבא','כ״ג חשוון','בעוד 7')}${ct2Row(CT2C.s,'יום ההולדת של אשר','כ״ו חשוון','בעוד 10')}</div>`;
+const ct2ListNext=`<div style="margin:8px 22px 0"><div class="mu" style="font-size:9px;margin-bottom:2px">הבא בחודש</div>
+ ${ct2Row(CT2C.r,'רופא שיניים','היום · 09:00','')}${ct2Row(CT2C.y,'אזכרה לסבא','כ״ג חשוון','בעוד 7')}${ct2Row(CT2C.s,'יום ההולדת של אשר','כ״ו חשוון','בעוד 10')}</div>`;
+const ct2Shab=`<div class="s" style="display:flex;justify-content:space-between;align-items:baseline;margin:10px 22px 0;padding:7px 12px;background:var(--t);border-radius:10px;font-size:10px"><span><span class="mu">פרשת</span> <span style="font-family:var(--serif);font-size:14px">וירא</span></span><span>נרות <span style="color:var(--r);font-family:var(--serif);font-size:14px">16:11</span> · צאת <span style="font-family:var(--serif);font-size:14px">17:28</span></span></div>`;
+const ct2Phone=(mode,foot,hgt)=>phone('L',ctHead+`<div class="g" style="grid-template-columns:repeat(7,minmax(0,1fr))">${ct2Grid(mode)}</div>`+foot+r2tabs(0),`height:${hgt}px`);
 document.getElementById('celltext').innerHTML=
- fig('היום · נקודה',ctPhone('dot',ctShabbat+ctNext))+
- fig('ב · שם במשבצת',ctPhone('text',ctShabbat+ctNext))+
- fig('ב+ · שם במשבצת, למטה רק שבת',ctPhone('text',ctShabbat));
+ fig('ג · שם מלא, קטן',ct2Phone('full',ctShabbat,660))+
+ fig('ד · נקודות צבע + כל החודש',ct2Phone('dots',ct2Shab+ct2ListAll,640))+
+ fig('ה · נקודות צבע + רק מה שנשאר',ct2Phone('dots',ct2Shab+ct2ListNext,600));
 document.getElementById('contact').innerHTML=
   fig('יצירת קשר',phone('L',`<div class="pad" style="padding-top:24px"><div class="mu s" style="font-size:13px">‹ אודות</div>
    <div class="big" style="font-size:28px;margin-top:16px">יצירת קשר</div>
